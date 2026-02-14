@@ -49,7 +49,7 @@ fi
 
 if [ "${RUN_MIGRATIONS}" = "true" ] && [ -f artisan ]; then
   php artisan optimize:clear || true
-  php artisan migrate --force || true
+  php artisan migrate --force
 fi
 
 apache2ctl -t

@@ -21,3 +21,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\manage-codex-con
 - Quando exceder o limite, remover entradas mais antigas automaticamente.
 - Manter resumos curtos e objetivos para reduzir consumo de contexto.
 
+## Regras Laravel + Docker
+
+- Sempre criar migration para qualquer nova tabela ou alteracao de esquema.
+- Em ambiente Docker Compose, executar migrations apos subir MySQL/app (automatico no startup e manual quando necessario).
+- Nao alterar a configuracao original do projeto para uso local sem Docker; manter compatibilidade com `php artisan` local.
+

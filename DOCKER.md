@@ -37,6 +37,18 @@ Rodar migrations manualmente:
 docker compose exec app php artisan migrate
 ```
 
+Criar migration para nova tabela (padrao recomendado):
+
+```powershell
+docker compose exec app php artisan make:migration create_nome_tabela_table --create=nome_tabela
+```
+
+Criar migration para alterar tabela existente:
+
+```powershell
+docker compose exec app php artisan make:migration add_campo_to_nome_tabela_table --table=nome_tabela
+```
+
 Entrar no container da app:
 
 ```powershell
@@ -95,3 +107,5 @@ O compose foi configurado com limite total de 3GB:
 - O arquivo `simulados/.env` nao foi alterado.
 - Fora do Docker, o projeto continua funcionando com sua configuracao atual.
 - Dentro do Docker, as variaveis de ambiente do service `app` forcam conexao MySQL apenas no container.
+- No Docker, as migrations pendentes executam automaticamente no startup da app (`RUN_MIGRATIONS=true`).
+- Fora do Docker, voce pode continuar usando o fluxo normal do Laravel com `php artisan` local.

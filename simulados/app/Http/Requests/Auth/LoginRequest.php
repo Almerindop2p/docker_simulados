@@ -3,9 +3,8 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class CadastroRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,7 +20,6 @@ class CadastroRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'name' => trim((string) $this->input('name')),
             'email' => strtolower(trim((string) $this->input('email'))),
         ]);
     }
@@ -34,14 +32,9 @@ class CadastroRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'min:3', 'max:120'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
-            'password' => [
-                'required',
-                'confirmed',
-                'min:8',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/',
-            ],
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
         ];
     }
 
@@ -53,16 +46,10 @@ class CadastroRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Informe seu nome completo.',
-            'name.min' => 'O nome deve ter pelo menos :min caracteres.',
-            'name.max' => 'O nome nao pode ultrapassar :max caracteres.',
             'email.required' => 'Informe seu e-mail.',
             'email.email' => 'Informe um e-mail valido.',
-            'email.unique' => 'Este e-mail ja esta cadastrado.',
-            'password.required' => 'Informe uma senha.',
-            'password.confirmed' => 'A confirmacao da senha nao confere.',
-            'password.min' => 'A senha deve ter pelo menos :min caracteres.',
-            'password.regex' => 'A senha deve ter letra maiuscula, minuscula, numero e simbolo.',
+            'password.required' => 'Informe sua senha.',
+            'remember.boolean' => 'Valor invalido para manter login.',
         ];
     }
 
@@ -74,9 +61,9 @@ class CadastroRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'nome',
             'email' => 'e-mail',
             'password' => 'senha',
+            'remember' => 'lembrar de mim',
         ];
     }
 }
