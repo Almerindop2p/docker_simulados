@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\MateriaController;
 use App\Http\Controllers\Admin\QuestaoController;
 use App\Http\Controllers\Auth\CadastroController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,6 +26,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/perfil', [ProfileController::class, 'show'])->name('perfil.show');
+    Route::post('/perfil/avatar', [ProfileController::class, 'updateAvatar'])->name('perfil.avatar.update');
+
     Route::get('/area_aluno', function () {
         return view('area_aluno');
     })->middleware('profile:user,user_assinante')->name('area_aluno');

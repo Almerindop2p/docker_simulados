@@ -227,6 +227,14 @@
             font-weight: 800;
         }
 
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+            display: block;
+        }
+
         .avatar-name { display: none; font-size: 13px; }
         .avatar-menu-wrap { position: relative; }
 
@@ -454,14 +462,20 @@
                 <div class="topbar-right">
                     <div class="avatar-menu-wrap">
                         <button id="avatarButton" class="avatar-btn" type="button" aria-expanded="false" aria-controls="avatarMenu">
-                            <span class="avatar">{{ strtoupper(substr($loggedUser->name ?? 'A', 0, 1)) }}</span>
+                            <span class="avatar">
+                                @if ($loggedUser->avatar_url)
+                                    <img src="{{ $loggedUser->avatar_url }}" alt="Avatar de {{ $loggedUser->name ?? 'Aluno' }}">
+                                @else
+                                    {{ strtoupper(substr($loggedUser->name ?? 'A', 0, 1)) }}
+                                @endif
+                            </span>
                             <span class="avatar-name">{{ $loggedUser->name ?? 'Aluno' }}</span>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <div id="avatarMenu" class="avatar-menu" role="menu" hidden>
-                            <a class="menu-item" href="#" role="menuitem">Perfil</a>
-                            <a class="menu-item" href="#" role="menuitem">Configuracoes</a>
+                            <a class="menu-item" href="{{ route('perfil.show') }}" role="menuitem">Perfil</a>
+                            <a class="menu-item" href="{{ route('perfil.show') }}#configuracoes" role="menuitem">Configuracoes</a>
                             <form class="menu-form" method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" role="menuitem">Sair</button>
