@@ -4,32 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrar | Simulados e Questoes</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @include('partials.edu-theme-head')
     <style>
-        :root {
-            color-scheme: light;
-            --bg-main: #f6f7f3;
-            --bg-soft: #eef3f8;
-            --card: #ffffff;
-            --text-main: #112033;
-            --text-soft: #4b5a71;
-            --line: #dce4ee;
-            --brand: #1f5fe0;
-            --brand-dark: #1545a8;
-            --ok-bg: #ecfdf3;
-            --ok-text: #13663d;
-            --ok-line: #92e6b2;
-            --error-bg: #fff1f1;
-            --error-text: #a42323;
-            --error-line: #ffcccc;
-            --radius-lg: 18px;
-            --radius-md: 14px;
-            --radius-sm: 12px;
-            --shadow-card: 0 10px 30px rgba(17, 32, 51, 0.08);
-        }
-
         * { box-sizing: border-box; }
 
         body {
@@ -181,6 +157,10 @@
             padding-left: 18px;
         }
 
+        .error-summary[hidden] {
+            display: none;
+        }
+
         .field { margin-bottom: 14px; }
 
         .field label {
@@ -218,6 +198,10 @@
             color: #b12626;
             font-size: 12px;
             font-weight: 600;
+        }
+
+        .helper-error:empty {
+            display: none;
         }
 
         .row {
@@ -321,15 +305,13 @@
                     <div class="status" role="status">{{ session('status') }}</div>
                 @endif
 
-                @if ($errors->any())
-                    <div class="error-summary" role="alert" aria-live="polite">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                <div id="login-error-summary" class="error-summary" role="alert" aria-live="polite" {{ $errors->any() ? '' : 'hidden' }}>
+                    <ul id="login-error-list">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
 
                 <form id="loginForm" method="POST" action="{{ route('login.store') }}">
                     @csrf
@@ -337,17 +319,13 @@
                     <div class="field {{ $errors->has('email') ? 'has-error' : '' }}">
                         <label for="email">E-mail</label>
                         <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                        @error('email')
-                            <div class="helper-error">{{ $message }}</div>
-                        @enderror
+                        <div id="error-email" class="helper-error">@error('email'){{ $message }}@enderror</div>
                     </div>
 
                     <div class="field {{ $errors->has('password') ? 'has-error' : '' }}">
                         <label for="password">Senha</label>
                         <input id="password" name="password" type="password" required autocomplete="current-password">
-                        @error('password')
-                            <div class="helper-error">{{ $message }}</div>
-                        @enderror
+                        <div id="error-password" class="helper-error">@error('password'){{ $message }}@enderror</div>
                     </div>
 
                     <div class="row">
@@ -372,14 +350,112 @@
         (function () {
             var form = document.getElementById('loginForm');
             var submitBtn = document.getElementById('submitBtn');
-            if (!form || !submitBtn) return;
+            var summary = document.getElementById('login-error-summary');
+            var summaryList = document.getElementById('login-error-list');
+            if (!form || !submitBtn || !summary || !summaryList) return;
 
-            form.addEventListener('submit', function () {
-                submitBtn.classList.add('is-loading');
-                submitBtn.setAttribute('disabled', 'disabled');
+            function setLoading(isLoading) {
                 var text = submitBtn.querySelector('.btn-text');
-                if (text) text.textContent = 'Entrando...';
+                if (isLoading) {
+                    submitBtn.classList.add('is-loading');
+                    submitBtn.setAttribute('disabled', 'disabled');
+                    if (text) text.textContent = 'Entrando...';
+                    return;
+                }
+
+                submitBtn.classList.remove('is-loading');
+                submitBtn.removeAttribute('disabled');
+                if (text) text.textContent = 'Entrar e continuar';
+            }
+
+            function clearErrors() {
+                summaryList.innerHTML = '';
+                summary.hidden = true;
+                ['email', 'password'].forEach(function (field) {
+                    var errorEl = document.getElementById('error-' + field);
+                    var fieldWrap = form.querySelector('[name="' + field + '"]');
+                    if (errorEl) errorEl.textContent = '';
+                    if (fieldWrap && fieldWrap.parentElement) {
+                        fieldWrap.parentElement.classList.remove('has-error');
+                    }
+                });
+            }
+
+            function addSummaryMessage(message) {
+                var li = document.createElement('li');
+                li.textContent = message;
+                summaryList.appendChild(li);
+                summary.hidden = false;
+            }
+
+            function showFieldErrors(errors) {
+                var firstField = null;
+                Object.keys(errors).forEach(function (field) {
+                    var input = form.querySelector('[name="' + field + '"]');
+                    var errorEl = document.getElementById('error-' + field);
+                    var message = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+                    if (errorEl) errorEl.textContent = message;
+                    if (input && input.parentElement) {
+                        input.parentElement.classList.add('has-error');
+                    }
+                    addSummaryMessage(message);
+                    if (!firstField && input) firstField = input;
+                });
+
+                if (firstField) firstField.focus();
+            }
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                clearErrors();
+                setLoading(true);
+
+                try {
+                    var response = await fetch(form.action, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new FormData(form)
+                    });
+
+                    var data = {};
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        data = {};
+                    }
+
+                    if (response.ok && data.errors) {
+                        showFieldErrors(data.errors);
+                        return;
+                    }
+
+                    if (response.ok) {
+                        window.location.href = data.redirect || "{{ route('area_aluno') }}";
+                        return;
+                    }
+
+                    if (response.status === 422 && data.errors) {
+                        showFieldErrors(data.errors);
+                        return;
+                    }
+
+                    if (response.status === 429) {
+                        addSummaryMessage('Muitas tentativas em pouco tempo. Aguarde e tente novamente.');
+                        return;
+                    }
+
+                    addSummaryMessage(data.message || 'Nao foi possivel concluir o login. Tente novamente.');
+                } catch (error) {
+                    addSummaryMessage('Falha de conexao. Verifique sua internet e tente novamente.');
+                } finally {
+                    setLoading(false);
+                }
             });
+
         })();
     </script>
 </body>

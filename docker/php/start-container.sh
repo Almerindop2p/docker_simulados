@@ -47,9 +47,13 @@ try {
   echo "MySQL pronto."
 fi
 
-if [ "${RUN_MIGRATIONS}" = "true" ] && [ -f artisan ]; then
+RUN_MIGRATIONS_FLAG="${RUN_MIGRATIONS:-true}"
+
+if [ "${RUN_MIGRATIONS_FLAG}" = "true" ] && [ -f artisan ]; then
+  echo "Executando migrations..."
   php artisan optimize:clear || true
   php artisan migrate --force
+  echo "Migrations concluidas."
 fi
 
 apache2ctl -t

@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\BancaController;
+use App\Http\Controllers\Admin\CargoController;
+use App\Http\Controllers\Admin\MateriaController;
+use App\Http\Controllers\Admin\QuestaoController;
 use App\Http\Controllers\Auth\CadastroController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -21,5 +25,43 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/area_aluno', function () {
+        return view('area_aluno');
+    })->middleware('profile:user,user_assinante')->name('area_aluno');
+
+    Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {
+        Route::get('/bancas', [BancaController::class, 'index'])->name('bancas.index');
+        Route::get('/bancas/adicionar', [BancaController::class, 'create'])->name('bancas.create');
+        Route::get('/bancas/verificar-nome', [BancaController::class, 'checkName'])->name('bancas.check-name');
+        Route::get('/bancas/verificar-campo', [BancaController::class, 'checkField'])->name('bancas.check-field');
+        Route::post('/bancas', [BancaController::class, 'store'])->name('bancas.store');
+        Route::get('/bancas/{banca}/editar', [BancaController::class, 'edit'])->name('bancas.edit');
+        Route::put('/bancas/{banca}', [BancaController::class, 'update'])->name('bancas.update');
+        Route::delete('/bancas/{banca}', [BancaController::class, 'destroy'])->name('bancas.destroy');
+
+        Route::get('/materias', [MateriaController::class, 'index'])->name('materias.index');
+        Route::get('/materias/adicionar', [MateriaController::class, 'create'])->name('materias.create');
+        Route::get('/materias/verificar-campo', [MateriaController::class, 'checkField'])->name('materias.check-field');
+        Route::post('/materias', [MateriaController::class, 'store'])->name('materias.store');
+        Route::get('/materias/editar/{materia}', [MateriaController::class, 'edit'])->name('materias.edit');
+        Route::put('/materias/{materia}', [MateriaController::class, 'update'])->name('materias.update');
+        Route::delete('/materias/{materia}', [MateriaController::class, 'destroy'])->name('materias.destroy');
+
+        Route::get('/cargos', [CargoController::class, 'index'])->name('cargos.index');
+        Route::get('/cargos/adicionar', [CargoController::class, 'create'])->name('cargos.create');
+        Route::get('/cargos/verificar-campo', [CargoController::class, 'checkField'])->name('cargos.check-field');
+        Route::post('/cargos', [CargoController::class, 'store'])->name('cargos.store');
+        Route::get('/cargos/editar/{cargo}', [CargoController::class, 'edit'])->name('cargos.edit');
+        Route::put('/cargos/{cargo}', [CargoController::class, 'update'])->name('cargos.update');
+        Route::delete('/cargos/{cargo}', [CargoController::class, 'destroy'])->name('cargos.destroy');
+
+        Route::get('/questoes', [QuestaoController::class, 'index'])->name('questoes.index');
+        Route::get('/questoes/adicionar', [QuestaoController::class, 'create'])->name('questoes.create');
+        Route::post('/questoes', [QuestaoController::class, 'store'])->name('questoes.store');
+        Route::get('/questoes/editar/{questao}', [QuestaoController::class, 'edit'])->name('questoes.edit');
+        Route::put('/questoes/{questao}', [QuestaoController::class, 'update'])->name('questoes.update');
+        Route::delete('/questoes/{questao}', [QuestaoController::class, 'destroy'])->name('questoes.destroy');
+    });
+
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });

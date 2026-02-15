@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class LoginRequest extends FormRequest
 {
@@ -65,5 +67,20 @@ class LoginRequest extends FormRequest
             'password' => 'senha',
             'remember' => 'lembrar de mim',
         ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        if ($this->expectsJson()) {
+            throw new HttpResponseException(response()->json([
+                'message' => 'Existem campos invalidos.',
+                'errors' => $validator->errors()->toArray(),
+            ]));
+        }
+
+        parent::failedValidation($validator);
     }
 }

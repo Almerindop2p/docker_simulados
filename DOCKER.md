@@ -16,6 +16,12 @@ No diretorio raiz (`Docker simulados`):
 docker compose up -d --build
 ```
 
+Para garantir migrations sempre apos o `up` (inclusive quando a app ja estava em execucao):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\docker-up.ps1
+```
+
 ## Endpoints
 
 - Laravel: `http://localhost:8080`
@@ -35,6 +41,12 @@ Rodar migrations manualmente:
 
 ```powershell
 docker compose exec app php artisan migrate
+```
+
+Rodar subida sem rebuild e aplicando migrations no final:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\docker-up.ps1 -NoBuild
 ```
 
 Criar migration para nova tabela (padrao recomendado):
@@ -107,5 +119,8 @@ O compose foi configurado com limite total de 3GB:
 - O arquivo `simulados/.env` nao foi alterado.
 - Fora do Docker, o projeto continua funcionando com sua configuracao atual.
 - Dentro do Docker, as variaveis de ambiente do service `app` forcam conexao MySQL apenas no container.
-- No Docker, as migrations pendentes executam automaticamente no startup da app (`RUN_MIGRATIONS=true`).
+- Build de imagem (`docker compose build`) nao executa migration, porque nao existe conexao com banco no build.
+- No Docker, migrations pendentes executam no startup da app (`RUN_MIGRATIONS=true`).
+- Como o codigo Laravel esta em volume (`./simulados:/var/www/html`), criar uma migration nova nao recria automaticamente o container app.
+- Para garantir aplicacao da migration nova em qualquer cenario, use `scripts/docker-up.ps1` ou rode `docker compose exec app php artisan migrate --force` apos o `up`.
 - Fora do Docker, voce pode continuar usando o fluxo normal do Laravel com `php artisan` local.

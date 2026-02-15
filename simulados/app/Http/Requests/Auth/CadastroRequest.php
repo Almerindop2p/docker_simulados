@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 class CadastroRequest extends FormRequest
@@ -78,5 +80,20 @@ class CadastroRequest extends FormRequest
             'email' => 'e-mail',
             'password' => 'senha',
         ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        if ($this->expectsJson()) {
+            throw new HttpResponseException(response()->json([
+                'message' => 'Existem campos invalidos.',
+                'errors' => $validator->errors()->toArray(),
+            ]));
+        }
+
+        parent::failedValidation($validator);
     }
 }

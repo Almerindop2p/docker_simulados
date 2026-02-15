@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -24,12 +26,21 @@ class LoginController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse|JsonResponse
     {
         $credentials = $request->safe()->only('email', 'password');
         $remember = (bool) $request->boolean('remember');
 
         if (!Auth::attempt($credentials, $remember)) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Existem campos invalidos.',
+                    'errors' => [
+                        'email' => ['E-mail ou senha invalidos.'],
+                    ],
+                ]);
+            }
+
             throw ValidationException::withMessages([
                 'email' => 'E-mail ou senha invalidos.',
             ]);
@@ -37,7 +48,20 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        // Keep remember cookie only when explicitly requested.
+        $guard = Auth::guard();
+        if (!$remember && method_exists($guard, 'getRecallerName')) {
+            Cookie::queue(Cookie::forget($guard->getRecallerName()));
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Login realizado com sucesso.',
+                'redirect' => route('area_aluno'),
+            ]);
+        }
+
+        return redirect()->intended(route('area_aluno'));
     }
 
     /**

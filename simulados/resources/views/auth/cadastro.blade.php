@@ -1,36 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro | Simulados e Questoes Gratuitas</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @include('partials.edu-theme-head')
     <style>
-        :root {
-            color-scheme: light;
-            --bg-main: #f6f7f3;
-            --bg-soft: #eef3f8;
-            --card: #ffffff;
-            --text-main: #112033;
-            --text-soft: #4b5a71;
-            --line: #dce4ee;
-            --brand: #1f5fe0;
-            --brand-dark: #1545a8;
-            --ok-bg: #ecfdf3;
-            --ok-text: #13663d;
-            --ok-line: #92e6b2;
-            --error-bg: #fff1f1;
-            --error-text: #a42323;
-            --error-line: #ffcccc;
-            --radius-lg: 18px;
-            --radius-md: 14px;
-            --radius-sm: 12px;
-            --shadow-card: 0 10px 30px rgba(17, 32, 51, 0.08);
-            --shadow-soft: 0 4px 18px rgba(17, 32, 51, 0.05);
-        }
-
         * {
             box-sizing: border-box;
         }
@@ -267,6 +242,10 @@
             padding-left: 18px;
         }
 
+        .error-summary[hidden] {
+            display: none;
+        }
+
         .stepper {
             margin: 0 0 16px;
         }
@@ -373,6 +352,50 @@
             color: #b12626;
             font-size: 12px;
             font-weight: 600;
+        }
+
+        .helper-error:empty {
+            display: none;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+        }
+
+        .password-strength-track {
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: #e7edf6;
+            overflow: hidden;
+        }
+
+        .password-strength-fill {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            transition: width .2s ease, background-color .2s ease;
+            background: #9cb2d0;
+        }
+
+        .password-strength-fill.is-weak {
+            background: #d44747;
+        }
+
+        .password-strength-fill.is-medium {
+            background: #e49b2d;
+        }
+
+        .password-strength-fill.is-strong {
+            background: #2ea665;
+        }
+
+        .password-strength-label {
+            margin: 6px 0 0;
+            font-size: 12px;
+            color: #5a708d;
+            line-height: 1.4;
         }
 
         .step-actions {
@@ -513,25 +536,23 @@
                     <div class="status" role="status">{{ session('status') }}</div>
                 @endif
 
-                @if ($errors->any())
-                    <div class="error-summary" role="alert" aria-live="polite">
-                        <p>Ajustes rapidos para continuar:</p>
-                        <ul>
-                            @if ($errors->first('name'))
-                                <li>{{ $errors->first('name') }}</li>
-                            @endif
-                            @if ($errors->first('email'))
-                                <li>{{ $errors->first('email') }}</li>
-                            @endif
-                            @if ($errors->first('password'))
-                                <li>{{ $errors->first('password') }}</li>
-                            @endif
-                            @if ($errors->first('password_confirmation'))
-                                <li>{{ $errors->first('password_confirmation') }}</li>
-                            @endif
-                        </ul>
-                    </div>
-                @endif
+                <div id="cadastro-error-summary" class="error-summary" role="alert" aria-live="polite" {{ $errors->any() ? '' : 'hidden' }}>
+                    <p>Ajustes rapidos para continuar:</p>
+                    <ul id="cadastro-error-list">
+                        @if ($errors->first('name'))
+                            <li>{{ $errors->first('name') }}</li>
+                        @endif
+                        @if ($errors->first('email'))
+                            <li>{{ $errors->first('email') }}</li>
+                        @endif
+                        @if ($errors->first('password'))
+                            <li>{{ $errors->first('password') }}</li>
+                        @endif
+                        @if ($errors->first('password_confirmation'))
+                            <li>{{ $errors->first('password_confirmation') }}</li>
+                        @endif
+                    </ul>
+                </div>
 
                 <form id="cadastroForm" method="POST" action="{{ route('cadastro.store') }}" data-initial-step="{{ $errors->has('password') || $errors->has('password_confirmation') ? 2 : 1 }}">
                     @csrf
@@ -555,9 +576,7 @@
                                 </svg>
                                 <input id="name" name="name" type="text" value="{{ old('name') }}" required autocomplete="name" placeholder="Ex.: Ana Beatriz Silva">
                             </div>
-                            @error('name')
-                                <div class="helper-error">{{ $message }}</div>
-                            @enderror
+                            <div id="error-name" class="helper-error">@error('name'){{ $message }}@enderror</div>
                         </div>
 
                         <div class="field {{ $errors->has('email') ? 'has-error' : '' }}">
@@ -568,9 +587,7 @@
                                 </svg>
                                 <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" placeholder="voce@email.com">
                             </div>
-                            @error('email')
-                                <div class="helper-error">{{ $message }}</div>
-                            @enderror
+                            <div id="error-email" class="helper-error">@error('email'){{ $message }}@enderror</div>
                         </div>
 
                         <div class="step-actions">
@@ -585,11 +602,15 @@
                                 <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                     <path d="M7 10V8a5 5 0 0 1 10 0v2h1.2A2.8 2.8 0 0 1 21 12.8v6.4a2.8 2.8 0 0 1-2.8 2.8H5.8A2.8 2.8 0 0 1 3 19.2v-6.4A2.8 2.8 0 0 1 5.8 10H7Zm2 0h6V8a3 3 0 1 0-6 0v2Zm3 4a1.8 1.8 0 0 0-1 3.3V19h2v-1.7a1.8 1.8 0 0 0-1-3.3Z" fill="#5E7590"/>
                                 </svg>
-                                <input id="password" name="password" type="password" required autocomplete="new-password" placeholder="Minimo de 8 caracteres">
+                                <input id="password" name="password" type="password" required autocomplete="new-password" placeholder="Minimo de 8 caracteres" aria-describedby="password-strength-label error-password">
                             </div>
-                            @error('password')
-                                <div class="helper-error">{{ $message }}</div>
-                            @enderror
+                            <div id="error-password" class="helper-error">@error('password'){{ $message }}@enderror</div>
+                            <div class="password-strength" aria-live="polite" aria-atomic="true">
+                                <div class="password-strength-track" aria-hidden="true">
+                                    <span id="password-strength-fill" class="password-strength-fill"></span>
+                                </div>
+                                <p id="password-strength-label" class="password-strength-label">Forca da senha: informe sua senha.</p>
+                            </div>
                         </div>
 
                         <div class="field {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
@@ -600,9 +621,7 @@
                                 </svg>
                                 <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" placeholder="Repita sua senha">
                             </div>
-                            @error('password_confirmation')
-                                <div class="helper-error">{{ $message }}</div>
-                            @enderror
+                            <div id="error-password_confirmation" class="helper-error">@error('password_confirmation'){{ $message }}@enderror</div>
                         </div>
 
                         <div class="step-actions">
@@ -654,7 +673,10 @@
         (function () {
             document.body.classList.add('js-ready');
             var form = document.getElementById('cadastroForm');
+            var summary = document.getElementById('cadastro-error-summary');
+            var summaryList = document.getElementById('cadastro-error-list');
             if (!form) return;
+            if (!summary || !summaryList) return;
 
             var stepLabel = document.getElementById('stepLabel');
             var stepHint = document.getElementById('stepHint');
@@ -664,6 +686,10 @@
             var nextBtn = form.querySelector('[data-next-step]');
             var prevBtn = form.querySelector('[data-prev-step]');
             var currentStep = Number(form.getAttribute('data-initial-step') || 1);
+            var fields = ['name', 'email', 'password', 'password_confirmation'];
+            var passwordInput = form.querySelector('#password');
+            var passwordStrengthFill = document.getElementById('password-strength-fill');
+            var passwordStrengthLabel = document.getElementById('password-strength-label');
 
             function focusFirstInput(step) {
                 var active = form.querySelector('.form-step[data-step="' + step + '"] input');
@@ -687,6 +713,103 @@
                 }
             }
 
+            function evaluatePasswordStrength(value) {
+                var lengthOk = value.length >= 8;
+                var lowerOk = /[a-z]/.test(value);
+                var upperOk = /[A-Z]/.test(value);
+                var digitOk = /\d/.test(value);
+                var symbolOk = /[^A-Za-z0-9]/.test(value);
+                var score = [lengthOk, lowerOk, upperOk, digitOk, symbolOk].filter(Boolean).length;
+
+                if (!value) {
+                    return { level: 'none', percent: 0, label: 'Forca da senha: informe sua senha.' };
+                }
+
+                if (score === 5) {
+                    return { level: 'strong', percent: 100, label: 'Forca da senha: forte.' };
+                }
+
+                if (score >= 3) {
+                    return { level: 'medium', percent: 66, label: 'Forca da senha: media.' };
+                }
+
+                return { level: 'weak', percent: 33, label: 'Forca da senha: fraca.' };
+            }
+
+            function updatePasswordStrength() {
+                if (!passwordInput || !passwordStrengthFill || !passwordStrengthLabel) return;
+
+                var result = evaluatePasswordStrength(passwordInput.value || '');
+                passwordStrengthFill.style.width = result.percent + '%';
+                passwordStrengthFill.classList.remove('is-weak', 'is-medium', 'is-strong');
+                if (result.level !== 'none') {
+                    passwordStrengthFill.classList.add('is-' + result.level);
+                }
+
+                passwordStrengthLabel.textContent = result.label;
+            }
+
+            function setLoading(isLoading) {
+                if (!submitBtn) return;
+                var text = submitBtn.querySelector('.btn-text');
+                if (isLoading) {
+                    submitBtn.classList.add('is-loading');
+                    submitBtn.setAttribute('disabled', 'disabled');
+                    if (text) text.textContent = 'Criando conta...';
+                    return;
+                }
+
+                submitBtn.classList.remove('is-loading');
+                submitBtn.removeAttribute('disabled');
+                if (text) text.textContent = 'Criar minha conta';
+            }
+
+            function clearErrors() {
+                summaryList.innerHTML = '';
+                summary.hidden = true;
+                fields.forEach(function (field) {
+                    var input = form.querySelector('[name="' + field + '"]');
+                    var errorEl = document.getElementById('error-' + field);
+                    if (errorEl) errorEl.textContent = '';
+                    if (input && input.closest('.field')) {
+                        input.closest('.field').classList.remove('has-error');
+                    }
+                });
+            }
+
+            function addSummaryMessage(message) {
+                var li = document.createElement('li');
+                li.textContent = message;
+                summaryList.appendChild(li);
+                summary.hidden = false;
+            }
+
+            function showFieldErrors(errors) {
+                var hasStep2Error = false;
+                var firstField = null;
+
+                fields.forEach(function (field) {
+                    if (!errors[field]) return;
+                    var input = form.querySelector('[name="' + field + '"]');
+                    var errorEl = document.getElementById('error-' + field);
+                    var message = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+
+                    if (errorEl) errorEl.textContent = message;
+                    if (input && input.closest('.field')) {
+                        input.closest('.field').classList.add('has-error');
+                    }
+
+                    addSummaryMessage(message);
+                    if (!firstField && input) firstField = input;
+                    if (field === 'password' || field === 'password_confirmation') {
+                        hasStep2Error = true;
+                    }
+                });
+
+                setStep(hasStep2Error ? 2 : 1);
+                if (firstField) firstField.focus();
+            }
+
             if (nextBtn) {
                 nextBtn.addEventListener('click', function () {
                     setStep(2);
@@ -701,13 +824,62 @@
                 });
             }
 
-            form.addEventListener('submit', function () {
-                if (!submitBtn) return;
-                submitBtn.classList.add('is-loading');
-                submitBtn.setAttribute('disabled', 'disabled');
-                var text = submitBtn.querySelector('.btn-text');
-                if (text) text.textContent = 'Criando conta...';
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                clearErrors();
+                setLoading(true);
+
+                try {
+                    var response = await fetch(form.action, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new FormData(form)
+                    });
+
+                    var data = {};
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        data = {};
+                    }
+
+                    if (response.ok && data.errors) {
+                        showFieldErrors(data.errors);
+                        return;
+                    }
+
+                    if (response.ok) {
+                        window.location.href = data.redirect || "{{ route('login') }}";
+                        return;
+                    }
+
+                    if (response.status === 422 && data.errors) {
+                        showFieldErrors(data.errors);
+                        return;
+                    }
+
+                    if (response.status === 429) {
+                        addSummaryMessage('Muitas tentativas em pouco tempo. Aguarde e tente novamente.');
+                        return;
+                    }
+
+                    addSummaryMessage(data.message || 'Nao foi possivel concluir o cadastro. Tente novamente.');
+                } catch (error) {
+                    addSummaryMessage('Falha de conexao. Verifique sua internet e tente novamente.');
+                } finally {
+                    setLoading(false);
+                }
             });
+
+            if (passwordInput) {
+                passwordInput.addEventListener('input', updatePasswordStrength);
+                passwordInput.addEventListener('blur', updatePasswordStrength);
+                updatePasswordStrength();
+            }
 
             setStep(currentStep === 2 ? 2 : 1);
         })();

@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Middleware\EnsureUserType;
+use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,7 +14,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'profile' => EnsureUserType::class,
+        ]);
+
+        $middleware->redirectUsersTo(function (Request $request): string {
+            $user = $request->user();
+
+            return match ($user?->user_type) {
+                User::TYPE_ADM => '/adm/bancas',
+                User::TYPE_USER,
+                User::TYPE_USER_ASSINANTE => '/area_aluno',
+                default => '/',
+            };
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
