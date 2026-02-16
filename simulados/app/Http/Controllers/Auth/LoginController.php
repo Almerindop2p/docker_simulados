@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -54,14 +55,16 @@ class LoginController extends Controller
             Cookie::queue(Cookie::forget($guard->getRecallerName()));
         }
 
+        $redirectRoute = $this->resolveRedirectRoute();
+
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'Login realizado com sucesso.',
-                'redirect' => route('area_aluno'),
+                'redirect' => route($redirectRoute),
             ]);
         }
 
-        return redirect()->intended(route('area_aluno'));
+        return redirect()->intended(route($redirectRoute));
     }
 
     /**
@@ -75,5 +78,14 @@ class LoginController extends Controller
         request()->session()->regenerateToken();
 
         return redirect()->route('login')->with('status', 'Voce saiu da sua conta com sucesso.');
+    }
+
+    private function resolveRedirectRoute(): string
+    {
+        return match (Auth::user()?->user_type) {
+            User::TYPE_ADM => 'adm.bancas.index',
+            User::TYPE_USER_ASSINANTE => 'area_assinante',
+            default => 'area_aluno',
+        };
     }
 }

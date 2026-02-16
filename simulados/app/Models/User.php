@@ -4,8 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -52,12 +55,26 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function getAvatarUrlAttribute(): ?string
     {
         if (!$this->avatar_path) {
             return null;
         }
 
-        return asset($this->avatar_path);
+        if (Str::startsWith($this->avatar_path, 'uploads/avatars/')) {
+            return asset($this->avatar_path);
+        }
+
+        try {
+            return Storage::disk('local')->temporaryUrl($this->avatar_path, now()->addMinutes(15));
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    public function questaoRespostas(): HasMany
+    {
+        return $this->hasMany(QuestaoResposta::class);
     }
 }

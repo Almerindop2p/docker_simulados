@@ -6,12 +6,12 @@ use App\Http\Controllers\Admin\MateriaController;
 use App\Http\Controllers\Admin\QuestaoController;
 use App\Http\Controllers\Auth\CadastroController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::post('/questoes/{questao}/responder', [HomeController::class, 'answer'])->name('home.answer');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
@@ -31,7 +31,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/area_aluno', function () {
         return view('area_aluno');
-    })->middleware('profile:user,user_assinante')->name('area_aluno');
+    })->middleware('profile:user')->name('area_aluno');
+
+    Route::get('/area_assinante', function () {
+        return view('area_aluno');
+    })->middleware('profile:user_assinante')->name('area_assinante');
 
     Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {
         Route::get('/bancas', [BancaController::class, 'index'])->name('bancas.index');
@@ -69,3 +73,4 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
+

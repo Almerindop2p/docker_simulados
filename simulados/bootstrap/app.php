@@ -23,8 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return match ($user?->user_type) {
                 User::TYPE_ADM => '/adm/bancas',
-                User::TYPE_USER,
-                User::TYPE_USER_ASSINANTE => '/area_aluno',
+                User::TYPE_USER => '/area_aluno',
+                User::TYPE_USER_ASSINANTE => '/area_assinante',
                 default => '/',
             };
         });

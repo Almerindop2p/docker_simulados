@@ -508,6 +508,9 @@
         $loggedUser = auth()->user();
         $isAdm = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_ADM;
         $isBancaRoute = request()->routeIs('adm.bancas.*');
+        $isMateriaRoute = request()->routeIs('adm.materias.*');
+        $isCargoRoute = request()->routeIs('adm.cargos.*');
+        $isQuestaoRoute = request()->routeIs('adm.questoes.*');
     @endphp
 
     <div class="layout">
@@ -570,12 +573,59 @@
                                 <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                             <ul id="bancaSubmenu" class="nav-submenu {{ $isBancaRoute ? 'is-open' : '' }}">
-                                <li>
-                                    <a class="nav-sublink {{ request()->routeIs('adm.bancas.create') ? 'is-active' : '' }}" href="{{ route('adm.bancas.create') }}">Adicionar Banca</a>
-                                </li>
-                                <li>
-                                    <a class="nav-sublink {{ request()->routeIs('adm.bancas.index') ? 'is-active' : '' }}" href="{{ route('adm.bancas.index') }}">Lista de Bancas</a>
-                                </li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.bancas.create') ? 'is-active' : '' }}" href="{{ route('adm.bancas.create') }}">Adicionar Banca</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.bancas.index') ? 'is-active' : '' }}" href="{{ route('adm.bancas.index') }}">Lista de Bancas</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button
+                                id="materiaToggle"
+                                class="nav-link nav-toggle {{ $isMateriaRoute ? 'is-active' : '' }}"
+                                type="button"
+                                aria-expanded="{{ $isMateriaRoute ? 'true' : 'false' }}"
+                                aria-controls="materiaSubmenu"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 17 20H7a2.5 2.5 0 0 1-2.5-2.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Materias</span>
+                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <ul id="materiaSubmenu" class="nav-submenu {{ $isMateriaRoute ? 'is-open' : '' }}">
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.materias.create') ? 'is-active' : '' }}" href="{{ route('adm.materias.create') }}">Adicionar Materia</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.materias.index') ? 'is-active' : '' }}" href="{{ route('adm.materias.index') }}">Lista de Materias</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button
+                                id="cargoToggle"
+                                class="nav-link nav-toggle {{ $isCargoRoute ? 'is-active' : '' }}"
+                                type="button"
+                                aria-expanded="{{ $isCargoRoute ? 'true' : 'false' }}"
+                                aria-controls="cargoSubmenu"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm-7 14a7 7 0 1 1 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Cargos</span>
+                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <ul id="cargoSubmenu" class="nav-submenu {{ $isCargoRoute ? 'is-open' : '' }}">
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.cargos.create') ? 'is-active' : '' }}" href="{{ route('adm.cargos.create') }}">Adicionar Cargo</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.cargos.index') ? 'is-active' : '' }}" href="{{ route('adm.cargos.index') }}">Lista de Cargos</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button
+                                id="questaoToggle"
+                                class="nav-link nav-toggle {{ $isQuestaoRoute ? 'is-active' : '' }}"
+                                type="button"
+                                aria-expanded="{{ $isQuestaoRoute ? 'true' : 'false' }}"
+                                aria-controls="questaoSubmenu"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 17 20H7a2.5 2.5 0 0 1-2.5-2.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Questoes</span>
+                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <ul id="questaoSubmenu" class="nav-submenu {{ $isQuestaoRoute ? 'is-open' : '' }}">
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.questoes.create') ? 'is-active' : '' }}" href="{{ route('adm.questoes.create') }}">Adicionar Questao</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.questoes.index') ? 'is-active' : '' }}" href="{{ route('adm.questoes.index') }}">Lista de Questoes</a></li>
                             </ul>
                         </li>
                     @endif
@@ -672,8 +722,12 @@
             var openSidebar = document.getElementById('openSidebar');
             var avatarButton = document.getElementById('avatarButton');
             var avatarMenu = document.getElementById('avatarMenu');
-            var bancaToggle = document.getElementById('bancaToggle');
-            var bancaSubmenu = document.getElementById('bancaSubmenu');
+            var menuToggles = [
+                {button: document.getElementById('bancaToggle'), submenu: document.getElementById('bancaSubmenu')},
+                {button: document.getElementById('materiaToggle'), submenu: document.getElementById('materiaSubmenu')},
+                {button: document.getElementById('cargoToggle'), submenu: document.getElementById('cargoSubmenu')},
+                {button: document.getElementById('questaoToggle'), submenu: document.getElementById('questaoSubmenu')}
+            ];
 
             if (!sidebar || !overlay || !openSidebar || !avatarButton || !avatarMenu) {
                 return;
@@ -711,14 +765,14 @@
                 avatarButton.setAttribute('aria-expanded', 'false');
             }
 
-            function toggleBancaSubmenu() {
-                if (!bancaToggle || !bancaSubmenu) {
+            function toggleSubmenu(button, submenu) {
+                if (!button || !submenu) {
                     return;
                 }
 
-                var isOpen = bancaSubmenu.classList.contains('is-open');
-                bancaSubmenu.classList.toggle('is-open', !isOpen);
-                bancaToggle.setAttribute('aria-expanded', String(!isOpen));
+                var isOpen = submenu.classList.contains('is-open');
+                submenu.classList.toggle('is-open', !isOpen);
+                button.setAttribute('aria-expanded', String(!isOpen));
             }
 
             openSidebar.addEventListener('click', function () {
@@ -740,9 +794,13 @@
                 }
             });
 
-            if (bancaToggle && bancaSubmenu) {
-                bancaToggle.addEventListener('click', toggleBancaSubmenu);
-            }
+            menuToggles.forEach(function (item) {
+                if (item.button && item.submenu) {
+                    item.button.addEventListener('click', function () {
+                        toggleSubmenu(item.button, item.submenu);
+                    });
+                }
+            });
 
             document.addEventListener('click', function (event) {
                 if (!avatarMenu.contains(event.target) && !avatarButton.contains(event.target)) {
