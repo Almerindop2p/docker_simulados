@@ -327,6 +327,29 @@
             color: #29476e;
             font-size: 0.95rem;
             line-height: 1.7;
+            text-align: left;
+        }
+
+        .question-image-wrap {
+            display: flex;
+            justify-content: center;
+        }
+
+        .question-image {
+            display: block;
+            width: 100%;
+            max-width: 760px;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid #d7e4f5;
+            background: #fff;
+        }
+
+        .question-instituicao {
+            margin: 0;
+            color: #17365a;
+            font-size: 0.9rem;
+            font-weight: 700;
         }
 
         .tags {
@@ -681,6 +704,17 @@
 
                             <article class="result-item" id="questao-{{ $questao->id }}">
                                 <h3>Questao #{{ $questao->id }}</h3>
+                                <p class="question-instituicao">Instituicao: {{ $questao->instituicao?->name ?? '-' }}</p>
+                                @if ($questao->imagem_url)
+                                    <div class="question-image-wrap">
+                                        <img
+                                            class="question-image"
+                                            src="{{ $questao->imagem_url }}"
+                                            alt="Imagem da questao {{ $questao->id }}"
+                                            loading="lazy"
+                                        >
+                                    </div>
+                                @endif
                                 <p class="question-text">{!! nl2br(e($questao->enunciado)) !!}</p>
 
                                 <div class="tags">

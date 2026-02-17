@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreQuestaoRequest;
 use App\Models\Banca;
 use App\Models\Cargo;
+use App\Models\Instituicao;
 use App\Models\Materia;
 use App\Models\Questao;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -21,11 +23,12 @@ class QuestaoController extends Controller
         $this->ensureAdmin($request);
 
         $query = Questao::query()
-            ->with(['banca:id,name', 'materia:id,name', 'cargos:id,name'])
+            ->with(['banca:id,name', 'materia:id,name', 'instituicao:id,name', 'cargos:id,name'])
             ->latest();
 
         $bancaId = (int) $request->query('banca_id', 0);
         $materiaId = (int) $request->query('materia_id', 0);
+        $instituicaoId = (int) $request->query('instituicao_id', 0);
         $cargoId = (int) $request->query('cargo_id', 0);
 
         if ($bancaId > 0) {
@@ -36,6 +39,10 @@ class QuestaoController extends Controller
             $query->filtrarPorMateria($materiaId);
         }
 
+        if ($instituicaoId > 0) {
+            $query->filtrarPorInstituicao($instituicaoId);
+        }
+
         if ($cargoId > 0) {
             $query->filtrarPorCargo($cargoId);
         }
@@ -44,10 +51,12 @@ class QuestaoController extends Controller
             'questoes' => $query->get(),
             'bancas' => Banca::query()->orderBy('name')->get(['id', 'name']),
             'materias' => Materia::query()->orderBy('name')->get(['id', 'name']),
+            'instituicoes' => Instituicao::query()->orderBy('name')->get(['id', 'name']),
             'cargos' => Cargo::query()->orderBy('name')->get(['id', 'name']),
             'filtros' => [
                 'banca_id' => $bancaId,
                 'materia_id' => $materiaId,
+                'instituicao_id' => $instituicaoId,
                 'cargo_id' => $cargoId,
             ],
         ]);
@@ -60,6 +69,7 @@ class QuestaoController extends Controller
         return view('adm.questoes.create', [
             'bancas' => Banca::query()->orderBy('name')->get(['id', 'name']),
             'materias' => Materia::query()->orderBy('name')->get(['id', 'name']),
+            'instituicoes' => Instituicao::query()->orderBy('name')->get(['id', 'name']),
             'cargos' => Cargo::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -75,6 +85,7 @@ class QuestaoController extends Controller
             'selectedCargoIds' => $questao->cargos->pluck('id')->all(),
             'bancas' => Banca::query()->orderBy('name')->get(['id', 'name']),
             'materias' => Materia::query()->orderBy('name')->get(['id', 'name']),
+            'instituicoes' => Instituicao::query()->orderBy('name')->get(['id', 'name']),
             'cargos' => Cargo::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -86,6 +97,8 @@ class QuestaoController extends Controller
         $questao = Questao::create([
             'banca_id' => $data['banca_id'],
             'materia_id' => $data['materia_id'],
+            'instituicao_id' => $data['instituicao_id'],
+            'imagem_path' => $this->storeQuestaoImage($request),
             'enunciado' => $data['enunciado'],
             'alternativa_a' => $data['alternativa_a'],
             'alternativa_b' => $data['alternativa_b'],
@@ -107,10 +120,25 @@ class QuestaoController extends Controller
     public function update(StoreQuestaoRequest $request, Questao $questao): RedirectResponse
     {
         $data = $request->validated();
+        $imagemPath = $questao->imagem_path;
+
+        if ($request->hasFile('imagem')) {
+            $newImagemPath = $this->storeQuestaoImage($request);
+
+            if ($newImagemPath) {
+                if ($imagemPath && Storage::disk('public')->exists($imagemPath)) {
+                    Storage::disk('public')->delete($imagemPath);
+                }
+
+                $imagemPath = $newImagemPath;
+            }
+        }
 
         $questao->update([
             'banca_id' => $data['banca_id'],
             'materia_id' => $data['materia_id'],
+            'instituicao_id' => $data['instituicao_id'],
+            'imagem_path' => $imagemPath,
             'enunciado' => $data['enunciado'],
             'alternativa_a' => $data['alternativa_a'],
             'alternativa_b' => $data['alternativa_b'],
@@ -133,6 +161,10 @@ class QuestaoController extends Controller
     {
         $this->ensureAdmin($request);
 
+        if ($questao->imagem_path && Storage::disk('public')->exists($questao->imagem_path)) {
+            Storage::disk('public')->delete($questao->imagem_path);
+        }
+
         $questao->delete();
 
         return redirect()
@@ -149,6 +181,7 @@ class QuestaoController extends Controller
     {
         $banca = Banca::query()->find($data['banca_id'], ['name', 'slug']);
         $materia = Materia::query()->find($data['materia_id'], ['name', 'slug']);
+        $instituicao = Instituicao::query()->find($data['instituicao_id'], ['name', 'slug']);
         $cargos = Cargo::query()
             ->whereIn('id', $data['cargo_ids'] ?? [])
             ->orderBy('name')
@@ -159,6 +192,8 @@ class QuestaoController extends Controller
             $banca?->slug,
             $materia?->name,
             $materia?->slug,
+            $instituicao?->name,
+            $instituicao?->slug,
             'gabarito ' . ($data['gabarito'] ?? ''),
         ]);
 
@@ -184,5 +219,14 @@ class QuestaoController extends Controller
         $slug = Str::slug($normalized);
 
         return array_values(array_filter(array_unique([$lower, $slug])));
+    }
+
+    private function storeQuestaoImage(Request $request): ?string
+    {
+        if (!$request->hasFile('imagem')) {
+            return null;
+        }
+
+        return $request->file('imagem')->store('questoes', 'public');
     }
 }

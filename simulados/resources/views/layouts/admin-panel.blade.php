@@ -317,6 +317,7 @@
         $loggedUser = auth()->user();
         $isAdm = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_ADM;
         $isBancaRoute = request()->routeIs('adm.bancas.*');
+        $isInstituicaoRoute = request()->routeIs('adm.instituicoes.*');
         $isMateriaRoute = request()->routeIs('adm.materias.*');
         $isCargoRoute = request()->routeIs('adm.cargos.*');
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
@@ -385,6 +386,23 @@
                             <ul id="bancaSubmenu" class="nav-submenu {{ $isBancaRoute ? 'is-open' : '' }}">
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.bancas.create') ? 'is-active' : '' }}" href="{{ route('adm.bancas.create') }}">Adicionar Banca</a></li>
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.bancas.index') ? 'is-active' : '' }}" href="{{ route('adm.bancas.index') }}">Lista de Bancas</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button
+                                id="instituicaoToggle"
+                                class="nav-link nav-toggle {{ $isInstituicaoRoute ? 'is-active' : '' }}"
+                                type="button"
+                                aria-expanded="{{ $isInstituicaoRoute ? 'true' : 'false' }}"
+                                aria-controls="instituicaoSubmenu"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 8A2.5 2.5 0 0 1 7 5.5h10A2.5 2.5 0 0 1 19.5 8v8A2.5 2.5 0 0 1 17 18.5H7A2.5 2.5 0 0 1 4.5 16V8Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 10h8M8 14h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Instituicao</span>
+                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <ul id="instituicaoSubmenu" class="nav-submenu {{ $isInstituicaoRoute ? 'is-open' : '' }}">
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.instituicoes.create') ? 'is-active' : '' }}" href="{{ route('adm.instituicoes.create') }}">Adicionar Instituicao</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.instituicoes.index') ? 'is-active' : '' }}" href="{{ route('adm.instituicoes.index') }}">Lista de Instituicoes</a></li>
                             </ul>
                         </li>
                         <li>
@@ -502,6 +520,7 @@
             var avatarMenu = document.getElementById('avatarMenu');
             var menuToggles = [
                 {button: document.getElementById('bancaToggle'), submenu: document.getElementById('bancaSubmenu')},
+                {button: document.getElementById('instituicaoToggle'), submenu: document.getElementById('instituicaoSubmenu')},
                 {button: document.getElementById('materiaToggle'), submenu: document.getElementById('materiaSubmenu')},
                 {button: document.getElementById('cargoToggle'), submenu: document.getElementById('cargoSubmenu')},
                 {button: document.getElementById('questaoToggle'), submenu: document.getElementById('questaoSubmenu')}

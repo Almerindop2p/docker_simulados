@@ -40,7 +40,7 @@
         <div class="panel-head">
             <div>
                 <h2 id="titulo-lista-questoes" class="panel-title">Questoes cadastradas</h2>
-                <p class="panel-subtitle">Filtre por banca, materia e cargo para facilitar a gestao.</p>
+                <p class="panel-subtitle">Filtre por banca, materia, instituicao e cargo para facilitar a gestao.</p>
             </div>
             <a class="btn" href="{{ route('adm.questoes.create') }}">Adicionar Questao</a>
         </div>
@@ -65,6 +65,15 @@
                     <option value="">Todas</option>
                     @foreach ($materias as $materia)
                         <option value="{{ $materia->id }}" @selected((int) ($filtros['materia_id'] ?? 0) === $materia->id)>{{ $materia->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="field">
+                <label class="label" for="instituicao_id">Instituicao</label>
+                <select id="instituicao_id" name="instituicao_id" class="select">
+                    <option value="">Todas</option>
+                    @foreach ($instituicoes as $instituicao)
+                        <option value="{{ $instituicao->id }}" @selected((int) ($filtros['instituicao_id'] ?? 0) === $instituicao->id)>{{ $instituicao->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -94,6 +103,7 @@
                             <th>Enunciado</th>
                             <th>Banca</th>
                             <th>Materia</th>
+                            <th>Instituicao</th>
                             <th>Cargos</th>
                             <th>Gabarito</th>
                             <th class="actions-col">Acoes</th>
@@ -106,6 +116,7 @@
                                 <td class="enunciado">{{ \Illuminate\Support\Str::limit($questao->enunciado, 160) }}</td>
                                 <td>{{ $questao->banca?->name }}</td>
                                 <td>{{ $questao->materia?->name }}</td>
+                                <td>{{ $questao->instituicao?->name ?? '-' }}</td>
                                 <td>
                                     <div class="tag-list">
                                         @forelse ($questao->cargos as $cargo)

@@ -32,7 +32,7 @@ class HomeController extends Controller
 
         if ($temPesquisa) {
             $query = Questao::query()
-                ->with(['banca:id,name', 'materia:id,name', 'cargos:id,name'])
+                ->with(['banca:id,name', 'materia:id,name', 'instituicao:id,name', 'cargos:id,name'])
                 ->latest();
 
             if ($bancaId > 0) {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 class Questao extends Model
 {
@@ -14,6 +15,8 @@ class Questao extends Model
     protected $fillable = [
         'banca_id',
         'materia_id',
+        'instituicao_id',
+        'imagem_path',
         'enunciado',
         'alternativa_a',
         'alternativa_b',
@@ -35,6 +38,11 @@ class Questao extends Model
         return $this->belongsTo(Materia::class);
     }
 
+    public function instituicao(): BelongsTo
+    {
+        return $this->belongsTo(Instituicao::class);
+    }
+
     public function cargos(): BelongsToMany
     {
         return $this->belongsToMany(Cargo::class, 'cargo_questao');
@@ -50,10 +58,24 @@ class Questao extends Model
         return $query->where('materia_id', $materiaId);
     }
 
+    public function scopeFiltrarPorInstituicao(Builder $query, int $instituicaoId): Builder
+    {
+        return $query->where('instituicao_id', $instituicaoId);
+    }
+
     public function scopeFiltrarPorCargo(Builder $query, int $cargoId): Builder
     {
         return $query->whereHas('cargos', function (Builder $subQuery) use ($cargoId) {
             $subQuery->where('cargos.id', $cargoId);
         });
+    }
+
+    public function getImagemUrlAttribute(): ?string
+    {
+        if (!$this->imagem_path) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->imagem_path);
     }
 }

@@ -24,6 +24,9 @@
         .btn-primary:disabled { opacity: .7; cursor: not-allowed; }
         .btn-soft { color: #1d3f6d; border-color: #cedaeb; background: #f8fbff; }
         .alert { border: 1px solid #efd4d9; background: #fff7f8; color: #a3213a; border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.5; }
+        .image-preview-wrap { display: none; border: 1px dashed #c9d9ef; border-radius: 12px; padding: 10px; background: #f8fbff; }
+        .image-preview-wrap.is-visible { display: block; }
+        .image-preview { width: 100%; max-width: min(100%, 640px); max-height: 360px; object-fit: contain; border-radius: 10px; background: #fff; display: block; margin-inline: auto; }
     </style>
 @endpush
 
@@ -42,7 +45,7 @@
             <div class="alert" role="alert">Revise os campos do formulario antes de continuar.</div>
         @endif
 
-        <form id="questaoForm" class="form-grid" method="POST" action="{{ route('adm.questoes.update', $questao) }}">
+        <form id="questaoForm" class="form-grid" method="POST" action="{{ route('adm.questoes.update', $questao) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -68,6 +71,17 @@
                     </select>
                     @error('materia_id')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
+
+                <div class="field">
+                    <label class="label" for="instituicao_id">Instituicao</label>
+                    <select id="instituicao_id" name="instituicao_id" class="select" required>
+                        <option value="">Selecione</option>
+                        @foreach ($instituicoes as $instituicao)
+                            <option value="{{ $instituicao->id }}" @selected((int) old('instituicao_id', $questao->instituicao_id) === $instituicao->id)>{{ $instituicao->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('instituicao_id')<p class="field-error">{{ $message }}</p>@enderror
+                </div>
             </div>
 
             <div class="field">
@@ -80,6 +94,28 @@
                 <p class="help">Segure CTRL (ou CMD) para selecionar mais de um cargo.</p>
                 @error('cargo_ids')<p class="field-error">{{ $message }}</p>@enderror
                 @error('cargo_ids.*')<p class="field-error">{{ $message }}</p>@enderror
+            </div>
+
+            <div class="field">
+                <label class="label" for="imagem">Imagem da questao (opcional)</label>
+                <input id="imagem" name="imagem" class="input" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/*">
+                @if ($questao->imagem_url)
+                    <p class="help">Imagem atual carregada. Envie outra para substituir.</p>
+                @else
+                    <p class="help">Nenhuma imagem cadastrada. Selecione um arquivo para adicionar.</p>
+                @endif
+                <div id="imagePreviewWrap" class="image-preview-wrap {{ $questao->imagem_url ? 'is-visible' : '' }}" aria-live="polite">
+                    <img
+                        id="imagePreview"
+                        class="image-preview"
+                        alt="Preview da imagem da questao"
+                        data-current-src="{{ $questao->imagem_url ?? '' }}"
+                        @if ($questao->imagem_url)
+                            src="{{ $questao->imagem_url }}"
+                        @endif
+                    >
+                </div>
+                @error('imagem')<p class="field-error">{{ $message }}</p>@enderror
             </div>
 
             <div class="field">
@@ -145,8 +181,47 @@
         (function () {
             var form = document.getElementById('questaoForm');
             var submitButton = document.getElementById('submitButton');
+            var imageInput = document.getElementById('imagem');
+            var imagePreviewWrap = document.getElementById('imagePreviewWrap');
+            var imagePreview = document.getElementById('imagePreview');
 
             if (!form || !submitButton) return;
+
+            if (imageInput && imagePreviewWrap && imagePreview) {
+                var currentImageSrc = imagePreview.getAttribute('data-current-src') || '';
+
+                function restoreCurrentImage() {
+                    if (currentImageSrc) {
+                        imagePreview.src = currentImageSrc;
+                        imagePreviewWrap.classList.add('is-visible');
+                        return;
+                    }
+
+                    imagePreview.removeAttribute('src');
+                    imagePreviewWrap.classList.remove('is-visible');
+                }
+
+                imageInput.addEventListener('change', function () {
+                    var file = imageInput.files && imageInput.files[0];
+
+                    if (!file) {
+                        restoreCurrentImage();
+                        return;
+                    }
+
+                    if (!file.type || file.type.indexOf('image/') !== 0) {
+                        restoreCurrentImage();
+                        return;
+                    }
+
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        imagePreview.src = String(event.target && event.target.result ? event.target.result : '');
+                        imagePreviewWrap.classList.add('is-visible');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
             form.addEventListener('submit', function () {
                 submitButton.disabled = true;

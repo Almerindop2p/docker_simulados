@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BancaController;
 use App\Http\Controllers\Admin\CargoController;
+use App\Http\Controllers\Admin\InstituicaoController;
 use App\Http\Controllers\Admin\MateriaController;
 use App\Http\Controllers\Admin\QuestaoController;
 use App\Http\Controllers\Auth\CadastroController;
@@ -46,6 +47,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/bancas/{banca}/editar', [BancaController::class, 'edit'])->name('bancas.edit');
         Route::put('/bancas/{banca}', [BancaController::class, 'update'])->name('bancas.update');
         Route::delete('/bancas/{banca}', [BancaController::class, 'destroy'])->name('bancas.destroy');
+
+        Route::get('/instituicoes', [InstituicaoController::class, 'index'])->name('instituicoes.index');
+        Route::get('/instituicoes/adicionar', [InstituicaoController::class, 'create'])->name('instituicoes.create');
+        Route::get('/instituicoes/verificar-nome', [InstituicaoController::class, 'checkName'])->name('instituicoes.check-name');
+        Route::get('/instituicoes/verificar-campo', [InstituicaoController::class, 'checkField'])->name('instituicoes.check-field');
+        Route::post('/instituicoes', [InstituicaoController::class, 'store'])->name('instituicoes.store');
+        Route::get('/instituicoes/{instituicao}/editar', [InstituicaoController::class, 'edit'])->name('instituicoes.edit');
+        Route::put('/instituicoes/{instituicao}', [InstituicaoController::class, 'update'])->name('instituicoes.update');
+        Route::delete('/instituicoes/{instituicao}', [InstituicaoController::class, 'destroy'])->name('instituicoes.destroy');
 
         Route::get('/materias', [MateriaController::class, 'index'])->name('materias.index');
         Route::get('/materias/adicionar', [MateriaController::class, 'create'])->name('materias.create');
