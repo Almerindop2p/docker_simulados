@@ -7,6 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FeedbackTicket extends Model
 {
+    public const STATUS_ABERTO = 'aberto';
+    public const STATUS_PENDENTE = 'pendente';
+    public const STATUS_PROCESSANDO = 'processando';
+    public const STATUS_CONCLUIDO = 'concluido';
+
+    public const ALLOWED_STATUSES = [
+        self::STATUS_ABERTO,
+        self::STATUS_PENDENTE,
+        self::STATUS_PROCESSANDO,
+        self::STATUS_CONCLUIDO,
+    ];
+
     protected $fillable = [
         'user_id',
         'nome',
@@ -15,6 +27,7 @@ class FeedbackTicket extends Model
         'origem_rota',
         'pagina_url',
         'status',
+        'observacao_admin',
         'ip_address',
         'user_agent',
     ];
@@ -24,4 +37,3 @@ class FeedbackTicket extends Model
         return $this->belongsTo(User::class);
     }
 }
-

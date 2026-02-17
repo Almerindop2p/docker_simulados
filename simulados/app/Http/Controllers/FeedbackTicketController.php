@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Feedback\StoreFeedbackTicketRequest;
+use App\Models\AdminNotification;
 use App\Models\FeedbackTicket;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class FeedbackTicketController extends Controller
 {
@@ -20,10 +24,12 @@ class FeedbackTicketController extends Controller
             'mensagem' => $data['mensagem'],
             'origem_rota' => $data['origem_rota'] ?? $request->route()?->getName(),
             'pagina_url' => $data['pagina_url'] ?? $request->headers->get('referer'),
-            'status' => 'aberto',
+            'status' => FeedbackTicket::STATUS_ABERTO,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
+
+        $this->notifyAdmins($ticket);
 
         return response()->json([
             'ok' => true,
@@ -31,5 +37,48 @@ class FeedbackTicketController extends Controller
             'ticket_id' => $ticket->id,
         ]);
     }
-}
 
+    private function notifyAdmins(FeedbackTicket $ticket): void
+    {
+        if (!Schema::hasTable('admin_notifications')) {
+            return;
+        }
+
+        $admins = User::query()
+            ->where('user_type', User::TYPE_ADM)
+            ->get(['id']);
+
+        foreach ($admins as $admin) {
+            AdminNotification::query()->firstOrCreate(
+                [
+                    'user_id' => $admin->id,
+                    'reference_key' => 'ticket-' . $ticket->id,
+                ],
+                [
+                    'category' => AdminNotification::CATEGORY_TICKET,
+                    'title' => 'Novo ticket de feedback #' . $ticket->id,
+                    'message' => $this->buildTicketPreview($ticket),
+                    'data' => [
+                        'ticket_id' => $ticket->id,
+                        'nome' => $ticket->nome,
+                        'email' => $ticket->email,
+                        'origem_rota' => $ticket->origem_rota,
+                    ],
+                    'read_at' => null,
+                ]
+            );
+        }
+    }
+
+    private function buildTicketPreview(FeedbackTicket $ticket): string
+    {
+        $autor = $ticket->nome ?: $ticket->email ?: 'Usuario do site';
+        $mensagem = Str::of((string) $ticket->mensagem)
+            ->replaceMatches('/\s+/', ' ')
+            ->trim()
+            ->limit(120, '...')
+            ->toString();
+
+        return "{$autor}: {$mensagem}";
+    }
+}

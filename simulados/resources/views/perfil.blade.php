@@ -584,6 +584,7 @@
         $isMateriaRoute = request()->routeIs('adm.materias.*');
         $isCargoRoute = request()->routeIs('adm.cargos.*');
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
+        $isTicketRoute = request()->routeIs('adm.tickets.*');
     @endphp
 
     <div class="layout">
@@ -700,6 +701,12 @@
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.questoes.create') ? 'is-active' : '' }}" href="{{ route('adm.questoes.create') }}">Adicionar Questao</a></li>
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.questoes.index') ? 'is-active' : '' }}" href="{{ route('adm.questoes.index') }}">Lista de Questoes</a></li>
                             </ul>
+                        </li>
+                        <li>
+                            <a class="nav-link {{ $isTicketRoute ? 'is-active' : '' }}" href="{{ route('adm.tickets.index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3h9A2.5 2.5 0 0 1 19 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18.5v-13Z" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Tickets</span>
+                            </a>
                         </li>
                     @endif
                 </ul>

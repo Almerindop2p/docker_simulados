@@ -2,8 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\AdminNotification;
 use App\Models\FeedbackTicket;
-use App\Models\Questao;
 use App\Models\QuestaoResposta;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
@@ -23,6 +23,98 @@ class HeaderNotifications
 
     private static function buildForAdmin(User $user): array
     {
+        if (!self::tableExists('admin_notifications')) {
+            return self::fallbackAdminSummary();
+        }
+
+        self::ensureDailySystemNotification($user);
+
+        $query = AdminNotification::query()->where('user_id', $user->id);
+        $unreadCount = (clone $query)->whereNull('read_at')->count();
+
+        $items = $query
+            ->latest()
+            ->limit(12)
+            ->get()
+            ->map(fn (AdminNotification $notification) => self::mapAdminNotification($notification))
+            ->all();
+
+        return [
+            'title' => 'Notificacoes ADM',
+            'items' => $items,
+            'count' => $unreadCount,
+        ];
+    }
+
+    private static function mapAdminNotification(AdminNotification $notification): array
+    {
+        $isTicket = $notification->category === AdminNotification::CATEGORY_TICKET;
+        $isRead = $notification->read_at !== null;
+        $baseType = $isTicket && !$isRead ? 'warning' : 'info';
+
+        return [
+            'id' => $notification->id,
+            'type' => $baseType,
+            'title' => $notification->title,
+            'message' => $notification->message,
+            'read' => $isRead,
+            'action' => $isTicket ? 'link' : 'modal',
+            'url' => $isTicket ? route('adm.notifications.open', $notification) : null,
+            'mark_read_url' => route('adm.notifications.read', $notification),
+            'modal_title' => $notification->title,
+            'modal_message' => $notification->message,
+            'category' => $notification->category,
+            'created_at' => $notification->created_at?->format('d/m/Y H:i'),
+        ];
+    }
+
+    private static function ensureDailySystemNotification(User $user): void
+    {
+        $today = now()->toDateString();
+        $referenceKey = 'daily-system-' . $today;
+
+        $alreadyExists = AdminNotification::query()
+            ->where('user_id', $user->id)
+            ->where('reference_key', $referenceKey)
+            ->exists();
+
+        if ($alreadyExists) {
+            return;
+        }
+
+        $ticketsAbertos = self::tableExists('feedback_tickets')
+            ? FeedbackTicket::query()->where('status', 'aberto')->count()
+            : 0;
+
+        $respostasHoje = self::tableExists('questao_respostas')
+            ? QuestaoResposta::query()->whereDate('respondida_em', now()->toDateString())->count()
+            : 0;
+
+        $assinantes = self::tableExists('users')
+            ? User::query()->where('user_type', User::TYPE_USER_ASSINANTE)->count()
+            : 0;
+
+        $message = 'Resumo do dia: '
+            . $ticketsAbertos . ' ticket(s) aberto(s), '
+            . $respostasHoje . ' resposta(s) registradas hoje, '
+            . $assinantes . ' assinante(s) ativos.';
+
+        AdminNotification::query()->create([
+            'user_id' => $user->id,
+            'category' => AdminNotification::CATEGORY_SYSTEM,
+            'title' => 'Mensagem padrao do sistema',
+            'message' => $message,
+            'data' => [
+                'source' => 'daily-summary',
+                'date' => $today,
+            ],
+            'reference_key' => $referenceKey,
+            'read_at' => null,
+        ]);
+    }
+
+    private static function fallbackAdminSummary(): array
+    {
         $items = [];
 
         if (self::tableExists('feedback_tickets')) {
@@ -31,42 +123,10 @@ class HeaderNotifications
                 $items[] = [
                     'type' => 'warning',
                     'title' => 'Tickets pendentes',
-                    'message' => "{$feedbackAbertos} feedback(s) aguardando analise.",
+                    'message' => $feedbackAbertos . ' feedback(s) aguardando analise.',
                     'url' => null,
                 ];
             }
-        }
-
-        if (self::tableExists('questoes')) {
-            $questoesSemInstituicao = Questao::query()->whereNull('instituicao_id')->count();
-            if ($questoesSemInstituicao > 0) {
-                $items[] = [
-                    'type' => 'warning',
-                    'title' => 'Questoes sem instituicao',
-                    'message' => "{$questoesSemInstituicao} questao(oes) sem vinculacao de instituicao.",
-                    'url' => route('adm.questoes.index'),
-                ];
-            }
-        }
-
-        if (self::tableExists('questao_respostas')) {
-            $respostasHoje = QuestaoResposta::query()->whereDate('respondida_em', now()->toDateString())->count();
-            $items[] = [
-                'type' => 'info',
-                'title' => 'Atividade hoje',
-                'message' => "{$respostasHoje} resposta(s) registradas na plataforma hoje.",
-                'url' => null,
-            ];
-        }
-
-        if (self::tableExists('users')) {
-            $assinantes = User::query()->where('user_type', User::TYPE_USER_ASSINANTE)->count();
-            $items[] = [
-                'type' => 'info',
-                'title' => 'Base de assinantes',
-                'message' => "{$assinantes} usuario(s) assinante(s) ativos.",
-                'url' => null,
-            ];
         }
 
         return self::finalize($items, 'Notificacoes ADM');
@@ -111,22 +171,10 @@ class HeaderNotifications
                 'type' => $feedbackAbertos > 0 ? 'warning' : 'info',
                 'title' => 'Fila de tickets',
                 'message' => $feedbackAbertos > 0
-                    ? "{$feedbackAbertos} ticket(s) aberto(s) aguardando triagem."
+                    ? $feedbackAbertos . ' ticket(s) aberto(s) aguardando triagem.'
                     : 'Nenhum ticket pendente de triagem no momento.',
                 'url' => null,
             ];
-        }
-
-        if (self::tableExists('questoes')) {
-            $questoesSemInstituicao = Questao::query()->whereNull('instituicao_id')->count();
-            if ($questoesSemInstituicao > 0) {
-                $items[] = [
-                    'type' => 'warning',
-                    'title' => 'Pendencia de catalogacao',
-                    'message' => "{$questoesSemInstituicao} questao(oes) sem instituicao vinculada.",
-                    'url' => route('adm.questoes.index'),
-                ];
-            }
         }
 
         if (self::tableExists('questao_respostas')) {
@@ -134,7 +182,7 @@ class HeaderNotifications
             $items[] = [
                 'type' => 'info',
                 'title' => 'Movimento da plataforma',
-                'message' => "{$respostasHoje} resposta(s) registradas hoje.",
+                'message' => $respostasHoje . ' resposta(s) registradas hoje.',
                 'url' => null,
             ];
         }
@@ -227,3 +275,4 @@ class HeaderNotifications
         }
     }
 }
+

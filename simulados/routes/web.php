@@ -2,13 +2,16 @@
 
 use App\Http\Controllers\Admin\BancaController;
 use App\Http\Controllers\Admin\CargoController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\InstituicaoController;
 use App\Http\Controllers\Admin\MateriaController;
 use App\Http\Controllers\Admin\QuestaoController;
+use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Auth\CadastroController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedbackTicketController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationFeedController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +34,10 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/notificacoes/feed', [NotificationFeedController::class, 'index'])
+        ->middleware('throttle:60,1')
+        ->name('notifications.feed');
+
     Route::get('/perfil', [ProfileController::class, 'show'])->name('perfil.show');
     Route::post('/perfil/avatar', [ProfileController::class, 'updateAvatar'])->name('perfil.avatar.update');
 
@@ -83,6 +90,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/questoes/editar/{questao}', [QuestaoController::class, 'edit'])->name('questoes.edit');
         Route::put('/questoes/{questao}', [QuestaoController::class, 'update'])->name('questoes.update');
         Route::delete('/questoes/{questao}', [QuestaoController::class, 'destroy'])->name('questoes.destroy');
+
+        Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+        Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+        Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
+
+        Route::get('/notificacoes/{notification}/abrir', [AdminNotificationController::class, 'open'])->name('notifications.open');
+        Route::patch('/notificacoes/{notification}/visualizar', [AdminNotificationController::class, 'read'])->name('notifications.read');
     });
 
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
