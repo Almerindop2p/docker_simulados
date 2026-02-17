@@ -274,6 +274,17 @@
 
         .content { padding: 16px; display: grid; gap: 16px; }
 
+        /* Global responsive guards for all admin pages */
+        .content img { max-width: 100%; height: auto; }
+        .content input,
+        .content select,
+        .content textarea { max-width: 100%; }
+        .content .table-wrap {
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .overlay {
             position: fixed;
             inset: 0;
