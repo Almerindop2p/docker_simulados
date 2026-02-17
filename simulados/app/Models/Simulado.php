@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Simulado extends Model
+{
+    public const VISIBILIDADE_PUBLICO = 'publico';
+    public const VISIBILIDADE_PRIVADO = 'privado';
+    public const VISIBILIDADE_ASSINANTES = 'assinantes';
+    public const VISIBILIDADE_NAO_LISTADO = 'nao_listado';
+
+    public const VISIBILIDADES = [
+        self::VISIBILIDADE_PUBLICO,
+        self::VISIBILIDADE_PRIVADO,
+        self::VISIBILIDADE_ASSINANTES,
+        self::VISIBILIDADE_NAO_LISTADO,
+    ];
+
+    protected $table = 'simulados';
+
+    protected $fillable = [
+        'name',
+        'slug',
+        'visibilidade',
+    ];
+
+    public static function visibilidadeLabel(?string $visibilidade): string
+    {
+        return match ($visibilidade) {
+            self::VISIBILIDADE_PUBLICO => 'Publico',
+            self::VISIBILIDADE_PRIVADO => 'Privado',
+            self::VISIBILIDADE_ASSINANTES => 'Usuarios assinantes',
+            self::VISIBILIDADE_NAO_LISTADO => 'Nao listado',
+            default => 'Nao informado',
+        };
+    }
+}
+

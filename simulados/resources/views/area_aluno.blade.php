@@ -508,6 +508,7 @@
         $loggedUser = auth()->user();
         $isAdm = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_ADM;
         $isBancaRoute = request()->routeIs('adm.bancas.*');
+        $isSimuladoRoute = request()->routeIs('adm.simulados.*');
         $isMateriaRoute = request()->routeIs('adm.materias.*');
         $isCargoRoute = request()->routeIs('adm.cargos.*');
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
@@ -558,6 +559,23 @@
                             <ul id="bancaSubmenu" class="nav-submenu {{ $isBancaRoute ? 'is-open' : '' }}">
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.bancas.create') ? 'is-active' : '' }}" href="{{ route('adm.bancas.create') }}">Adicionar Banca</a></li>
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.bancas.index') ? 'is-active' : '' }}" href="{{ route('adm.bancas.index') }}">Lista de Bancas</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button
+                                id="simuladoToggle"
+                                class="nav-link nav-toggle {{ $isSimuladoRoute ? 'is-active' : '' }}"
+                                type="button"
+                                aria-expanded="{{ $isSimuladoRoute ? 'true' : 'false' }}"
+                                aria-controls="simuladoSubmenu"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 17 20H7a2.5 2.5 0 0 1-2.5-2.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Simulados</span>
+                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <ul id="simuladoSubmenu" class="nav-submenu {{ $isSimuladoRoute ? 'is-open' : '' }}">
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.simulados.create') ? 'is-active' : '' }}" href="{{ route('adm.simulados.create') }}">Adicionar Simulado</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.simulados.index') ? 'is-active' : '' }}" href="{{ route('adm.simulados.index') }}">Lista de Simulados</a></li>
                             </ul>
                         </li>
                         <li>
@@ -717,6 +735,7 @@
             var avatarMenu = document.getElementById('avatarMenu');
             var menuToggles = [
                 {button: document.getElementById('bancaToggle'), submenu: document.getElementById('bancaSubmenu')},
+                {button: document.getElementById('simuladoToggle'), submenu: document.getElementById('simuladoSubmenu')},
                 {button: document.getElementById('materiaToggle'), submenu: document.getElementById('materiaSubmenu')},
                 {button: document.getElementById('cargoToggle'), submenu: document.getElementById('cargoSubmenu')},
                 {button: document.getElementById('questaoToggle'), submenu: document.getElementById('questaoSubmenu')}

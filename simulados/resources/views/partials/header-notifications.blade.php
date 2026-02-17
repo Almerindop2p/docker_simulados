@@ -271,7 +271,7 @@
         position: fixed;
         inset: 0;
         background: rgba(16, 36, 63, 0.45);
-        z-index: 80;
+        z-index: 9999;
         display: grid;
         place-items: center;
         padding: 16px;
@@ -367,6 +367,10 @@
 
             if (!button || !menu || !list || !empty || !title) {
                 return;
+            }
+
+            if (modal && modal.parentNode !== document.body) {
+                document.body.appendChild(modal);
             }
 
             function updateBadge(unreadCount) {
@@ -643,13 +647,17 @@
                     window.setTimeout(navigateNow, 350);
                     return;
                 }
-
-                var closeBtn = event.target.closest('[data-notif-modal-close]');
-                if (closeBtn && root.contains(closeBtn)) {
-                    event.preventDefault();
-                    closeModal();
-                }
             });
+
+            if (modal) {
+                modal.addEventListener('click', function (event) {
+                    var closeBtn = event.target.closest('[data-notif-modal-close]');
+                    if (closeBtn && modal.contains(closeBtn)) {
+                        event.preventDefault();
+                        closeModal();
+                    }
+                });
+            }
 
             document.addEventListener('click', function (event) {
                 if (!menu.hidden && !menu.contains(event.target) && !button.contains(event.target)) {

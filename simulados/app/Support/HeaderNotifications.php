@@ -7,6 +7,7 @@ use App\Models\FeedbackTicket;
 use App\Models\QuestaoResposta;
 use App\Models\User;
 use App\Models\UserNotificationRead;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
 
 class HeaderNotifications
@@ -65,7 +66,7 @@ class HeaderNotifications
             'modal_title' => $notification->title,
             'modal_message' => $notification->message,
             'category' => $notification->category,
-            'created_at' => $notification->created_at?->format('d/m/Y H:i'),
+            'created_at' => self::formatRelativeTime($notification->created_at),
         ];
     }
 
@@ -174,11 +175,11 @@ class HeaderNotifications
         if (self::tableExists('feedback_tickets')) {
             $feedbackAbertos = FeedbackTicket::query()->where('status', 'aberto')->count();
             $items[] = [
-                'key' => self::notificationKey('colaborador-fila-tickets', [$user->id, now()->toDateString(), $feedbackAbertos]),
+                'key' => self::notificationKey('colaborador-fila-tickets', [$user->id, now()->toDateString()]),
                 'type' => $feedbackAbertos > 0 ? 'warning' : 'info',
                 'title' => 'Fila de tickets',
                 'message' => $feedbackAbertos > 0
-                    ? $feedbackAbertos . ' ticket(s) aberto(s) aguardando triagem.'
+                    ? 'Ha ticket(s) aberto(s) aguardando triagem.'
                     : 'Nenhum ticket pendente de triagem no momento.',
                 'url' => null,
             ];
@@ -256,10 +257,10 @@ class HeaderNotifications
 
             if ($feedbackAbertos > 0) {
                 $items[] = [
-                    'key' => self::notificationKey('aluno-feedback-andamento', [$user->id, now()->toDateString(), $feedbackAbertos]),
+                    'key' => self::notificationKey('aluno-feedback-andamento', [$user->id, now()->toDateString()]),
                     'type' => 'warning',
                     'title' => 'Feedback em andamento',
-                    'message' => "Voce tem {$feedbackAbertos} ticket(s) com status aberto.",
+                    'message' => 'Voce possui ticket(s) com status aberto.',
                     'url' => null,
                 ];
             }
@@ -303,7 +304,63 @@ class HeaderNotifications
             $item['mark_read_url'] = route('notifications.read', ['notificationKey' => $notificationKey]);
         }
 
+        $item['created_at'] = self::formatRelativeTime(
+            $item['created_at'] ?? self::inferFallbackCreatedAt($notificationKey)
+        ) ?? '1s';
+
         return $item;
+    }
+
+    private static function inferFallbackCreatedAt(?string $notificationKey): \DateTimeInterface
+    {
+        if ($notificationKey && preg_match('/\b(\d{4}-\d{2}-\d{2})\b/', $notificationKey, $matches)) {
+            try {
+                return Carbon::createFromFormat('Y-m-d', $matches[1])->startOfDay();
+            } catch (\Throwable) {
+                return now();
+            }
+        }
+
+        return now();
+    }
+
+    private static function formatRelativeTime(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            $date = $value instanceof \DateTimeInterface
+                ? Carbon::instance($value)
+                : Carbon::parse((string) $value);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $elapsed = max(1, now()->timestamp - $date->timestamp);
+
+        if ($elapsed < 60) {
+            return $elapsed . 's';
+        }
+
+        if ($elapsed < 3600) {
+            return intdiv($elapsed, 60) . 'min';
+        }
+
+        if ($elapsed < 86400) {
+            return intdiv($elapsed, 3600) . 'h';
+        }
+
+        if ($elapsed < 2592000) {
+            return intdiv($elapsed, 86400) . 'd';
+        }
+
+        if ($elapsed < 31536000) {
+            return intdiv($elapsed, 2592000) . 'mes';
+        }
+
+        return intdiv($elapsed, 31536000) . 'a';
     }
 
     private static function readKeyMapForUser(User $user): array

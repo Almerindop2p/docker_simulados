@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\InstituicaoController;
 use App\Http\Controllers\Admin\MateriaController;
 use App\Http\Controllers\Admin\QuestaoController;
+use App\Http\Controllers\Admin\SimuladoController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Auth\CadastroController;
 use App\Http\Controllers\Auth\LoginController;
@@ -62,6 +63,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/bancas/{banca}/editar', [BancaController::class, 'edit'])->name('bancas.edit');
         Route::put('/bancas/{banca}', [BancaController::class, 'update'])->name('bancas.update');
         Route::delete('/bancas/{banca}', [BancaController::class, 'destroy'])->name('bancas.destroy');
+
+        Route::get('/simulados', [SimuladoController::class, 'index'])->name('simulados.index');
+        Route::get('/simulados/adicionar', [SimuladoController::class, 'create'])->name('simulados.create');
+        Route::get('/simulados/verificar-nome', [SimuladoController::class, 'checkName'])->name('simulados.check-name');
+        Route::get('/simulados/verificar-campo', [SimuladoController::class, 'checkField'])->name('simulados.check-field');
+        Route::post('/simulados', [SimuladoController::class, 'store'])->name('simulados.store');
+        Route::get('/simulados/{simulado}/editar', [SimuladoController::class, 'edit'])->name('simulados.edit');
+        Route::put('/simulados/{simulado}', [SimuladoController::class, 'update'])->name('simulados.update');
+        Route::delete('/simulados/{simulado}', [SimuladoController::class, 'destroy'])->name('simulados.destroy');
 
         Route::get('/instituicoes', [InstituicaoController::class, 'index'])->name('instituicoes.index');
         Route::get('/instituicoes/adicionar', [InstituicaoController::class, 'create'])->name('instituicoes.create');
