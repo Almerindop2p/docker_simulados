@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedbackTicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationFeedController;
+use App\Http\Controllers\NotificationReadController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/notificacoes/feed', [NotificationFeedController::class, 'index'])
         ->middleware('throttle:60,1')
         ->name('notifications.feed');
+    Route::patch('/notificacoes/visualizar/{notificationKey}', [NotificationReadController::class, 'read'])
+        ->where('notificationKey', '[A-Za-z0-9\-]+')
+        ->name('notifications.read');
 
     Route::get('/perfil', [ProfileController::class, 'show'])->name('perfil.show');
     Route::post('/perfil/avatar', [ProfileController::class, 'updateAvatar'])->name('perfil.avatar.update');

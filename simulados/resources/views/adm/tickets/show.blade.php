@@ -209,6 +209,30 @@
             background: linear-gradient(135deg, var(--brand), #4c83f0);
             box-shadow: 0 10px 20px rgba(31, 95, 224, 0.24);
         }
+
+        .btn[disabled] {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+
+        .btn.is-loading {
+            position: relative;
+            gap: 8px;
+        }
+
+        .btn.is-loading::before {
+            content: '';
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #fff;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 @endpush
 
@@ -240,7 +264,7 @@
                 </div>
             @endif
 
-            <form class="admin-form" method="POST" action="{{ route('adm.tickets.update', $ticket) }}">
+            <form id="ticketUpdateForm" class="admin-form" method="POST" action="{{ route('adm.tickets.update', $ticket) }}">
                 @csrf
                 @method('PATCH')
 
@@ -268,7 +292,7 @@
                 </div>
 
                 <div class="actions">
-                    <button class="btn btn-primary" type="submit">Salvar atualizacao</button>
+                    <button id="ticketUpdateSubmit" class="btn btn-primary" type="submit" data-loading-text="Enviando ticket...">Salvar atualizacao</button>
                 </div>
             </form>
 
@@ -319,3 +343,27 @@
         </article>
     </section>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            var form = document.getElementById('ticketUpdateForm');
+            var submitButton = document.getElementById('ticketUpdateSubmit');
+
+            if (!form || !submitButton) {
+                return;
+            }
+
+            form.addEventListener('submit', function () {
+                if (submitButton.disabled) {
+                    return;
+                }
+
+                submitButton.dataset.originalText = submitButton.textContent;
+                submitButton.textContent = submitButton.dataset.loadingText || 'Enviando...';
+                submitButton.disabled = true;
+                submitButton.classList.add('is-loading');
+            });
+        })();
+    </script>
+@endpush

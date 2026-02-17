@@ -51,7 +51,10 @@
 
             <p id="feedbackMessage" class="feedback-message" hidden></p>
 
-            <button id="feedbackSubmit" class="feedback-submit" type="submit">Enviar feedback</button>
+            <button id="feedbackSubmit" class="feedback-submit" type="submit">
+                <span class="feedback-submit-label">Enviar feedback</span>
+                <span class="feedback-submit-spinner" aria-hidden="true"></span>
+            </button>
         </form>
     </section>
 </div>
@@ -187,11 +190,35 @@
         font-size: 14px;
         font-weight: 700;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
 
     .feedback-submit[disabled] {
         opacity: 0.65;
         cursor: not-allowed;
+    }
+
+    .feedback-submit-spinner {
+        display: none;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-top-color: #fff;
+        border-radius: 999px;
+        animation: feedbackSpin 0.7s linear infinite;
+    }
+
+    .feedback-submit.is-loading .feedback-submit-spinner {
+        display: inline-block;
+    }
+
+    @keyframes feedbackSpin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .feedback-message {
@@ -284,6 +311,24 @@
             messageBox.className = 'feedback-message';
         }
 
+        function setLoadingState(loading) {
+            var label = submit.querySelector('.feedback-submit-label');
+            if (loading) {
+                submit.setAttribute('disabled', 'disabled');
+                submit.classList.add('is-loading');
+                if (label) {
+                    label.textContent = 'Enviando...';
+                }
+                return;
+            }
+
+            submit.removeAttribute('disabled');
+            submit.classList.remove('is-loading');
+            if (label) {
+                label.textContent = 'Enviar feedback';
+            }
+        }
+
         fab.addEventListener('click', function () {
             if (panel.hidden) {
                 openPanel();
@@ -316,7 +361,7 @@
         form.addEventListener('submit', async function (event) {
             event.preventDefault();
             clearMessage();
-            submit.setAttribute('disabled', 'disabled');
+            setLoadingState(true);
 
             try {
                 var response = await fetch(form.action, {
@@ -363,7 +408,7 @@
             } catch (error) {
                 showMessage('Falha de conexao. Tente novamente.', 'error');
             } finally {
-                submit.removeAttribute('disabled');
+                setLoadingState(false);
             }
         });
     })();

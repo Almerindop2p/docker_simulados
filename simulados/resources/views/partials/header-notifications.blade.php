@@ -8,7 +8,7 @@
 
 <div class="notif-wrap" data-notif-root data-feed-url="{{ route('notifications.feed') }}">
     <button
-        class="notif-btn"
+        class="notif-btn {{ $notifCount > 0 ? 'has-unread' : '' }}"
         type="button"
         aria-label="Abrir notificacoes"
         aria-expanded="false"
@@ -126,6 +126,18 @@
         justify-content: center;
         cursor: pointer;
         position: relative;
+        transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+    }
+
+    .notif-btn.has-unread {
+        border-color: #1f5fe0;
+        background: linear-gradient(135deg, #1f5fe0, #4c83f0);
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(31, 95, 224, 0.35);
+    }
+
+    .notif-btn.has-unread .notif-badge {
+        border-color: #1f5fe0;
     }
 
     .notif-btn svg {
@@ -198,24 +210,27 @@
     .notif-item {
         border: 1px solid #dde7f5;
         border-radius: 10px;
-        background: #f8fbff;
+        background: #fff;
+        transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
     }
 
     .notif-item.is-unread {
+        border-color: #c8daf7;
+        background: #f4f8ff;
         box-shadow: inset 3px 0 0 #1f5fe0;
     }
 
-    .notif-item.is-warning {
+    .notif-item.is-unread.is-warning {
         border-color: #f1d7ad;
         background: #fffaf1;
     }
 
-    .notif-item.is-success {
+    .notif-item.is-unread.is-success {
         border-color: #c6e7d2;
         background: #f2fbf5;
     }
 
-    .notif-item.is-danger {
+    .notif-item.is-unread.is-danger {
         border-color: #f2c4cc;
         background: #fff4f6;
     }
@@ -363,6 +378,7 @@
                 }
 
                 if (count <= 0) {
+                    button.classList.remove('has-unread');
                     if (badge) {
                         badge.remove();
                     }
@@ -375,6 +391,7 @@
                     button.appendChild(badge);
                 }
 
+                button.classList.add('has-unread');
                 badge.textContent = count > 99 ? '99+' : String(count);
             }
 
@@ -667,4 +684,3 @@
         });
     })();
 </script>
-

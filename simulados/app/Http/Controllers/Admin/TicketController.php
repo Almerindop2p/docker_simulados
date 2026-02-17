@@ -65,7 +65,7 @@ class TicketController extends Controller
         ]);
 
         return redirect()
-            ->route('adm.tickets.show', $ticket)
+            ->route('adm.tickets.index')
             ->with('status', 'Ticket atualizado com sucesso.');
     }
 

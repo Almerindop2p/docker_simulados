@@ -6,6 +6,7 @@ use App\Models\AdminNotification;
 use App\Models\FeedbackTicket;
 use App\Models\QuestaoResposta;
 use App\Models\User;
+use App\Models\UserNotificationRead;
 use Illuminate\Support\Facades\Schema;
 
 class HeaderNotifications
@@ -134,23 +135,27 @@ class HeaderNotifications
 
     private static function buildForAssinante(User $user): array
     {
+        $readKeyMap = self::readKeyMapForUser($user);
         $items = self::buildStudentCore($user);
         $items[] = [
+            'key' => self::notificationKey('assinante-plano', [$user->id, now()->toDateString()]),
             'type' => 'success',
             'title' => 'Plano assinante',
             'message' => 'Voce esta no modo assinante. Continue aproveitando os recursos premium.',
             'url' => route('area_assinante'),
         ];
 
-        return self::finalize($items, 'Notificacoes do Assinante');
+        return self::finalize($items, 'Notificacoes do Assinante', $readKeyMap);
     }
 
     private static function buildForAluno(User $user): array
     {
+        $readKeyMap = self::readKeyMapForUser($user);
         $items = self::buildStudentCore($user);
 
         if (self::tableExists('users')) {
             $items[] = [
+                'key' => self::notificationKey('aluno-dica-beta', [$user->id, now()->toDateString()]),
                 'type' => 'info',
                 'title' => 'Dica beta',
                 'message' => 'Envie feedback pelo icone verde para ajudar na evolucao da plataforma.',
@@ -158,16 +163,18 @@ class HeaderNotifications
             ];
         }
 
-        return self::finalize($items, 'Notificacoes do Aluno');
+        return self::finalize($items, 'Notificacoes do Aluno', $readKeyMap);
     }
 
     private static function buildForColaborador(User $user): array
     {
+        $readKeyMap = self::readKeyMapForUser($user);
         $items = [];
 
         if (self::tableExists('feedback_tickets')) {
             $feedbackAbertos = FeedbackTicket::query()->where('status', 'aberto')->count();
             $items[] = [
+                'key' => self::notificationKey('colaborador-fila-tickets', [$user->id, now()->toDateString(), $feedbackAbertos]),
                 'type' => $feedbackAbertos > 0 ? 'warning' : 'info',
                 'title' => 'Fila de tickets',
                 'message' => $feedbackAbertos > 0
@@ -180,6 +187,7 @@ class HeaderNotifications
         if (self::tableExists('questao_respostas')) {
             $respostasHoje = QuestaoResposta::query()->whereDate('respondida_em', now()->toDateString())->count();
             $items[] = [
+                'key' => self::notificationKey('colaborador-movimento-plataforma', [$user->id, now()->toDateString(), $respostasHoje]),
                 'type' => 'info',
                 'title' => 'Movimento da plataforma',
                 'message' => $respostasHoje . ' resposta(s) registradas hoje.',
@@ -187,22 +195,24 @@ class HeaderNotifications
             ];
         }
 
-        return self::finalize($items, 'Notificacoes do Colaborador');
+        return self::finalize($items, 'Notificacoes do Colaborador', $readKeyMap);
     }
 
     private static function buildForGenerico(User $user): array
     {
+        $readKeyMap = self::readKeyMapForUser($user);
         $items = self::buildStudentCore($user);
         $tipo = str_replace('_', ' ', (string) $user->user_type);
 
         $items[] = [
+            'key' => self::notificationKey('perfil-identificado', [$user->id, now()->toDateString(), $user->user_type]),
             'type' => 'info',
             'title' => 'Perfil identificado',
             'message' => "Voce esta logado como {$tipo}.",
             'url' => null,
         ];
 
-        return self::finalize($items, 'Notificacoes Gerais');
+        return self::finalize($items, 'Notificacoes Gerais', $readKeyMap);
     }
 
     private static function buildStudentCore(User $user): array
@@ -220,6 +230,7 @@ class HeaderNotifications
                 ->count();
 
             $items[] = [
+                'key' => self::notificationKey('aluno-ritmo-hoje', [$user->id, now()->toDateString(), $respostasHoje]),
                 'type' => $respostasHoje > 0 ? 'success' : 'info',
                 'title' => 'Seu ritmo hoje',
                 'message' => $respostasHoje > 0
@@ -229,6 +240,7 @@ class HeaderNotifications
             ];
 
             $items[] = [
+                'key' => self::notificationKey('aluno-historico-pratica', [$user->id, now()->toDateString(), $totalRespostas]),
                 'type' => 'info',
                 'title' => 'Historico de pratica',
                 'message' => "Total acumulado: {$totalRespostas} resposta(s).",
@@ -244,6 +256,7 @@ class HeaderNotifications
 
             if ($feedbackAbertos > 0) {
                 $items[] = [
+                    'key' => self::notificationKey('aluno-feedback-andamento', [$user->id, now()->toDateString(), $feedbackAbertos]),
                     'type' => 'warning',
                     'title' => 'Feedback em andamento',
                     'message' => "Voce tem {$feedbackAbertos} ticket(s) com status aberto.",
@@ -255,15 +268,76 @@ class HeaderNotifications
         return $items;
     }
 
-    private static function finalize(array $items, string $title): array
+    private static function finalize(array $items, string $title, array $readKeyMap = []): array
     {
-        $badgeCount = collect($items)->whereIn('type', ['warning', 'danger'])->count();
+        $normalizedItems = collect($items)
+            ->map(fn (array $item) => self::normalizeItem($item, $readKeyMap))
+            ->values()
+            ->all();
+
+        $unreadCount = collect($normalizedItems)->where('read', false)->count();
 
         return [
             'title' => $title,
-            'items' => $items,
-            'count' => $badgeCount,
+            'items' => $normalizedItems,
+            'count' => $unreadCount,
         ];
+    }
+
+    private static function normalizeItem(array $item, array $readKeyMap): array
+    {
+        $notificationKey = isset($item['key']) ? (string) $item['key'] : null;
+        $isRead = $notificationKey
+            ? isset($readKeyMap[$notificationKey])
+            : (bool) ($item['read'] ?? false);
+
+        $action = $item['action'] ?? (!empty($item['url']) ? 'link' : 'modal');
+
+        $item['id'] = $item['id'] ?? $notificationKey;
+        $item['read'] = $isRead;
+        $item['action'] = $action;
+        $item['modal_title'] = $item['modal_title'] ?? ($item['title'] ?? 'Notificacao');
+        $item['modal_message'] = $item['modal_message'] ?? ($item['message'] ?? '');
+
+        if ($notificationKey && !isset($item['mark_read_url'])) {
+            $item['mark_read_url'] = route('notifications.read', ['notificationKey' => $notificationKey]);
+        }
+
+        return $item;
+    }
+
+    private static function readKeyMapForUser(User $user): array
+    {
+        if (!self::tableExists('user_notification_reads')) {
+            return [];
+        }
+
+        return UserNotificationRead::query()
+            ->where('user_id', $user->id)
+            ->pluck('notification_key')
+            ->mapWithKeys(fn ($key) => [(string) $key => true])
+            ->all();
+    }
+
+    private static function notificationKey(string $prefix, array $parts = []): string
+    {
+        $segments = array_merge([$prefix], $parts);
+
+        $normalized = collect($segments)
+            ->map(function ($segment) {
+                $value = strtolower((string) $segment);
+                $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
+                $value = trim($value, '-');
+
+                return $value !== '' ? $value : 'item';
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        $key = implode('-', $normalized);
+
+        return substr($key, 0, 180);
     }
 
     private static function tableExists(string $table): bool
@@ -275,4 +349,3 @@ class HeaderNotifications
         }
     }
 }
-
