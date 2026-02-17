@@ -2,9 +2,9 @@
 
 Gerado em: 2026-02-17
 
-- Total de rotas: 47
+- Total de rotas: 48
 - Rotas com tela (UI): 21
-- Rotas de acao/API (sem tela): 26
+- Rotas de acao/API (sem tela): 27
 
 | Metodo | URI | Nome | Tipo | View/Resposta | Status Responsivo |
 |---|---|---|---|---|---|
@@ -49,6 +49,7 @@ Gerado em: 2026-02-17
 | GET\|HEAD | `area_assinante` | `area_assinante` | Tela | `resources/views/area_aluno.blade.php` | OK (responsivo) |
 | GET\|HEAD | `cadastro` | `cadastro.create` | Tela | `resources/views/auth/cadastro.blade.php` | OK (responsivo) |
 | POST | `cadastro` | `cadastro.store` | Acao/JSON | `Sem view (controller/request/json/redirect)` | N/A |
+| POST | `feedback/tickets` | `feedback.tickets.store` | Acao/JSON | `Sem view (controller/request/json/redirect)` | N/A |
 | GET\|HEAD | `login` | `login` | Tela | `resources/views/auth/login.blade.php` | OK (responsivo) |
 | POST | `login` | `login.store` | Acao/JSON | `Sem view (controller/request/json/redirect)` | N/A |
 | POST | `logout` | `logout` | Acao/JSON | `Sem view (controller/request/json/redirect)` | N/A |
@@ -61,4 +62,3 @@ Gerado em: 2026-02-17
 - Todas as views do ADM estendem `resources/views/layouts/admin-panel.blade.php` (layout com drawer mobile e media queries).
 - Indexes do ADM usam `table-wrap` com scroll horizontal para tabelas largas em telas pequenas.
 - Ajuste global adicional aplicado no layout ADM para garantir responsividade de imagens/campos/tabelas.
-

@@ -77,4 +77,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(QuestaoResposta::class);
     }
+
+    public function feedbackTickets(): HasMany
+    {
+        return $this->hasMany(FeedbackTicket::class);
+    }
 }

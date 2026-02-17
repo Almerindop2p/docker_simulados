@@ -823,6 +823,7 @@
             </div>
         </section>
     </div>
+    @include('partials.feedback-widget')
     <script>
         (function () {
             var avatarButton = document.getElementById('avatarButton');

@@ -669,6 +669,8 @@
         </main>
     </div>
 
+    @include('partials.feedback-widget')
+
     <script>
         (function () {
             document.body.classList.add('js-ready');

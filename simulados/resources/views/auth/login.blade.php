@@ -346,6 +346,8 @@
         </main>
     </div>
 
+    @include('partials.feedback-widget')
+
     <script>
         (function () {
             var form = document.getElementById('loginForm');

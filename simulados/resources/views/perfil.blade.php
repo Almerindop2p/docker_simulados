@@ -803,6 +803,8 @@
 
     <div id="mobileOverlay" class="overlay" aria-hidden="true"></div>
 
+    @include('partials.feedback-widget')
+
     <script>
         (function () {
             var sidebar = document.getElementById('sidebar');
