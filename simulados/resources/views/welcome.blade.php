@@ -600,6 +600,8 @@
                         <a class="nav-link" href="{{ route('adm.bancas.index') }}">Painel ADM</a>
                     @endif
 
+                    @include('partials.header-notifications')
+
                     <div class="avatar-menu-wrap">
                         <button id="avatarButton" class="avatar-btn" type="button" aria-expanded="false" aria-controls="avatarMenu">
                             <span class="avatar">
