@@ -532,12 +532,6 @@
                     </li>
                     <li>
                         <a class="nav-link" href="#">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                            <span>Meus Cursos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link" href="#">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             <span>Atividades</span>
                         </a>
@@ -546,18 +540,6 @@
                         <a class="nav-link" href="#">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18h16M7 15V9m5 6V6m5 9v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                             <span>Progresso</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link" href="#">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4 4 8v8l8 4 8-4V8l-8-4Z" stroke="currentColor" stroke-width="1.8"/><path d="m8.5 12 2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>Certificados</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link" href="#">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" stroke="currentColor" stroke-width="1.8"/><path d="M9.2 9.5a3 3 0 1 1 5.5 2l-.8.8c-.4.4-.7.9-.7 1.5v.4M12 17.6h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                            <span>Suporte</span>
                         </a>
                     </li>
                     @if ($isAdm)
