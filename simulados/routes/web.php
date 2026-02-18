@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\CadastroController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedbackTicketController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MeusSimuladosController;
 use App\Http\Controllers\NotificationFeedController;
 use App\Http\Controllers\NotificationReadController;
 use App\Http\Controllers\ProgressController;
@@ -67,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('profile:user,user_assinante')->group(function () {
         Route::get('/progresso', [ProgressController::class, 'index'])->name('progresso.index');
         Route::get('/progresso/respostas/{questaoResposta}', [ProgressController::class, 'show'])->name('progresso.show');
+        Route::get('/meus-simulados', [MeusSimuladosController::class, 'index'])->name('meus-simulados.index');
     });
 
     Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {

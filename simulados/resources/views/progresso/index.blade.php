@@ -18,7 +18,7 @@
         }
         .title { margin: 0; font-size: 1.12rem; letter-spacing: -0.01em; }
         .muted { margin: 0; color: var(--text-soft); font-size: 14px; line-height: 1.6; }
-        .period-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+        .period-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
         .period-card {
             border: 1px solid #d6e3f6;
             border-radius: 14px;
@@ -28,11 +28,11 @@
             gap: 10px;
         }
         .period-title { margin: 0; font-size: 14px; color: #1f416c; font-weight: 800; }
-        .pie-wrap { display: flex; align-items: center; gap: 12px; }
+        .pie-wrap { display: flex; align-items: center; gap: 16px; }
         .pie {
             --acertos: 0;
-            width: 74px;
-            height: 74px;
+            width: clamp(132px, 18vw, 180px);
+            height: clamp(132px, 18vw, 180px);
             border-radius: 999px;
             background: conic-gradient(
                 #1f5fe0 0 calc(var(--acertos) * 1%),
@@ -47,7 +47,7 @@
         .pie::after {
             content: '';
             position: absolute;
-            inset: 10px;
+            inset: clamp(18px, 2.8vw, 26px);
             background: #fff;
             border-radius: inherit;
             border: 1px solid #e4ecf8;
@@ -60,9 +60,9 @@
             place-items: center;
             font-weight: 800;
             color: #23496f;
-            font-size: 12px;
+            font-size: clamp(18px, 2.6vw, 24px);
         }
-        .legend { display: grid; gap: 4px; font-size: 12px; color: #446383; }
+        .legend { display: grid; gap: 5px; font-size: 13px; color: #446383; }
         .legend strong { color: #213f66; }
         .tables-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
         .table-wrap { border: 1px solid #d8e3f2; border-radius: 12px; background: #fff; overflow-x: auto; }
@@ -88,8 +88,8 @@
         }
         .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .empty { margin: 0; border: 1px dashed #ccd9ee; background: #f9fbff; color: #446282; border-radius: 10px; padding: 10px; font-size: 14px; }
-        @media (min-width: 1024px) {
-            .tables-grid { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 640px) {
+            .pie-wrap { flex-direction: column; align-items: flex-start; }
         }
     </style>
 @endpush

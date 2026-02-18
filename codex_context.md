@@ -4,720 +4,14 @@ Arquivo de contexto operacional para continuidade entre tarefas.
 Limite maximo: 80000 caracteres (janela deslizante).
 
 <!-- CONTEXT_START -->
-### 2026-02-13T22:40:45Z
-
-Criado codex_context.md, scripts/manage-codex-context.ps1 e AGENTS.md com politica de leitura no inicio e atualizacao no fim com janela de 80000 caracteres.
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
-### 2026-02-14T00:42:24Z
-
-Script de contexto corrigido para normalizar entradas coladas; AGENTS.md atualizado para usar NoProfile e Bypass.
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
-### 2026-02-14T00:47:03Z
-
-Configurado docker-compose completo para Laravel simulados com app PHP/Apache (php:apache), MySQL, PHPMyAdmin, limite total de 3GB e docs em DOCKER.md; sem alterar simulados/.env. Validacao runtime nao executada porque docker nao esta instalado neste ambiente.
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
-### 2026-02-14T01:09:16Z
-
-Informado comando para subir build do Docker Compose: docker compose up -d --build.
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
-### 2026-02-14T01:10:51Z
-
-Usuario reportou erro Docker Desktop unable to start ao subir compose; fornecido checklist de correcao no Windows (iniciar Docker Desktop, WSL status/shutdown, servico com.docker.service, restart e tentativa de rebuild).
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
-### 2026-02-14T01:12:25Z
-
-Orientado passo a passo para habilitar WSL 2 engine e WSL Integration no Docker Desktop (General e Resources), incluindo fallback por settings-store.json e verificacoes de modo Linux containers.
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
 ### 2026-02-14T01:36:55Z
 
 Corrigido docker-compose para falha de MySQL unhealthy: removida flag --default-authentication-plugin=mysql_native_password no mysql:8.4 e healthcheck ajustado (start_period/retries/timeout). Atualizado DOCKER.md com logs mysql e fluxo de recriacao limpa.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -944,9 +238,19 @@ Confirmado ao usuario que o fluxo esta usando codex_context com leitura no inici
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T01:39:06Z
 
 Confirmado comando correto para remover stack Docker Compose: docker compose down -v (nao docker down -v).
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -1169,9 +473,19 @@ Corrigido erro de sessions no Docker sem alterar projeto: app agora usa SESSION_
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T01:49:12Z
 
 Corrigido possivel causa de ERR_EMPTY_RESPONSE: ajuste seguro de DocumentRoot no Dockerfile (substituicao apenas /var/www/html), limpeza de cache no startup e validacao apache2ctl -t antes de subir Apache. DOCKER.md atualizado com docker compose ps e logs app.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -1390,9 +704,19 @@ Implementada rota de cadastro segura para Laravel: GET/POST /cadastro com Cadast
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T02:08:02Z
 
 Orientado como subir Docker Compose com logs verbosos e acompanhamento em tempo real: up sem -d, logs -f por servico e tail de access/error log do Apache para cada requisicao.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -1607,9 +931,19 @@ Padrao de migrations reforcado: startup Docker agora exige sucesso em php artisa
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T02:57:39Z
 
 Redesign completo da rota /cadastro (Blade) com UI premium edtech: layout 2 colunas desktop e formulario em destaque no mobile, header com link Entrar, stepper 2 etapas com barra de progresso, microcopy, resumo de erros, estados por campo, loading no submit e fallback acessivel sem JS; mantidos mesmos campos name/email/password/password_confirmation e rota cadastro.store sem alterar backend.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -1820,9 +1154,19 @@ Ajustado branding da pagina /cadastro para ENEM + concursos publicos com simulad
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T03:12:12Z
 
 Mensagens de erro de cadastro/login localizadas para portugues via FormRequest (CadastroRequest e LoginRequest) com messages() e attributes(); login invalido ajustado para 'E-mail ou senha invalidos.' no LoginController. Sintaxe PHP validada.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -2029,9 +1373,19 @@ Ajustada UX dos erros em /cadastro: resumo de erros ficou em estilo secundario (
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T03:54:21Z
 
 Verificado que 'docker compose exec app php artisan optimize:clear' nao aparece na aplicacao, apenas em DOCKER.md e script de startup. Orientado que isso e comando de terminal, nao erro da pagina, e solicitado retorno do erro real exibido no navegador/log para diagnostico.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -2234,9 +1588,19 @@ Fluxo de cadastro ajustado: usuario continua sendo salvo no banco via User::crea
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T04:03:55Z
 
 Implementada validacao AJAX em /cadastro e /login com fetch (Accept JSON + X-Requested-With), exibicao de erro por campo e resumo com mensagem especifica sem reload. Controllers de cadastro/login agora retornam JSON em sucesso quando expectsJson (com redirect) mantendo fluxo tradicional para requests normais.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -2435,9 +1799,19 @@ Ajustado fluxo AJAX de cadastro/login para evitar 422 em validacao: FormRequests
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T20:37:11Z
 
 Login reforcado para sessao/cookie: apos autenticacao, sessao sempre regenerada; cookie de remember passa a ser removido explicitamente quando 'Lembre-me' nao estiver marcado (mantido quando marcado via Auth::attempt). AJAX de login/cadastro atualizado com credentials:'same-origin' para garantir persistencia de cookies/sessao no navegador.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -2632,9 +2006,19 @@ Redirecionamento pós-login alterado de home/index para /area_aluno: LoginContro
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T20:45:35Z
 
 Corrigido redirecionamento de usuario autenticado no middleware guest: bootstrap/app.php agora usa ->redirectUsersTo('/area_aluno'), evitando fallback para route('home') ('/').
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -2825,9 +2209,19 @@ UI da rota /area_aluno redesenhada em dashboard moderno claro (topbar + sidebar 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T21:35:20Z
 
 Implementada identificacao de tipo de usuario: migration adicionada para coluna users.user_type com default 'user' e indice; User model atualizado com constantes de tipos (user, user_assinante, adm, colaborador) e fillable user_type; CadastroController agora salva explicitamente user_type=User::TYPE_USER; UserFactory atualizado para gerar user_type='user'. Sintaxe validada.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -3014,9 +2408,19 @@ Esclarecido comportamento de migrations no Docker: nao executam no build da imag
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T21:43:53Z
 
 Orientado que migrations nao rodam no build puro; para garantir sempre ao subir, usar up com force-recreate ou encadear migrate manual apos up (docker compose up -d --build && docker compose exec app php artisan migrate --force).
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -3199,9 +2603,19 @@ Mapeado fluxo de migrations Docker e corrigido caso de migration nova nao aplica
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T21:59:26Z
 
 Diagnostico de logs Git no VS Code: erro principal e falta de user.name para commit; user.email global existe. Avisos adicionais explicados como perda temporaria do .git ao trocar pasta e warnings de CRLF/LF sem bloqueio.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -3380,9 +2794,19 @@ Adicionado .gitattributes na raiz do repositorio para padronizar fim de linha e 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T22:03:34Z
 
 Executado git add --renormalize . no repositorio conforme solicitado; renormalizacao aplicada sem erro. .gitattributes tambem foi adicionado ao stage para aplicar as regras de EOL.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -3557,9 +2981,19 @@ Criada conta administrativa no banco via container app (Laravel bootstrap): emai
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T22:27:06Z
 
 Adicionado menu administrativo Banca na sidebar da area_aluno (somente user_type adm) com submenu expansivel: Adicionar Banca e Lista de Bancas. Criadas rotas protegidas adm.bancas.index/create com bloqueio 403 para nao-admin e views base correspondentes. Validado com route:list e view:cache no container Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -3730,9 +3164,19 @@ Implementado modulo ADM de bancas com formulario em /adm/bancas/adicionar no she
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T22:45:26Z
 
 Corrigido menu lateral nas rotas ADM de bancas: layout admin-panel voltou a exibir os itens Inicio, Meus Cursos, Atividades, Progresso, Certificados e Suporte, mantendo o bloco Banca para admin. View recompilada com php artisan view:cache no Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -3899,9 +3343,19 @@ Implementada coluna Acoes em /adm/bancas com icones de editar e excluir funciona
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T22:54:21Z
 
 Corrigido comportamento de slug na rota de edicao /adm/bancas/{id}/editar: slug agora volta a sincronizar automaticamente com nome quando nao foi customizado manualmente, mantendo customizacao quando slug original difere do slug do nome. View recompilada com sucesso no Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -4064,9 +3518,19 @@ Ajustado edit de banca para espelhar comportamento da rota adicionar: slug agora
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T23:21:48Z
 
 Refinado slug automatico na edicao de banca: sincronizacao agora ocorre em input/keyup/change do nome, e o modo manual do slug so ativa quando slug diverge do slug gerado do nome. Executado view:clear + view:cache no Docker para aplicar imediatamente.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -4225,9 +3689,19 @@ Criadas estruturas de dados para filtragem de questoes: migrations de materias, 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-14T23:44:50Z
 
 Diagnostico de erro no console em /adm/bancas/adicionar: mensagens de content.bundle.js, runtime.lastError e eventos capturados nao pertencem ao codigo Laravel; sao de extensao do navegador (script injetado). Projeto nao possui content.bundle.js nem erros JS locais nessa rota; endpoint de validacao de banca responde 200 normalmente.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -4382,9 +3856,19 @@ Concluido CRUD ADM de Materias/Cargos/Questoes seguindo padrao de Bancas: rotas 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-15T00:07:42Z
 
 Ajustado start-container.sh para migrations automaticas por padrao no startup do app (RUN_MIGRATIONS default true quando ausente), com logs explicitos 'Executando migrations' e 'Migrations concluidas'. Validado com docker compose up -d --build app e logs confirmando optimize:clear + migrate (Nothing to migrate) no boot.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -4535,9 +4019,19 @@ Validado requisito de campos e relacionamentos: tabelas bancas, materias, cargos
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-15T00:11:56Z
 
 Conferido item 7 e 8: slug unico em materias/cargos confirmado por migration e indice no banco; indices de filtro presentes em questoes (banca_id, materia_id) e pivot cargo_questao (PK composta + indice questao_id); FKs com RESTRICT em questoes para banca/materia e CASCADE no pivot para cargo/questao. Rotas /adm para materias, cargos e questoes no padrao de bancas confirmadas em web.php.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -4684,9 +4178,19 @@ Conferidos itens 9 e 10: todas as views em resources/views/adm estao com @extend
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-15T00:26:10Z
 
 Reforcada validacao AJAX em todas as telas com slug (bancas, materias, cargos) em criar/editar: submit agora aguarda retorno das validacoes de nome e slug, bloqueia enquanto houver requisicao pendente e impede salvar se duplicado/erro de validacao em segundo plano. Banca ganhou endpoint /adm/bancas/verificar-campo para validar nome/slug (alem do check-name legado). Views de banca atualizadas com status de slug. Rotas e views validadas no Docker com route:list e view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -4829,9 +4333,19 @@ Implementado controle de acesso por perfil com middleware novo EnsureUserType (a
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-15T01:03:55Z
 
 Corrigido erro 500 em /adm/questoes: causa era mapeamento incorreto do Eloquent para tabela 'questaos' (pluralizacao), nao falta de migration. Atualizado App\\Models\\Questao com protected  = 'questoes'. Validado no Docker com tinker (Questao::query()->count() executando sem erro) e migrate --force (Nothing to migrate).
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -4970,9 +4484,19 @@ Verificada rota /adm/questoes/adicionar: controller ja carrega cargos da base e 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-15T18:54:52Z
 
 Modulo de questoes ajustado para gerar e salvar keywords padronizadas (banca, materia, cargos e gabarito) em string unica separada por virgula; adicionada migration 2026_02_15_191000_add_keywords_to_questoes_table, QuestaoController store/update e Questao model atualizados. Validado com docker compose exec app php artisan migrate --force (Nothing to migrate) e Schema::hasColumn('questoes','keywords')=true.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5107,9 +4631,19 @@ Verificado pedido de medidor de forca da senha na rota /cadastro: funcionalidade
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-15T19:25:48Z
 
 Criada pagina de perfil com upload de avatar para usuarios autenticados: novas rotas /perfil (GET) e /perfil/avatar (POST), ProfileController e UpdateAvatarRequest com validacao (JPG/JPEG/PNG/WEBP ate 2MB), migration add_avatar_path_to_users_table aplicada, User model com avatar_path e accessor avatar_url. Menus de avatar em /area_aluno e layout admin atualizados para Perfil/Configuracoes e exibicao de foto enviada. Validado no Docker com migrate --force, route:list (perfil) e view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5240,9 +4774,19 @@ Atualizada a view de perfil para usar o mesmo shell visual da area_aluno (menu l
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-15T23:46:30Z
 
 Criada nova home moderna na rota / com formulario de filtros horizontal e centralizado (banca, cargo, materia), resultados reais de questoes e secao explicativa abaixo. Implementado HomeController@index e rota home ajustada para controller. Adicionada migration 2026_02_15_202500_add_home_filter_index_to_questoes_table para otimizar pesquisa por filtros (indice composto em questoes). Criado prompt especifico em prompt_codex_home_filtro_questoes.md. Validado no Docker com migrate --force, view:cache e route:list.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5369,9 +4913,19 @@ Home de pesquisa ajustada: HomeController agora pagina 20 questoes por pagina co
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-16T00:24:30Z
 
 Home: botao Responder agora e desabilitado apos exibicao do resultado da questao respondida (acerto/erro), com texto alterado para 'Respondida'. Mantida possibilidade de reenviar quando houver apenas erro de validacao (sem alternativa marcada). Atualizada welcome.blade.php e recompilado Blade no Docker (view:cache).
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5494,9 +5048,19 @@ Rota / (welcome) atualizada para usuario autenticado exibir avatar no topo com o
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-16T01:18:40Z
 
 Implementado salvamento de progresso de respostas na home: criada migration 2026_02_16_010000_create_questao_respostas_table com FKs e indices para relatorios por periodo/materia/acerto; criado model App\\Models\\QuestaoResposta; HomeController@answer agora registra cada tentativa de usuario logado (resposta marcada, gabarito, acerto, banca, materia, respondida_em). User model ganhou relacao questaoRespostas(). Migracao executada no Docker e tabela validada (Schema::hasTable=1, count inicial 0).
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5615,9 +5179,19 @@ Criada rota dedicada de assinante: GET /area_assinante (middleware profile:user_
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-16T14:27:33Z
 
 Usuario assinante efetivamente criado no banco Docker: id=2, email=assinante@simulados.local, user_type=user_assinante, nome=Usuario Assinante (senha Assinante@123). Confirmado por query SQL no container mysql e rota area_assinante existente em route:list.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5732,9 +5306,19 @@ Diagnostico do 419 em /logout: rota usa POST com CSRF e formulario esta correto;
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-16T15:10:32Z
 
 Menu admin padronizado em area_aluno/perfil: agora exibe Banca, Materias, Cargos e Questoes (com submenus) somente para isAdm; JS de submenu atualizado para controle generico dos 4 blocos. Validado com docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5845,9 +5429,19 @@ Avatar de perfil movido para armazenamento privado (disk local em storage/app/pr
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-16T15:29:49Z
 
 Auditoria da ultima tarefa: implementacao de avatar privado confirmada (ProfileController/User/filesystems + rotas), sintaxe OK; migration questao_respostas confirmada como Ran. Encontrada pendencia de dados legados: usuarios atuais ainda com avatar_path em uploads/avatars e arquivos antigos em public/uploads.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -5954,9 +5548,19 @@ Perfil/avatar ajustado: ao atualizar foto em /perfil, sistema agora preserva ape
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T01:12:35Z
 
 Confirmado ao usuario que codex_context.md esta em uso: leitura via script executada nesta tarefa e historico com entradas recentes de append em 2026-02-16.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6059,9 +5663,19 @@ Modulo ADM de Instituicoes criado no padrao de Bancas: migration create_institui
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T02:26:32Z
 
 Confirmacao da base de dados via Docker: tabela instituicoes existe (Schema::hasTable=true), migration 2026_02_17_020000_create_instituicoes_table registrada em migrations e contagem atual 0 registros.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6160,9 +5774,19 @@ Verificado pedido de exibicao apenas para ADM: rotas /adm/instituicoes confirmad
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T02:34:58Z
 
 Corrigido erro 500 em /adm/instituicoes por pluralizacao Eloquent: App\\Models\\Instituicao agora define protected  = 'instituicoes'. Validado com php -l local/container e query Instituicao::query()->count() no Docker (0, sem erro).
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6257,9 +5881,19 @@ Modulo de questoes integrado com Instituicoes: migration 2026_02_17_021000 adici
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T03:20:35Z
 
 Rota /adm/questoes/adicionar recebeu upload de imagem antes do enunciado com preview responsiva. Implementada migration 2026_02_17_022000 para coluna questoes.imagem_path, validacao de imagem (jpg/jpeg/png/webp/gif ate 5MB), upload em disco public (storage/app/public/questoes), e persistencia em store/update com limpeza de arquivo antigo no update/destroy. Validado no Docker com migrate --force, storage:link, php -l, view:cache e Schema::hasColumn('questoes','imagem_path')=true.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6350,9 +5984,19 @@ Ajustada rota /adm/questoes/editar/{id} para mesma regra de imagem da criacao: f
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T03:36:50Z
 
 Filtro publico da home ajustado para exibir instituicao antes do enunciado nas questoes filtradas (?banca_id&cargo_id&materia_id). HomeController agora faz eager-load de instituicao e welcome.blade mostra 'Instituicao: ...' antes do texto da questao. Validado com php -l e docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6439,9 +6083,19 @@ Enunciado da questao centralizado na home de pesquisa: classe .question-text em 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T03:41:12Z
 
 Desfeita a centralizacao do enunciado na home: .question-text em welcome.blade.php agora esta alinhado a esquerda (text-align:left). Views recompiladas no Docker com php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6524,9 +6178,19 @@ Home de pesquisa atualizada para exibir imagem da questao (quando houver imagem 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T04:18:49Z
 
 Ajustado texto do enunciado na home para ficar justificado e com respiro lateral: .question-text em welcome.blade.php agora usa text-align: justify, text-justify: inter-word e padding-inline: 6px. Validado no Docker com php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6605,9 +6269,19 @@ Home de pesquisa: enunciado reorganizado visualmente para evitar texto colado na
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T04:45:05Z
 
 Desfeitas alteracoes de formato do enunciado na home de pesquisa. Em welcome.blade.php removidos justify/largura centralizada/quebras avancadas do .question-text e restaurado alinhamento simples a esquerda; removida largura forçada de .result-item h3 e .question-instituicao. Validado no Docker com php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6682,9 +6356,19 @@ Mapeadas 47 rotas com classificacao UI vs acao/API e gerado docs/mapa-rotas-resp
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T16:57:01Z
 
 Implementado feedback beta com icone flutuante estilo WhatsApp em todas as telas nao-ADM (welcome, login, cadastro, area_aluno/area_assinante e perfil) via partial compartilhada. Criada migration feedback_tickets, model FeedbackTicket, request StoreFeedbackTicketRequest, controller FeedbackTicketController e rota AJAX POST /feedback/tickets (throttle). Envio sem sair da pagina (fetch), com uso automatico de nome/email para usuario logado e campos nome/email apenas para visitante. Recurso salvo no banco com user_id, mensagem, rota/url, status, ip e user_agent. Validado com migrate --force, route:list --path=feedback, view:cache e checagem de schema.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6755,9 +6439,19 @@ Corrigido comportamento do widget de feedback: botao X agora fecha de forma cons
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T17:38:34Z
 
 Adicionado icone de notificacoes ao lado do avatar em todos os paineis (welcome autenticado, area_aluno/assinante, perfil e layout ADM), com dados dinamicos por tipo de usuario (adm, user_assinante, user, colaborador e fallback). Criado App\\Support\\HeaderNotifications, partial reutilizavel de notificacoes e view composer no AppServiceProvider. Validado com php -l, docker compose exec app php artisan view:cache e route:list (adm e area_).
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6824,9 +6518,19 @@ Implementado fluxo completo de notificacoes ADM para feedback: criada tabela adm
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T18:31:54Z
 
 Corrigido bug do modal de notificacoes abrindo sozinho: no partial header-notifications adicionado CSS explicito .notif-modal[hidden]{display:none !important} e .notif-menu[hidden]{display:none !important}. Isso restaura o comportamento de abrir apenas no clique e fecha corretamente via X, clique no fundo e botao Fechar. Validado com docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6889,9 +6593,19 @@ Ajustado contador de notificacoes para diminuir ao clicar em cada item visualiza
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T18:44:20Z
 
 Implementado refresh em segundo plano do sino de notificacoes sem recarregar pagina. Criado endpoint autenticado GET /notificacoes/feed (NotificationFeedController) retornando HeaderNotifications em JSON e adicionado polling no partial header-notifications (a cada 20s + ao voltar para aba), com re-render da lista e badge automaticamente. Mantidos fluxos de marcar como lida/modal/link. Validado com php -l, route:list --path=notificacoes/feed e view:cache no Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -6950,9 +6664,19 @@ Rota /adm/tickets/{id} atualizada para permitir edicao de atendimento pelo ADM: 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T19:14:25Z
 
 Removidos dos paineis os itens de menu Meus Cursos, Certificados e Suporte em area_aluno.blade.php, perfil.blade.php e layouts/admin-panel.blade.php. Mantidos os demais itens e estrutura do sidebar. Validado com busca sem ocorrencias e docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7007,9 +6731,19 @@ Ajustado redirecionamento apos atualizar ticket: TicketController@update agora r
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T19:21:21Z
 
 Adicionado loading visual no envio do formulario de atualizacao de ticket em /adm/tickets/{id}: botao de submit agora desabilita ao enviar, troca texto para 'Enviando ticket...' e exibe spinner ate o redirecionamento. Implementado em adm/tickets/show.blade.php (CSS + JS). Validado com view:cache no Docker e verificacao de sintaxe.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7060,9 +6794,19 @@ Widget de feedback ajustado: botao de envio agora mostra loading visivel (spinne
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T19:46:34Z
 
 Notificacoes ajustadas para usuarios nao-ADM: criada persistencia de leitura por usuario (migration user_notification_reads + model UserNotificationRead), nova rota PATCH /notificacoes/visualizar/{notificationKey} com NotificationReadController, e HeaderNotifications atualizado para gerar key/mark_read_url/read por item e contador por nao lidas. Agora o badge reduz ao clicar tambem para user/user_assinante/colaborador. Validado com migrate --force, route:list --path=notificacoes e view:cache no Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7109,9 +6853,19 @@ Notificacoes: ajuste visual global no partial header-notifications para que some
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T20:01:42Z
 
 Icone de notificacoes ajustado para todos os usuarios: botao ao lado do avatar agora fica com fundo azul quando houver notificacoes nao lidas e volta ao fundo padrao quando zerar. Implementado no partial header-notifications (classe has-unread no render inicial + toggle via JS updateBadge). Validado no Docker com php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7154,9 +6908,19 @@ Notificacoes com tempo relativo curto implementado: HeaderNotifications agora en
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T20:34:37Z
 
 Implementado plano de correção das notificações: HeaderNotifications agora usa mensagem fixa de ticket para user/colaborador (sem contador no texto) e chaves estáveis diárias sem quantidade em aluno-feedback-andamento e colaborador-fila-tickets. No partial header-notifications, modal foi portalizado para document.body, z-index elevado para 9999 e fechamento ajustado para eventos no próprio modal (X/botão), mantendo clique fora e ESC. Validação: php -l nos arquivos alterados e docker compose exec app php artisan view:cache com sucesso.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7195,9 +6959,19 @@ Modulo ADM de Simulados implementado no padrao de Bancas: migration create_simul
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T22:16:47Z
 
 Vinculo de simulados em questoes implementado: migration add_simulado_id_to_questoes (FK+indice), Questao model/request/controller atualizados para validar/salvar simulado_id e keywords, telas ADM de adicionar/editar questao com select de simulado pesquisavel. SimuladoController destroy agora trata FK com mensagem amigavel. Validado com php -l, docker migrate --force (migration aplicada), migrate:status e view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7232,9 +7006,19 @@ Exclusao em /adm/questoes reforcada contra inconsistencias: QuestaoController@de
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T23:10:17Z
 
 Rota publica de questoes (/?banca_id&cargo_id&materia_id) ajustada: apos responder, o botao principal fica em estado Respondida e, ao lado, aparece botao 'Ver comentario' apenas quando a questao possui explicacao salva. Comentario agora abre/fecha em bloco abaixo via JS; se nao houver explicacao, nenhum botao/comentario e exibido. View recompilada no Docker com php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7265,9 +7049,19 @@ Corrigido bug do botao de comentario para usuario anonimo na rota de filtro publ
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T23:46:20Z
 
 Novo modulo de Progresso para user/user_assinante implementado: rotas protegidas /progresso e /progresso/respostas/{questaoResposta}, ProgressController com metricas por periodo (hoje, 7, 30, 90 dias), tabelas de ultimos erros/acertos (10 por pagina) com botao Carregar mais e pagina de detalhe da resposta com enunciado, alternativas, marcada/correta e mensagem de resultado. Menus de area_aluno/perfil/layout admin-panel atualizados para link Progresso e suporte ao homeRoute de assinante. Validado com php -l, route:list -v --path=progresso e view:cache no Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7294,9 +7088,19 @@ Notificacoes de pratica removidas para user/user_assinante: HeaderNotifications 
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-17T23:58:34Z
 
 Rota /progresso/respostas/{id} atualizada para exibir comentario da questao quando houver: ProgressController passou a carregar questao.explicacao e progresso/show.blade renderiza card condicional 'Comentario da resposta'. Validado com php -l e docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7319,9 +7123,19 @@ View de detalhe do progresso ajustada: em /progresso/respostas/{id}, o card 'Com
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-18T00:05:24Z
 
 Removidas notificacoes recorrentes do aluno em HeaderNotifications: excluidos itens 'Feedback em andamento' e 'Dica beta' do feed de notificacoes para parar alertas repetitivos. Validado com php -l em app/Support/HeaderNotifications.php e docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7340,9 +7154,19 @@ Rota /progresso: grafico de pizza atualizado para usar acertos em azul e erros e
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-18T00:14:56Z
 
 Rota principal (/): adicionado menu superior com Inicio, Redacao (desabilitado) e Simulados em welcome.blade.php, incluindo estilos responsivos para desktop/mobile. Validado com php -l e docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7357,9 +7181,19 @@ Criada view publica separada de simulados com busca por texto (nome/slug) no mes
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-18T00:38:55Z
 
 Modulo publico de simulados expandido: /simulados agora pesquisa com max 20 por pagina + paginacao e botao Realizar/Continuar. Implementado fluxo completo de tentativa em /simulados/{id}/realizar com 1 questao por pagina, botoes Voltar/Proximo, cronometro por questao e total. Para logado: vinculo persistido no banco (novas tabelas simulado_tentativas e simulado_tentativa_respostas), progresso em aberto retomavel e finalizacao com salvamento de tempos e respostas. Para anonimo: estado/progresso/tempos mantidos na URL (state). Criada tela de resultado /simulados/{id}/resultado com grafico de pizza grande (acertos vermelho, erros azul). Rotas, migrations e views validadas com migrate --force, route:list --path=simulados e view:cache no Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ---
@@ -7370,19 +7204,69 @@ Ajuste visual em /simulados: botao Realizar/Continuar ficou mais largo (min-widt
 ---
 ---
 ---
+---
+---
+---
+---
+---
 ### 2026-02-18T01:00:10Z
 
 Rota /simulados/{id}/resultado aprimorada: para usuario logado (user/user_assinante), resultado agora carrega respostas salvas da tentativa e exibe duas tabelas (erros e acertos) com previa do enunciado e coluna Ver. Adicionada rota/tela de detalhe da questao da tentativa (/simulados/{simulado}/resultado/{tentativa}/questao/{resposta}) mostrando imagem antes do enunciado, alternativas destacando marcada/correta e comentario apos alternativas quando houver explicacao. Confirmada persistencia no banco para attempt=1 (simulado_tentativas e simulado_tentativa_respostas com tempos e respostas). Validado com php -l, route:list --path=simulados e view:cache no Docker.
+---
+---
+---
+---
+---
 ---
 ---
 ### 2026-02-18T01:07:18Z
 
 Ajuste de layout em /simulados/{id}/resultado: removido breakpoint que dividia tabelas em 2 colunas; agora erros e acertos permanecem sempre uma abaixo da outra (stack vertical). Validado com php -l em resources/views/simulados/result.blade.php e view:cache no Docker.
 ---
+---
+---
+---
+---
+---
 ### 2026-02-18T01:12:05Z
 
 Corrigidas cores invertidas do grafico/legenda em /simulados/{id}/resultado: acertos agora azul (#1f5fe0) e erros vermelho (#e14b4b) em result.blade.php. Validado com php -l e docker compose exec app php artisan view:cache.
+---
+---
+---
+---
+---
+### 2026-02-18T01:23:06Z
+
+Implementado modulo 'Meus Simulados' para user/user_assinante: nova rota GET /meus-simulados (meus-simulados.index), novo MeusSimuladosController listando tentativas em andamento/finalizadas com paginacao e botao 'Ver resultado' para /simulados/{simulado}/resultado?attempt={id}. Adicionado item de menu 'Meus Simulados' nos paineis/layouts (area_aluno, perfil e admin-panel apenas para tipos user/user_assinante). Nova view resources/views/simulados/my-index.blade.php com tabela contendo ID tentativa, ID simulado, nome, status e acao. Validado com php -l, route:list --path=meus-simulados e view:cache no Docker.
+---
+---
+---
+---
+### 2026-02-18T01:26:48Z
+
+Rota /progresso ajustada para manter tabelas de acertos e erros sempre empilhadas (uma abaixo da outra) para user e user_assinante: removido breakpoint que dividia .tables-grid em duas colunas em resources/views/progresso/index.blade.php. Validado com php -l e docker compose exec app php artisan view:cache.
+---
+---
+---
+### 2026-02-18T01:29:00Z
+
+Rota /progresso com graficos de pizza significativamente maiores: pie alterado para clamp(132px,18vw,180px), miolo e fonte central ampliados, legenda levemente maior e cards de periodo ajustados para minmax(280px). Em mobile, pie-wrap agora empilha para manter leitura. Validado com php -l e docker compose exec app php artisan view:cache.
+---
+---
+### 2026-02-18T01:35:01Z
+
+Card 'Desempenho' da area do aluno/assinante agora usa dados reais de questao_respostas: StudentDashboardController calcula taxa de acerto total e resumo dinamico de evolucao comparando ultimas 30 respostas vs bloco anterior de 30. area_aluno.blade.php deixou de usar valores fixos (78%/6%) e passou a renderizar taxa_acerto_percent e desempenho_resumo de dashboardStats. Validado com php -l e docker compose exec app php artisan view:cache.
+---
+### 2026-02-18T01:37:44Z
+
+Card 'Progresso geral' em /area_aluno e /area_assinante substituido por dados reais: StudentDashboardController agora calcula percentual de progresso com base em questoes unicas respondidas (questao_respostas distinct questao_id) sobre total de questoes cadastradas (questoes). area_aluno.blade.php passou a exibir progresso_geral_percent e progresso_geral_resumo dinamicos no lugar de 65%/3 modulos fixos. Validado com php -l e docker compose exec app php artisan view:cache.
 <!-- CONTEXT_END -->
+
+
+
+
+
 
 
 

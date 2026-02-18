@@ -335,6 +335,11 @@
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
         $isTicketRoute = request()->routeIs('adm.tickets.*');
         $isProgressoRoute = request()->routeIs('progresso.*');
+        $isMeusSimuladosRoute = request()->routeIs('meus-simulados.*');
+        $isStudent = in_array(($loggedUser->user_type ?? null), [
+            \App\Models\User::TYPE_USER,
+            \App\Models\User::TYPE_USER_ASSINANTE,
+        ], true);
         $homeRoute = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_USER_ASSINANTE
             ? route('area_assinante')
             : route('area_aluno');
@@ -368,6 +373,14 @@
                             <span>Progresso</span>
                         </a>
                     </li>
+                    @if ($isStudent)
+                        <li>
+                            <a class="nav-link {{ $isMeusSimuladosRoute ? 'is-active' : '' }}" href="{{ route('meus-simulados.index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 17 20H7a2.5 2.5 0 0 1-2.5-2.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Meus Simulados</span>
+                            </a>
+                        </li>
+                    @endif
                     @if ($isAdm)
                         <li>
                             <button

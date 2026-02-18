@@ -514,11 +514,28 @@
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
         $isTicketRoute = request()->routeIs('adm.tickets.*');
         $isProgressoRoute = request()->routeIs('progresso.*');
+        $isMeusSimuladosRoute = request()->routeIs('meus-simulados.*');
+        $isStudent = in_array(($loggedUser->user_type ?? null), [
+            \App\Models\User::TYPE_USER,
+            \App\Models\User::TYPE_USER_ASSINANTE,
+        ], true);
         $homeRoute = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_USER_ASSINANTE
             ? route('area_assinante')
             : route('area_aluno');
         $respostasHoje = (int) data_get($dashboardStats ?? [], 'respostas_hoje', 0);
         $totalRespostas = (int) data_get($dashboardStats ?? [], 'total_respostas', 0);
+        $taxaAcertoPercent = (string) data_get($dashboardStats ?? [], 'taxa_acerto_percent', '0');
+        $desempenhoResumo = (string) data_get(
+            $dashboardStats ?? [],
+            'desempenho_resumo',
+            'Sem dados suficientes para calcular desempenho.'
+        );
+        $progressoGeralPercent = (string) data_get($dashboardStats ?? [], 'progresso_geral_percent', '0');
+        $progressoGeralResumo = (string) data_get(
+            $dashboardStats ?? [],
+            'progresso_geral_resumo',
+            'Sem dados suficientes para calcular progresso geral.'
+        );
     @endphp
 
     <div class="layout">
@@ -549,6 +566,14 @@
                             <span>Progresso</span>
                         </a>
                     </li>
+                    @if ($isStudent)
+                        <li>
+                            <a class="nav-link {{ $isMeusSimuladosRoute ? 'is-active' : '' }}" href="{{ route('meus-simulados.index') }}" @if($isMeusSimuladosRoute) aria-current="page" @endif>
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 17 20H7a2.5 2.5 0 0 1-2.5-2.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Meus Simulados</span>
+                            </a>
+                        </li>
+                    @endif
                     @if ($isAdm)
                         <li>
                             <button
@@ -732,14 +757,14 @@
 
                     <article class="card">
                         <span class="card-meta">Desempenho</span>
-                        <h3>Taxa de acerto: 78%</h3>
-                        <p>Voce subiu 6% nos ultimos simulados. Continue nesse ritmo.</p>
+                        <h3>Taxa de acerto: {{ $taxaAcertoPercent }}%</h3>
+                        <p>{{ $desempenhoResumo }}</p>
                     </article>
 
                     <article class="card">
                         <span class="card-meta">Progresso geral</span>
-                        <h3>65% do plano concluido</h3>
-                        <p>Faltam 3 modulos para concluir a trilha principal de estudos.</p>
+                        <h3>{{ $progressoGeralPercent }}% das questoes concluidas</h3>
+                        <p>{{ $progressoGeralResumo }}</p>
                     </article>
                 </section>
             </main>
