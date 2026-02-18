@@ -16,6 +16,7 @@ class Questao extends Model
         'banca_id',
         'materia_id',
         'instituicao_id',
+        'simulado_id',
         'imagem_path',
         'enunciado',
         'alternativa_a',
@@ -43,6 +44,11 @@ class Questao extends Model
         return $this->belongsTo(Instituicao::class);
     }
 
+    public function simulado(): BelongsTo
+    {
+        return $this->belongsTo(Simulado::class);
+    }
+
     public function cargos(): BelongsToMany
     {
         return $this->belongsToMany(Cargo::class, 'cargo_questao');
@@ -61,6 +67,11 @@ class Questao extends Model
     public function scopeFiltrarPorInstituicao(Builder $query, int $instituicaoId): Builder
     {
         return $query->where('instituicao_id', $instituicaoId);
+    }
+
+    public function scopeFiltrarPorSimulado(Builder $query, int $simuladoId): Builder
+    {
+        return $query->where('simulado_id', $simuladoId);
     }
 
     public function scopeFiltrarPorCargo(Builder $query, int $cargoId): Builder

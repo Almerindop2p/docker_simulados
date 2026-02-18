@@ -34,12 +34,13 @@
     @php
         $selectedCargoIds = collect(old('cargo_ids', []))->map(fn ($id) => (int) $id)->all();
         $hasCargos = $cargos->isNotEmpty();
+        $hasSimulados = $simulados->isNotEmpty();
     @endphp
 
     <section class="panel-card" aria-labelledby="titulo-form-questao">
         <div>
             <h2 id="titulo-form-questao" class="panel-title">Cadastrar nova questao</h2>
-            <p class="panel-subtitle">Informe o enunciado, alternativas e vinculos para filtros de banca, materia e cargo.</p>
+            <p class="panel-subtitle">Informe o enunciado, alternativas e vinculos para filtros de banca, materia, instituicao, simulado e cargo.</p>
         </div>
 
         @if ($errors->any())
@@ -81,6 +82,34 @@
                         @endforeach
                     </select>
                     @error('instituicao_id')<p class="field-error">{{ $message }}</p>@enderror
+                </div>
+
+                <div class="field">
+                    <label class="label" for="simulado_search">Buscar simulado</label>
+                    <input
+                        id="simulado_search"
+                        class="input"
+                        type="search"
+                        placeholder="Digite para filtrar simulados..."
+                        autocomplete="off"
+                        @disabled(!$hasSimulados)
+                    >
+                    @if ($hasSimulados)
+                        <p class="help">A busca filtra os simulados no campo abaixo.</p>
+                    @else
+                        <p class="help">Nenhum simulado cadastrado. Cadastre em <a href="{{ route('adm.simulados.create') }}">/adm/simulados/adicionar</a>.</p>
+                    @endif
+                </div>
+
+                <div class="field">
+                    <label class="label" for="simulado_id">Simulado</label>
+                    <select id="simulado_id" name="simulado_id" class="select" @if($hasSimulados) required @else disabled @endif>
+                        <option value="">Selecione</option>
+                        @foreach ($simulados as $simulado)
+                            <option value="{{ $simulado->id }}" @selected((int) old('simulado_id') === $simulado->id)>{{ $simulado->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('simulado_id')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
             </div>
 
@@ -163,7 +192,7 @@
             </div>
 
             <div class="actions">
-                <button id="submitButton" class="btn btn-primary" type="submit" @disabled(!$hasCargos)>Cadastrar questao</button>
+                <button id="submitButton" class="btn btn-primary" type="submit" @disabled(!$hasCargos || !$hasSimulados)>Cadastrar questao</button>
                 <a class="btn btn-soft" href="{{ route('adm.questoes.index') }}">Cancelar</a>
             </div>
         </form>
@@ -178,8 +207,37 @@
             var imageInput = document.getElementById('imagem');
             var imagePreviewWrap = document.getElementById('imagePreviewWrap');
             var imagePreview = document.getElementById('imagePreview');
+            var simuladoSearch = document.getElementById('simulado_search');
+            var simuladoSelect = document.getElementById('simulado_id');
 
             if (!form || !submitButton) return;
+
+            function normalizeText(value) {
+                return String(value || '')
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .trim();
+            }
+
+            if (simuladoSearch && simuladoSelect && !simuladoSelect.disabled) {
+                var simuladoOptions = Array.prototype.slice.call(simuladoSelect.options);
+
+                simuladoSearch.addEventListener('input', function () {
+                    var term = normalizeText(simuladoSearch.value);
+                    var selectedValue = simuladoSelect.value;
+
+                    simuladoOptions.forEach(function (option, index) {
+                        if (index === 0 || option.value === '') {
+                            option.hidden = false;
+                            return;
+                        }
+
+                        var matches = term === '' || normalizeText(option.textContent).indexOf(term) !== -1;
+                        option.hidden = !(matches || option.value === selectedValue);
+                    });
+                });
+            }
 
             if (imageInput && imagePreviewWrap && imagePreview) {
                 imageInput.addEventListener('change', function () {

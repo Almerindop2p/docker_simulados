@@ -9,9 +9,12 @@ use App\Models\Cargo;
 use App\Models\Instituicao;
 use App\Models\Materia;
 use App\Models\Questao;
+use App\Models\Simulado;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -23,7 +26,7 @@ class QuestaoController extends Controller
         $this->ensureAdmin($request);
 
         $query = Questao::query()
-            ->with(['banca:id,name', 'materia:id,name', 'instituicao:id,name', 'cargos:id,name'])
+            ->with(['banca:id,name', 'materia:id,name', 'instituicao:id,name', 'simulado:id,name', 'cargos:id,name'])
             ->latest();
 
         $bancaId = (int) $request->query('banca_id', 0);
@@ -70,6 +73,7 @@ class QuestaoController extends Controller
             'bancas' => Banca::query()->orderBy('name')->get(['id', 'name']),
             'materias' => Materia::query()->orderBy('name')->get(['id', 'name']),
             'instituicoes' => Instituicao::query()->orderBy('name')->get(['id', 'name']),
+            'simulados' => Simulado::query()->orderBy('name')->get(['id', 'name']),
             'cargos' => Cargo::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -86,6 +90,7 @@ class QuestaoController extends Controller
             'bancas' => Banca::query()->orderBy('name')->get(['id', 'name']),
             'materias' => Materia::query()->orderBy('name')->get(['id', 'name']),
             'instituicoes' => Instituicao::query()->orderBy('name')->get(['id', 'name']),
+            'simulados' => Simulado::query()->orderBy('name')->get(['id', 'name']),
             'cargos' => Cargo::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -98,6 +103,7 @@ class QuestaoController extends Controller
             'banca_id' => $data['banca_id'],
             'materia_id' => $data['materia_id'],
             'instituicao_id' => $data['instituicao_id'],
+            'simulado_id' => $data['simulado_id'],
             'imagem_path' => $this->storeQuestaoImage($request),
             'enunciado' => $data['enunciado'],
             'alternativa_a' => $data['alternativa_a'],
@@ -138,6 +144,7 @@ class QuestaoController extends Controller
             'banca_id' => $data['banca_id'],
             'materia_id' => $data['materia_id'],
             'instituicao_id' => $data['instituicao_id'],
+            'simulado_id' => $data['simulado_id'],
             'imagem_path' => $imagemPath,
             'enunciado' => $data['enunciado'],
             'alternativa_a' => $data['alternativa_a'],
@@ -160,12 +167,22 @@ class QuestaoController extends Controller
     public function destroy(Request $request, Questao $questao): RedirectResponse
     {
         $this->ensureAdmin($request);
+        $imagemPath = $questao->imagem_path;
 
-        if ($questao->imagem_path && Storage::disk('public')->exists($questao->imagem_path)) {
-            Storage::disk('public')->delete($questao->imagem_path);
+        try {
+            DB::transaction(function () use ($questao): void {
+                $questao->cargos()->detach();
+                $questao->delete();
+            });
+        } catch (QueryException $exception) {
+            return redirect()
+                ->route('adm.questoes.index')
+                ->with('status', 'Nao foi possivel excluir a questao porque ela possui registros vinculados.');
         }
 
-        $questao->delete();
+        if ($imagemPath && Storage::disk('public')->exists($imagemPath)) {
+            Storage::disk('public')->delete($imagemPath);
+        }
 
         return redirect()
             ->route('adm.questoes.index')
@@ -182,6 +199,7 @@ class QuestaoController extends Controller
         $banca = Banca::query()->find($data['banca_id'], ['name', 'slug']);
         $materia = Materia::query()->find($data['materia_id'], ['name', 'slug']);
         $instituicao = Instituicao::query()->find($data['instituicao_id'], ['name', 'slug']);
+        $simulado = Simulado::query()->find($data['simulado_id'], ['name', 'slug']);
         $cargos = Cargo::query()
             ->whereIn('id', $data['cargo_ids'] ?? [])
             ->orderBy('name')
@@ -194,6 +212,8 @@ class QuestaoController extends Controller
             $materia?->slug,
             $instituicao?->name,
             $instituicao?->slug,
+            $simulado?->name,
+            $simulado?->slug,
             'gabarito ' . ($data['gabarito'] ?? ''),
         ]);
 

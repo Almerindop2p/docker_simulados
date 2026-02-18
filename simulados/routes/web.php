@@ -14,7 +14,9 @@ use App\Http\Controllers\FeedbackTicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationFeedController;
 use App\Http\Controllers\NotificationReadController;
+use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -46,13 +48,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/perfil', [ProfileController::class, 'show'])->name('perfil.show');
     Route::post('/perfil/avatar', [ProfileController::class, 'updateAvatar'])->name('perfil.avatar.update');
 
-    Route::get('/area_aluno', function () {
-        return view('area_aluno');
-    })->middleware('profile:user')->name('area_aluno');
+    Route::get('/area_aluno', [StudentDashboardController::class, 'show'])
+        ->middleware('profile:user')
+        ->name('area_aluno');
 
-    Route::get('/area_assinante', function () {
-        return view('area_aluno');
-    })->middleware('profile:user_assinante')->name('area_assinante');
+    Route::get('/area_assinante', [StudentDashboardController::class, 'show'])
+        ->middleware('profile:user_assinante')
+        ->name('area_assinante');
+
+    Route::middleware('profile:user,user_assinante')->group(function () {
+        Route::get('/progresso', [ProgressController::class, 'index'])->name('progresso.index');
+        Route::get('/progresso/respostas/{questaoResposta}', [ProgressController::class, 'show'])->name('progresso.show');
+    });
 
     Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {
         Route::get('/bancas', [BancaController::class, 'index'])->name('bancas.index');

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSimuladoRequest;
 use App\Models\Simulado;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,7 +61,13 @@ class SimuladoController extends Controller
     {
         $this->ensureAdmin($request);
 
-        $simulado->delete();
+        try {
+            $simulado->delete();
+        } catch (QueryException $exception) {
+            return redirect()
+                ->route('adm.simulados.index')
+                ->with('status', 'Nao foi possivel excluir o simulado porque ele possui questoes vinculadas.');
+        }
 
         return redirect()
             ->route('adm.simulados.index')
@@ -141,4 +148,3 @@ class SimuladoController extends Controller
         abort_unless($request->user()?->user_type === User::TYPE_ADM, 403);
     }
 }
-

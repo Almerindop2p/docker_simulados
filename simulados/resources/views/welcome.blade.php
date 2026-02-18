@@ -429,10 +429,47 @@
             box-shadow: 0 10px 18px rgba(31, 95, 224, 0.24);
         }
 
+        .answer-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .answer-button:disabled {
             opacity: 0.62;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        .comment-toggle {
+            min-height: 42px;
+            border-radius: 11px;
+            border: 1px solid #c6d8f2;
+            background: #fff;
+            color: #1f4a79;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 0 14px;
+            cursor: pointer;
+        }
+
+        .comment-toggle:hover {
+            background: #f3f8ff;
+        }
+
+        .answer-comment {
+            border: 1px solid #d8e4f3;
+            border-radius: 12px;
+            background: #fff;
+            padding: 11px 12px;
+            color: #24476f;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .answer-comment[hidden] {
+            display: none !important;
         }
 
         .feedback {
@@ -702,6 +739,7 @@
 
                                 $respostaEnviada = $resultadoDaQuestao['resposta_enviada'] ?? null;
                                 $questaoRespondida = is_array($resultadoDaQuestao) && array_key_exists('acertou', $resultadoDaQuestao);
+                                $temComentario = $questaoRespondida && !blank($resultadoDaQuestao['explicacao'] ?? null);
                             @endphp
 
                             <article class="result-item" id="questao-{{ $questao->id }}">
@@ -751,9 +789,24 @@
                                         @endforeach
                                     </div>
 
-                                    <button class="answer-button" type="submit" @disabled($questaoRespondida)>
-                                        {{ $questaoRespondida ? 'Respondida' : 'Responder' }}
-                                    </button>
+                                    <div class="answer-actions">
+                                        <button class="answer-button" type="submit" @disabled($questaoRespondida)>
+                                            {{ $questaoRespondida ? 'Respondida' : 'Responder' }}
+                                        </button>
+
+                                        @if ($temComentario)
+                                            <button
+                                                class="comment-toggle"
+                                                type="button"
+                                                data-comment-toggle
+                                                data-target="#comentario-questao-{{ $questao->id }}"
+                                                aria-expanded="false"
+                                                aria-controls="comentario-questao-{{ $questao->id }}"
+                                            >
+                                                Ver comentario
+                                            </button>
+                                        @endif
+                                    </div>
                                 </form>
 
                                 @if ($resultadoDaQuestao)
@@ -762,18 +815,19 @@
                                     @elseif (($resultadoDaQuestao['acertou'] ?? false) === true)
                                         <div class="feedback success" role="status">
                                             <span><strong>Resposta correta.</strong> Voce marcou {{ $resultadoDaQuestao['resposta_enviada'] }}.</span>
-                                            @if (!empty($resultadoDaQuestao['explicacao']))
-                                                <span><strong>Explicacao:</strong> {!! nl2br(e($resultadoDaQuestao['explicacao'])) !!}</span>
-                                            @endif
                                         </div>
                                     @else
                                         <div class="feedback error" role="status">
                                             <span><strong>Resposta incorreta.</strong> Voce marcou {{ $resultadoDaQuestao['resposta_enviada'] }} e o gabarito e {{ $resultadoDaQuestao['gabarito'] }}.</span>
-                                            @if (!empty($resultadoDaQuestao['explicacao']))
-                                                <span><strong>Explicacao:</strong> {!! nl2br(e($resultadoDaQuestao['explicacao'])) !!}</span>
-                                            @endif
                                         </div>
                                     @endif
+                                @endif
+
+                                @if ($temComentario)
+                                    <div id="comentario-questao-{{ $questao->id }}" class="answer-comment" hidden>
+                                        <strong>Comentario da resposta:</strong>
+                                        <span>{!! nl2br(e($resultadoDaQuestao['explicacao'])) !!}</span>
+                                    </div>
                                 @endif
                             </article>
                         @endforeach
@@ -831,39 +885,65 @@
             var avatarButton = document.getElementById('avatarButton');
             var avatarMenu = document.getElementById('avatarMenu');
 
-            if (!avatarButton || !avatarMenu) {
-                return;
+            if (avatarButton && avatarMenu) {
+                function openAvatarMenu() {
+                    avatarMenu.hidden = false;
+                    avatarButton.setAttribute('aria-expanded', 'true');
+                }
+
+                function closeAvatarMenu() {
+                    avatarMenu.hidden = true;
+                    avatarButton.setAttribute('aria-expanded', 'false');
+                }
+
+                avatarButton.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    if (avatarMenu.hidden) {
+                        openAvatarMenu();
+                    } else {
+                        closeAvatarMenu();
+                    }
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!avatarMenu.contains(event.target) && !avatarButton.contains(event.target)) {
+                        closeAvatarMenu();
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        closeAvatarMenu();
+                    }
+                });
             }
 
-            function openAvatarMenu() {
-                avatarMenu.hidden = false;
-                avatarButton.setAttribute('aria-expanded', 'true');
-            }
+            var commentButtons = document.querySelectorAll('[data-comment-toggle]');
 
-            function closeAvatarMenu() {
-                avatarMenu.hidden = true;
-                avatarButton.setAttribute('aria-expanded', 'false');
-            }
+            commentButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var selector = button.getAttribute('data-target');
+                    if (!selector) {
+                        return;
+                    }
 
-            avatarButton.addEventListener('click', function (event) {
-                event.stopPropagation();
-                if (avatarMenu.hidden) {
-                    openAvatarMenu();
-                } else {
-                    closeAvatarMenu();
-                }
-            });
+                    var target = document.querySelector(selector);
+                    if (!target) {
+                        return;
+                    }
 
-            document.addEventListener('click', function (event) {
-                if (!avatarMenu.contains(event.target) && !avatarButton.contains(event.target)) {
-                    closeAvatarMenu();
-                }
-            });
+                    var isOpen = !target.hasAttribute('hidden');
+                    if (isOpen) {
+                        target.setAttribute('hidden', '');
+                        button.setAttribute('aria-expanded', 'false');
+                        button.textContent = 'Ver comentario';
+                        return;
+                    }
 
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
-                    closeAvatarMenu();
-                }
+                    target.removeAttribute('hidden');
+                    button.setAttribute('aria-expanded', 'true');
+                    button.textContent = 'Ocultar comentario';
+                });
             });
         })();
     </script>

@@ -513,11 +513,17 @@
         $isCargoRoute = request()->routeIs('adm.cargos.*');
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
         $isTicketRoute = request()->routeIs('adm.tickets.*');
+        $isProgressoRoute = request()->routeIs('progresso.*');
+        $homeRoute = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_USER_ASSINANTE
+            ? route('area_assinante')
+            : route('area_aluno');
+        $respostasHoje = (int) data_get($dashboardStats ?? [], 'respostas_hoje', 0);
+        $totalRespostas = (int) data_get($dashboardStats ?? [], 'total_respostas', 0);
     @endphp
 
     <div class="layout">
         <aside id="sidebar" class="sidebar" aria-label="Menu principal">
-            <a class="brand" href="{{ route('area_aluno') }}">
+            <a class="brand" href="{{ $homeRoute }}">
                 <span class="brand-badge">EN</span>
                 <span>Area do Aluno</span>
             </a>
@@ -526,7 +532,7 @@
             <nav>
                 <ul class="nav">
                     <li>
-                        <a class="nav-link {{ request()->routeIs('area_aluno') ? 'is-active' : '' }}" href="{{ route('area_aluno') }}" @if(request()->routeIs('area_aluno')) aria-current="page" @endif>
+                        <a class="nav-link {{ request()->routeIs('area_aluno') || request()->routeIs('area_assinante') ? 'is-active' : '' }}" href="{{ $homeRoute }}" @if(request()->routeIs('area_aluno') || request()->routeIs('area_assinante')) aria-current="page" @endif>
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 11.8 12 4l9 7.8V21a1 1 0 0 1-1 1h-5.8v-6h-4.4v6H4a1 1 0 0 1-1-1v-9.2Z" stroke="currentColor" stroke-width="1.8"/></svg>
                             <span>Inicio</span>
                         </a>
@@ -538,7 +544,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link" href="#">
+                        <a class="nav-link {{ $isProgressoRoute ? 'is-active' : '' }}" href="{{ route('progresso.index') }}" @if($isProgressoRoute) aria-current="page" @endif>
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18h16M7 15V9m5 6V6m5 9v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                             <span>Progresso</span>
                         </a>
@@ -694,6 +700,24 @@
                 </section>
 
                 <section class="card-grid" aria-label="Resumo academico">
+                    <article class="card">
+                        <span class="card-meta">Seu ritmo hoje</span>
+                        <h3>{{ $respostasHoje }} questao(oes) respondida(s)</h3>
+                        <p>
+                            @if ($respostasHoje > 0)
+                                Voce respondeu {{ $respostasHoje }} questao(oes) hoje.
+                            @else
+                                Nenhuma resposta registrada hoje. Bora praticar?
+                            @endif
+                        </p>
+                    </article>
+
+                    <article class="card">
+                        <span class="card-meta">Historico de pratica</span>
+                        <h3>Total acumulado: {{ $totalRespostas }} resposta(s)</h3>
+                        <p>Resumo atualizado com base nas respostas salvas na plataforma.</p>
+                    </article>
+
                     <article class="card">
                         <span class="card-meta">Proxima aula</span>
                         <h3>Matematica - Funcoes</h3>

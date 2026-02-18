@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Simulado extends Model
 {
@@ -26,6 +27,11 @@ class Simulado extends Model
         'visibilidade',
     ];
 
+    public function questoes(): HasMany
+    {
+        return $this->hasMany(Questao::class);
+    }
+
     public static function visibilidadeLabel(?string $visibilidade): string
     {
         return match ($visibilidade) {
@@ -37,4 +43,3 @@ class Simulado extends Model
         };
     }
 }
-

@@ -137,7 +137,7 @@ class HeaderNotifications
     private static function buildForAssinante(User $user): array
     {
         $readKeyMap = self::readKeyMapForUser($user);
-        $items = self::buildStudentCore($user);
+        $items = self::buildStudentCore($user, false);
         $items[] = [
             'key' => self::notificationKey('assinante-plano', [$user->id, now()->toDateString()]),
             'type' => 'success',
@@ -152,7 +152,7 @@ class HeaderNotifications
     private static function buildForAluno(User $user): array
     {
         $readKeyMap = self::readKeyMapForUser($user);
-        $items = self::buildStudentCore($user);
+        $items = self::buildStudentCore($user, false);
 
         if (self::tableExists('users')) {
             $items[] = [
@@ -216,11 +216,11 @@ class HeaderNotifications
         return self::finalize($items, 'Notificacoes Gerais', $readKeyMap);
     }
 
-    private static function buildStudentCore(User $user): array
+    private static function buildStudentCore(User $user, bool $includePracticeNotifications = true): array
     {
         $items = [];
 
-        if (self::tableExists('questao_respostas')) {
+        if ($includePracticeNotifications && self::tableExists('questao_respostas')) {
             $respostasHoje = QuestaoResposta::query()
                 ->where('user_id', $user->id)
                 ->whereDate('respondida_em', now()->toDateString())
