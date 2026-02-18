@@ -26,3 +26,6 @@
         --shadow-soft: 0 4px 18px rgba(17, 32, 51, 0.05);
     }
 </style>
+@if (!empty($adsenseHeadScript))
+    {!! $adsenseHeadScript !!}
+@endif

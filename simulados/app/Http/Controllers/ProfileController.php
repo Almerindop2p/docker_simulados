@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Profile\UpdateAvatarRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -24,13 +25,16 @@ class ProfileController extends Controller
         $user = $request->user();
         $file = $request->file('avatar');
         $oldPath = $user->avatar_path;
+        $redirectRoute = $user->user_type === User::TYPE_ADM
+            ? 'adm.configuracoes.index'
+            : 'perfil.show';
 
         $extension = strtolower($file->getClientOriginalExtension());
         $newPath = $file->storeAs('avatars', 'avatar_' . $user->id . '_' . Str::random(12) . '.' . $extension, 'local');
 
         if (!$newPath) {
             return redirect()
-                ->route('perfil.show')
+                ->route($redirectRoute)
                 ->withErrors(['avatar' => 'Nao foi possivel salvar o avatar. Tente novamente.']);
         }
 
@@ -41,7 +45,7 @@ class ProfileController extends Controller
         $this->deleteUserAvatarGarbage((int) $user->id, $newPath);
 
         return redirect()
-            ->route('perfil.show')
+            ->route($redirectRoute)
             ->with('status', 'Avatar atualizado com sucesso.');
     }
 

@@ -708,7 +708,7 @@
 
                         <div id="avatarMenu" class="avatar-menu" role="menu" hidden>
                             <a class="menu-item" href="{{ route('perfil.show') }}" role="menuitem">Perfil</a>
-                            <a class="menu-item" href="{{ route('perfil.show') }}#configuracoes" role="menuitem">Configuracoes</a>
+                            <a class="menu-item" href="{{ $isAdm ? route('adm.configuracoes.index') : route('perfil.show') . '#configuracoes' }}" role="menuitem">Configuracoes</a>
                             <form class="menu-form" method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" role="menuitem">Sair</button>

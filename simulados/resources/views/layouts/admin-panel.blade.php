@@ -334,7 +334,9 @@
         $isCargoRoute = request()->routeIs('adm.cargos.*');
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
         $isTicketRoute = request()->routeIs('adm.tickets.*');
-        $isProgressoRoute = request()->routeIs('progresso.*');
+        $isProgressoRoute = $isAdm
+            ? request()->routeIs('adm.progresso.*')
+            : request()->routeIs('progresso.*');
         $isMeusSimuladosRoute = request()->routeIs('meus-simulados.*');
         $isStudent = in_array(($loggedUser->user_type ?? null), [
             \App\Models\User::TYPE_USER,
@@ -368,7 +370,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link {{ $isProgressoRoute ? 'is-active' : '' }}" href="{{ !$isAdm ? route('progresso.index') : '#' }}">
+                        <a class="nav-link {{ $isProgressoRoute ? 'is-active' : '' }}" href="{{ $isAdm ? route('adm.progresso.index') : route('progresso.index') }}">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18h16M7 15V9m5 6V6m5 9v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                             <span>Progresso</span>
                         </a>
@@ -529,7 +531,7 @@
 
                         <div id="avatarMenu" class="avatar-menu" role="menu" hidden>
                             <a class="menu-item" href="{{ route('perfil.show') }}" role="menuitem">Perfil</a>
-                            <a class="menu-item" href="{{ route('perfil.show') }}#configuracoes" role="menuitem">Configuracoes</a>
+                            <a class="menu-item" href="{{ $isAdm ? route('adm.configuracoes.index') : route('perfil.show') . '#configuracoes' }}" role="menuitem">Configuracoes</a>
                             <form class="menu-form" method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" role="menuitem">Sair</button>

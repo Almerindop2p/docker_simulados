@@ -3,8 +3,10 @@
 use App\Http\Controllers\Admin\BancaController;
 use App\Http\Controllers\Admin\CargoController;
 use App\Http\Controllers\Admin\AdminNotificationController;
+use App\Http\Controllers\Admin\ConfiguracaoController;
 use App\Http\Controllers\Admin\InstituicaoController;
 use App\Http\Controllers\Admin\MateriaController;
+use App\Http\Controllers\Admin\ProgressController as AdminProgressController;
 use App\Http\Controllers\Admin\QuestaoController;
 use App\Http\Controllers\Admin\SimuladoController;
 use App\Http\Controllers\Admin\TicketController;
@@ -75,6 +77,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {
+        Route::get('/configuracoes', [ConfiguracaoController::class, 'index'])->name('configuracoes.index');
+        Route::patch('/configuracoes/adsense', [ConfiguracaoController::class, 'updateAdsense'])->name('configuracoes.adsense.update');
+
         Route::get('/bancas', [BancaController::class, 'index'])->name('bancas.index');
         Route::get('/bancas/adicionar', [BancaController::class, 'create'])->name('bancas.create');
         Route::get('/bancas/verificar-nome', [BancaController::class, 'checkName'])->name('bancas.check-name');
@@ -124,6 +129,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/questoes/editar/{questao}', [QuestaoController::class, 'edit'])->name('questoes.edit');
         Route::put('/questoes/{questao}', [QuestaoController::class, 'update'])->name('questoes.update');
         Route::delete('/questoes/{questao}', [QuestaoController::class, 'destroy'])->name('questoes.destroy');
+        Route::get('/progresso', [AdminProgressController::class, 'index'])->name('progresso.index');
 
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
