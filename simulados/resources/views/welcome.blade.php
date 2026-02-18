@@ -49,6 +49,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .logo {
@@ -78,6 +79,44 @@
             gap: 8px;
             flex-wrap: wrap;
             justify-content: flex-end;
+        }
+
+        .top-main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1 1 auto;
+            min-width: 220px;
+        }
+
+        .main-nav-link {
+            text-decoration: none;
+            min-height: 40px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            border: 1px solid #d2dff1;
+            background: #fff;
+            color: #1f446f;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-nav-link.is-active {
+            border-color: #b9cdf0;
+            background: #f2f7ff;
+            color: #163a63;
+        }
+
+        .main-nav-link.is-disabled {
+            color: #7d90aa;
+            background: #f6f8fc;
+            border-style: dashed;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         .nav-link {
@@ -612,6 +651,14 @@
                 display: inline;
             }
         }
+
+        @media (max-width: 779px) {
+            .top-main-nav {
+                order: 3;
+                flex-basis: 100%;
+                justify-content: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -628,6 +675,13 @@
                 <span class="logo-badge">EN</span>
                 <span>Simulados e Questoes</span>
             </a>
+
+            <nav class="top-main-nav" aria-label="Menu principal">
+                <a class="main-nav-link is-active" href="{{ route('home') }}">Inicio</a>
+                <span class="main-nav-link is-disabled" aria-disabled="true" title="Em breve">Redacao</span>
+                <a class="main-nav-link" href="{{ route('simulados.public') }}">Simulados</a>
+            </nav>
+
             <nav class="top-actions" aria-label="Acesso rapido">
                 @auth
                     @if ($isAluno)

@@ -16,10 +16,12 @@ use App\Http\Controllers\NotificationFeedController;
 use App\Http\Controllers\NotificationReadController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SimuladoCatalogController;
 use App\Http\Controllers\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/simulados', [SimuladoCatalogController::class, 'index'])->name('simulados.public');
 Route::post('/questoes/{questao}/responder', [HomeController::class, 'answer'])->name('home.answer');
 Route::post('/feedback/tickets', [FeedbackTicketController::class, 'store'])
     ->middleware('throttle:30,1')

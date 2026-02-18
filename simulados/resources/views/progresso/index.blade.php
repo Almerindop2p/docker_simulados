@@ -30,13 +30,19 @@
         .period-title { margin: 0; font-size: 14px; color: #1f416c; font-weight: 800; }
         .pie-wrap { display: flex; align-items: center; gap: 12px; }
         .pie {
-            --ratio: 0;
+            --acertos: 0;
             width: 74px;
             height: 74px;
             border-radius: 999px;
-            background: conic-gradient(#1f5fe0 calc(var(--ratio) * 1%), #e1e9f7 0);
+            background: conic-gradient(
+                #1f5fe0 0 calc(var(--acertos) * 1%),
+                #e14b4b calc(var(--acertos) * 1%) 100%
+            );
             position: relative;
             flex: 0 0 auto;
+        }
+        .pie.pie-empty {
+            background: conic-gradient(#e1e9f7 0 100%);
         }
         .pie::after {
             content: '';
@@ -110,7 +116,7 @@
                 <article class="period-card">
                     <h3 class="period-title">{{ $periodLabel }}</h3>
                     <div class="pie-wrap">
-                        <div class="pie" style="--ratio: {{ $stats['acertos_percentual'] }};">
+                        <div class="pie {{ $stats['total'] > 0 ? '' : 'pie-empty' }}" style="--acertos: {{ $stats['acertos_percentual'] }};">
                             <div class="pie-value">{{ (int) round($stats['acertos_percentual']) }}%</div>
                         </div>
                         <div class="legend">
@@ -204,4 +210,3 @@
         </article>
     </section>
 @endsection
-
