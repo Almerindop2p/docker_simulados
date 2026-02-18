@@ -179,6 +179,8 @@
     @php
         $adsenseEnabled = old('adsense_enabled', (int) (($siteConfig->adsense_enabled ?? false) ? 1 : 0));
         $adsenseScript = old('adsense_head_script', (string) ($siteConfig->adsense_head_script ?? ''));
+        $horizontalAdCode = old('horizontal_ad_code', (string) ($horizontalAd->embed_code ?? ''));
+        $verticalAdCode = old('vertical_ad_code', (string) ($verticalAd->embed_code ?? ''));
     @endphp
 
     @if (session('status'))
@@ -252,6 +254,22 @@
                     class="code-input"
                     placeholder="<script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=...'></script>"
                 >{{ $adsenseScript }}</textarea>
+
+                <label class="label" for="horizontal_ad_code" style="margin-top: 12px;">Anuncio horizontal (codigo)</label>
+                <textarea
+                    id="horizontal_ad_code"
+                    name="horizontal_ad_code"
+                    class="code-input"
+                    placeholder="<ins class='adsbygoogle' style='display:block' data-ad-client='...' data-ad-slot='...'></ins>"
+                >{{ $horizontalAdCode }}</textarea>
+
+                <label class="label" for="vertical_ad_code" style="margin-top: 12px;">Anuncio vertical (codigo)</label>
+                <textarea
+                    id="vertical_ad_code"
+                    name="vertical_ad_code"
+                    class="code-input"
+                    placeholder="<ins class='adsbygoogle' style='display:block' data-ad-client='...' data-ad-slot='...'></ins>"
+                >{{ $verticalAdCode }}</textarea>
 
                 <div style="margin-top: 12px;">
                     <button class="btn-primary" type="submit">Salvar configuracoes</button>

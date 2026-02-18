@@ -593,6 +593,7 @@
     </div>
 
     @include('partials.feedback-widget')
+    @include('partials.adsense-placements')
 
     <script>
         (function () {

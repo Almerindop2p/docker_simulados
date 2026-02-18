@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\AdPost;
 use App\Models\SiteConfiguration;
 use App\Support\HeaderNotifications;
 use Illuminate\Support\Facades\Schema;
@@ -25,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $adsenseHeadScript = null;
+        $adsenseEnabled = false;
+        $adsenseHorizontalCode = null;
+        $adsenseVerticalCode = null;
 
         try {
             if (Schema::hasTable('site_configurations')) {
@@ -32,15 +36,41 @@ class AppServiceProvider extends ServiceProvider
                     ->select(['adsense_enabled', 'adsense_head_script'])
                     ->find(SiteConfiguration::SINGLETON_ID);
 
-                if ($config?->adsense_enabled && filled($config->adsense_head_script)) {
+                $adsenseEnabled = (bool) ($config?->adsense_enabled ?? false);
+
+                if ($adsenseEnabled && filled($config->adsense_head_script)) {
                     $adsenseHeadScript = (string) $config->adsense_head_script;
+                }
+
+                if ($adsenseEnabled && Schema::hasTable('ad_posts')) {
+                    $horizontalAd = AdPost::query()
+                        ->where('format', AdPost::FORMAT_HORIZONTAL)
+                        ->where('is_active', true)
+                        ->whereNotNull('embed_code')
+                        ->latest('id')
+                        ->first();
+                    $verticalAd = AdPost::query()
+                        ->where('format', AdPost::FORMAT_VERTICAL)
+                        ->where('is_active', true)
+                        ->whereNotNull('embed_code')
+                        ->latest('id')
+                        ->first();
+
+                    $adsenseHorizontalCode = $horizontalAd?->embed_code;
+                    $adsenseVerticalCode = $verticalAd?->embed_code;
                 }
             }
         } catch (Throwable) {
             $adsenseHeadScript = null;
+            $adsenseEnabled = false;
+            $adsenseHorizontalCode = null;
+            $adsenseVerticalCode = null;
         }
 
         View::share('adsenseHeadScript', $adsenseHeadScript);
+        View::share('adsenseEnabled', $adsenseEnabled);
+        View::share('adsenseHorizontalCode', $adsenseHorizontalCode);
+        View::share('adsenseVerticalCode', $adsenseVerticalCode);
 
         View::composer(['welcome', 'area_aluno', 'perfil', 'layouts.admin-panel'], function ($view) {
             $user = auth()->user();

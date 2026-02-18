@@ -934,6 +934,7 @@
         </section>
     </div>
     @include('partials.feedback-widget')
+    @include('partials.adsense-placements')
     <script>
         (function () {
             var avatarButton = document.getElementById('avatarButton');

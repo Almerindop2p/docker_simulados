@@ -548,6 +548,7 @@
     </div>
 
     <div id="mobileOverlay" class="overlay" aria-hidden="true"></div>
+    @include('partials.adsense-placements')
 
     <script>
         (function () {
