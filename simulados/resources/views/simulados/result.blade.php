@@ -81,6 +81,31 @@
             gap: 16px;
         }
 
+        .result-inline-vertical-ad {
+            width: min(960px, 100%);
+            min-height: 96px;
+            margin: 0 auto;
+            border: 1px dashed #b6bfcb;
+            border-radius: 12px;
+            background: #e7eaef;
+            box-shadow: 0 8px 24px rgba(16, 36, 63, 0.08);
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .result-inline-vertical-ad-placeholder {
+            min-height: 76px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #5f6e83;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            padding: 8px;
+        }
+
         .title {
             margin: 0;
             font-size: clamp(1.25rem, 2.5vw, 1.8rem);
@@ -185,6 +210,7 @@
             display: grid;
             gap: 14px;
             grid-template-columns: 1fr;
+            margin-top: 10px;
         }
 
         .table-card {
@@ -276,6 +302,7 @@
             justify-content: center;
             padding: 8px 12px;
             font-size: 13px;
+            margin-top: 4px;
         }
 
         .btn {
@@ -323,6 +350,16 @@
             </a>
             <a class="link-btn" href="{{ route('simulados.public') }}">Voltar para simulados</a>
         </header>
+
+        @if (($adsenseEnabled ?? false))
+            <section class="result-inline-vertical-ad" aria-label="Publicidade horizontal do resultado">
+                @if (!blank($adsenseHorizontalCode ?? null))
+                    {!! $adsenseHorizontalCode !!}
+                @else
+                    <div class="result-inline-vertical-ad-placeholder">Espaco anuncio horizontal</div>
+                @endif
+            </section>
+        @endif
 
         <section class="card">
             <h1 class="title">Resultado final do simulado</h1>
@@ -389,7 +426,7 @@
                                                         class="btn-soft"
                                                         href="{{ route('simulados.result.question', ['simulado' => $simulado, 'tentativa' => $attemptId, 'resposta' => $row->id]) }}"
                                                     >
-                                                        Ver
+                                                        Ver resposta
                                                     </a>
                                                 </td>
                                             </tr>
@@ -428,7 +465,7 @@
                                                         class="btn-soft"
                                                         href="{{ route('simulados.result.question', ['simulado' => $simulado, 'tentativa' => $attemptId, 'resposta' => $row->id]) }}"
                                                     >
-                                                        Ver
+                                                        Ver resposta
                                                     </a>
                                                 </td>
                                             </tr>

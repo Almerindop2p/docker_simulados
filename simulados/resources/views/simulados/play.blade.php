@@ -87,6 +87,29 @@
             gap: 14px;
         }
 
+        .simulado-inline-ad {
+            border: 1px dashed #b6bfcb;
+            border-radius: 12px;
+            background: #e7eaef;
+            box-shadow: 0 8px 24px rgba(16, 36, 63, 0.08);
+            min-height: 90px;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .simulado-inline-ad-placeholder {
+            min-height: 70px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #5f6e83;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            padding: 8px;
+        }
+
         .meta-grid {
             display: grid;
             gap: 10px;
@@ -179,6 +202,7 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            margin-top: 10px;
         }
 
         .btn {
@@ -229,6 +253,16 @@
                 <a class="link-btn" href="{{ route('simulados.public') }}">Voltar para simulados</a>
             </div>
         </header>
+
+        @if (($adsenseEnabled ?? false))
+            <section class="simulado-inline-ad" aria-label="Publicidade do simulado">
+                @if (!blank($adsenseHorizontalCode ?? null))
+                    {!! $adsenseHorizontalCode !!}
+                @else
+                    <div class="simulado-inline-ad-placeholder">Espaco anuncio do simulado</div>
+                @endif
+            </section>
+        @endif
 
         <section class="card">
             <div class="meta-grid">
