@@ -319,6 +319,34 @@
             text-align: center;
         }
 
+        .inline-ads-slot {
+            border: 1px dashed #b6bfcb;
+            border-radius: 12px;
+            background: #e7eaef;
+            box-shadow: 0 8px 24px rgba(16, 36, 63, 0.08);
+            padding: 10px;
+            min-height: 90px;
+            overflow: hidden;
+        }
+
+        .inline-ads-slot.in-results {
+            min-height: 78px;
+            margin-top: 2px;
+        }
+
+        .adsense-inline-placeholder {
+            min-height: inherit;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #5f6e83;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 8px;
+        }
+
         .result-card {
             border: 1px solid #d9e4f3;
             border-radius: var(--radius-lg);
@@ -763,6 +791,16 @@
             <p class="hero-note">Dica: combine mais de um filtro para resultados mais precisos.</p>
         </section>
 
+        @if (($adsenseEnabled ?? false))
+            <section class="inline-ads-slot" aria-label="Publicidade apos filtro">
+                @if (!blank($adsenseHorizontalCode ?? null))
+                    {!! $adsenseHorizontalCode !!}
+                @else
+                    <div class="adsense-inline-placeholder">Espaco anuncio apos pesquisa</div>
+                @endif
+            </section>
+        @endif
+
         @if ($temPesquisa && $questoes)
             <section class="result-card" aria-labelledby="titulo-resultados">
                 <p class="result-header">
@@ -877,13 +915,23 @@
                                     @endif
                                 @endif
 
-                                @if ($temComentario)
+                            @if ($temComentario)
                                     <div id="comentario-questao-{{ $questao->id }}" class="answer-comment" hidden>
                                         <strong>Comentario da resposta:</strong>
                                         <span>{!! nl2br(e($resultadoDaQuestao['explicacao'])) !!}</span>
                                     </div>
                                 @endif
                             </article>
+
+                            @if (($adsenseEnabled ?? false) && !$loop->last && $loop->iteration % 2 === 0)
+                                <article class="inline-ads-slot in-results" aria-label="Publicidade entre questoes">
+                                    @if (!blank($adsenseHorizontalCode ?? null))
+                                        {!! $adsenseHorizontalCode !!}
+                                    @else
+                                        <div class="adsense-inline-placeholder">Espaco anuncio entre questoes</div>
+                                    @endif
+                                </article>
+                            @endif
                         @endforeach
                     </div>
 
