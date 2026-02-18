@@ -154,16 +154,6 @@ class HeaderNotifications
         $readKeyMap = self::readKeyMapForUser($user);
         $items = self::buildStudentCore($user, false);
 
-        if (self::tableExists('users')) {
-            $items[] = [
-                'key' => self::notificationKey('aluno-dica-beta', [$user->id, now()->toDateString()]),
-                'type' => 'info',
-                'title' => 'Dica beta',
-                'message' => 'Envie feedback pelo icone verde para ajudar na evolucao da plataforma.',
-                'url' => null,
-            ];
-        }
-
         return self::finalize($items, 'Notificacoes do Aluno', $readKeyMap);
     }
 
@@ -247,23 +237,6 @@ class HeaderNotifications
                 'message' => "Total acumulado: {$totalRespostas} resposta(s).",
                 'url' => route('home'),
             ];
-        }
-
-        if (self::tableExists('feedback_tickets')) {
-            $feedbackAbertos = FeedbackTicket::query()
-                ->where('user_id', $user->id)
-                ->where('status', 'aberto')
-                ->count();
-
-            if ($feedbackAbertos > 0) {
-                $items[] = [
-                    'key' => self::notificationKey('aluno-feedback-andamento', [$user->id, now()->toDateString()]),
-                    'type' => 'warning',
-                    'title' => 'Feedback em andamento',
-                    'message' => 'Voce possui ticket(s) com status aberto.',
-                    'url' => null,
-                ];
-            }
         }
 
         return $items;
