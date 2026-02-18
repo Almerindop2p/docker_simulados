@@ -333,6 +333,35 @@
             line-height: 1.6;
         }
 
+        .simulado-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .run-btn {
+            min-height: 40px;
+            min-width: 150px;
+            border: 0;
+            border-radius: 10px;
+            color: #fff;
+            background: linear-gradient(135deg, #1f5fe0, #4f86f1);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0 18px;
+            box-shadow: 0 10px 18px rgba(31, 95, 224, 0.24);
+        }
+
+        .run-btn.secondary {
+            color: #1f466f;
+            background: #fff;
+            border: 1px solid #cddbef;
+            box-shadow: none;
+        }
+
         .chip {
             width: fit-content;
             border: 1px solid #d2dff2;
@@ -352,6 +381,17 @@
             border-radius: 12px;
             padding: 12px;
             font-size: 14px;
+        }
+
+        .flash {
+            margin: 0;
+            border: 1px solid #cfe2ff;
+            border-radius: 12px;
+            background: #f3f8ff;
+            color: #1e456d;
+            padding: 10px 12px;
+            font-size: 14px;
+            line-height: 1.6;
         }
 
         .pagination {
@@ -495,6 +535,10 @@
         </section>
 
         <section class="list-card" aria-labelledby="titulo-lista">
+            @if (session('status'))
+                <p class="flash">{{ session('status') }}</p>
+            @endif
+
             <p class="list-header">
                 <span id="titulo-lista">Resultado da pesquisa</span>
                 <span>{{ $simulados->total() }} simulado(s) encontrado(s)</span>
@@ -510,6 +554,14 @@
                             <span class="chip">{{ \App\Models\Simulado::visibilidadeLabel($simulado->visibilidade) }}</span>
                             <p class="simulado-meta"><strong>Slug:</strong> {{ $simulado->slug }}</p>
                             <p class="simulado-meta"><strong>Questoes vinculadas:</strong> {{ $simulado->questoes_count }}</p>
+                            <div class="simulado-actions">
+                                <form method="POST" action="{{ route('simulados.start', $simulado) }}">
+                                    @csrf
+                                    <button class="run-btn" type="submit">
+                                        {{ isset($tentativasAbertas[$simulado->id]) ? 'Continuar' : 'Realizar' }}
+                                    </button>
+                                </form>
+                            </div>
                         </article>
                     @endforeach
                 </div>
@@ -585,4 +637,3 @@
     </script>
 </body>
 </html>
-

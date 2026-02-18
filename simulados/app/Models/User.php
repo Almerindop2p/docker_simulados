@@ -82,4 +82,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(FeedbackTicket::class);
     }
+
+    public function simuladoTentativas(): HasMany
+    {
+        return $this->hasMany(SimuladoTentativa::class);
+    }
 }

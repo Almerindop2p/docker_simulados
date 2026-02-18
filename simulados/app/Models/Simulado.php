@@ -32,6 +32,11 @@ class Simulado extends Model
         return $this->hasMany(Questao::class);
     }
 
+    public function tentativas(): HasMany
+    {
+        return $this->hasMany(SimuladoTentativa::class);
+    }
+
     public static function visibilidadeLabel(?string $visibilidade): string
     {
         return match ($visibilidade) {

@@ -22,6 +22,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/simulados', [SimuladoCatalogController::class, 'index'])->name('simulados.public');
+Route::post('/simulados/{simulado}/iniciar', [SimuladoCatalogController::class, 'start'])->name('simulados.start');
+Route::get('/simulados/{simulado}/realizar', [SimuladoCatalogController::class, 'play'])->name('simulados.play');
+Route::post('/simulados/{simulado}/realizar', [SimuladoCatalogController::class, 'submit'])->name('simulados.submit');
+Route::get('/simulados/{simulado}/resultado', [SimuladoCatalogController::class, 'result'])->name('simulados.result');
+Route::get('/simulados/{simulado}/resultado/{tentativa}/questao/{resposta}', [SimuladoCatalogController::class, 'resultQuestion'])
+    ->name('simulados.result.question');
 Route::post('/questoes/{questao}/responder', [HomeController::class, 'answer'])->name('home.answer');
 Route::post('/feedback/tickets', [FeedbackTicketController::class, 'store'])
     ->middleware('throttle:30,1')
