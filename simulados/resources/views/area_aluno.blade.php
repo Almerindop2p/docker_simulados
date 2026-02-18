@@ -379,6 +379,10 @@
             border-radius: 12px;
             padding: 10px 14px;
             color: #fff;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background: linear-gradient(135deg, var(--brand), #4c83f0);
             box-shadow: 0 10px 20px rgba(31, 95, 224, 0.24);
             font-weight: 700;
@@ -536,6 +540,31 @@
             'progresso_geral_resumo',
             'Sem dados suficientes para calcular progresso geral.'
         );
+        $atividadesPendentesTitulo = (string) data_get(
+            $dashboardStats ?? [],
+            'atividades_pendentes_titulo',
+            'Carregando atividades pendentes...'
+        );
+        $atividadesPendentesDescricao = (string) data_get(
+            $dashboardStats ?? [],
+            'atividades_pendentes_descricao',
+            'Aguarde enquanto buscamos seus dados.'
+        );
+        $continuarEstudoDescricao = (string) data_get(
+            $dashboardStats ?? [],
+            'continuar_estudo_descricao',
+            'Veja o desempenho dos seus simulados e continue seus estudos.'
+        );
+        $continuarEstudoLabel = (string) data_get(
+            $dashboardStats ?? [],
+            'continuar_estudo_label',
+            'Continuar estudo'
+        );
+        $continuarEstudoUrl = (string) data_get(
+            $dashboardStats ?? [],
+            'continuar_estudo_url',
+            route('simulados.public')
+        );
     @endphp
 
     <div class="layout">
@@ -671,7 +700,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                Continue seu plano com simulados e questoes gratuitas para ENEM e concursos publicos.
+                Continue seu plano com simulados e questoes gratuitas para manter sua evolucao.
             </div>
         </aside>
 
@@ -717,10 +746,10 @@
 
             <main class="content">
                 <section class="hero" aria-labelledby="hero-title">
-                    <h2 id="hero-title">Continuar de onde voce parou</h2>
-                    <p>Revise os ultimos conteudos acessados e mantenha seu ritmo de estudo para ENEM e concursos publicos.</p>
+                    <h2 id="hero-title">Veja o histórico de progresso</h2>
+                    <p>{{ $continuarEstudoDescricao }}</p>
                     <div>
-                        <button class="btn-primary" type="button">Continuar estudo</button>
+                        <a class="btn-primary" href="{{ $continuarEstudoUrl }}">{{ $continuarEstudoLabel }}</a>
                     </div>
                 </section>
 
@@ -743,16 +772,10 @@
                         <p>Resumo atualizado com base nas respostas salvas na plataforma.</p>
                     </article>
 
-                    <article class="card">
-                        <span class="card-meta">Proxima aula</span>
-                        <h3>Matematica - Funcoes</h3>
-                        <p>Aula recomendada para hoje as 20:00, com exercicios guiados.</p>
-                    </article>
-
-                    <article class="card">
+                    <article class="card" id="pendingActivitiesCard" data-url="{{ route('dashboard.pending-activities') }}">
                         <span class="card-meta">Atividades pendentes</span>
-                        <h3>12 questoes para resolver</h3>
-                        <p>Finalize a lista de Linguagens para manter sua meta semanal.</p>
+                        <h3 data-pending-title>{{ $atividadesPendentesTitulo }}</h3>
+                        <p data-pending-description>{{ $atividadesPendentesDescricao }}</p>
                     </article>
 
                     <article class="card">
@@ -881,6 +904,60 @@
                     closeSidebarDrawer();
                 }
             });
+        })();
+    </script>
+    <script>
+        (function () {
+            var pendingCard = document.getElementById('pendingActivitiesCard');
+            if (!pendingCard) {
+                return;
+            }
+
+            var url = pendingCard.getAttribute('data-url');
+            var titleEl = pendingCard.querySelector('[data-pending-title]');
+            var descriptionEl = pendingCard.querySelector('[data-pending-description]');
+
+            if (!url || !titleEl || !descriptionEl) {
+                return;
+            }
+
+            function refreshPendingActivities() {
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('request_failed');
+                        }
+                        return response.json();
+                    })
+                    .then(function (payload) {
+                        if (!payload || typeof payload !== 'object') {
+                            return;
+                        }
+
+                        var nextTitle = String(payload.title || '').trim();
+                        var nextDescription = String(payload.description || '').trim();
+
+                        if (nextTitle !== '') {
+                            titleEl.textContent = nextTitle;
+                        }
+                        if (nextDescription !== '') {
+                            descriptionEl.textContent = nextDescription;
+                        }
+                    })
+                    .catch(function () {
+                        // Mantem fallback atual para evitar ruido visual em caso de falha temporaria.
+                    });
+            }
+
+            refreshPendingActivities();
+            setInterval(refreshPendingActivities, 60000);
         })();
     </script>
 </body>

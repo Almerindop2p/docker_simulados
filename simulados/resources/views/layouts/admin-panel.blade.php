@@ -495,7 +495,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                Continue seu plano com simulados e questoes gratuitas para ENEM e concursos publicos.
+                Continue seu plano com simulados e questoes gratuitas para manter sua evolucao.
             </div>
         </aside>
 

@@ -69,6 +69,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/progresso', [ProgressController::class, 'index'])->name('progresso.index');
         Route::get('/progresso/respostas/{questaoResposta}', [ProgressController::class, 'show'])->name('progresso.show');
         Route::get('/meus-simulados', [MeusSimuladosController::class, 'index'])->name('meus-simulados.index');
+        Route::get('/dashboard/atividades-pendentes', [StudentDashboardController::class, 'pendingActivities'])
+            ->middleware('throttle:60,1')
+            ->name('dashboard.pending-activities');
     });
 
     Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Questao;
 use App\Models\QuestaoResposta;
+use App\Models\SimuladoTentativa;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class StudentDashboardController extends Controller
@@ -33,6 +35,12 @@ class StudentDashboardController extends Controller
         $progressoGeralPercent = $totalQuestoes > 0
             ? round(($questoesRespondidasUnicas / $totalQuestoes) * 100, 1)
             : 0.0;
+        $atividadesPendentes = $this->buildAtividadesPendentesData(
+            $totalQuestoes,
+            $questoesRespondidasUnicas,
+            $questoesRestantes
+        );
+        $continuarEstudo = $this->buildContinuarEstudoData($user->id);
 
         $ultimasRespostas = (clone $queryUsuario)
             ->select(['id', 'acertou'])
@@ -76,8 +84,37 @@ class StudentDashboardController extends Controller
                     $questoesRespondidasUnicas,
                     $questoesRestantes
                 ),
+                'atividades_pendentes_count' => (int) $atividadesPendentes['count'],
+                'atividades_pendentes_titulo' => (string) $atividadesPendentes['title'],
+                'atividades_pendentes_descricao' => (string) $atividadesPendentes['description'],
+                'continuar_estudo_descricao' => (string) $continuarEstudo['description'],
+                'continuar_estudo_label' => (string) $continuarEstudo['action_label'],
+                'continuar_estudo_url' => (string) $continuarEstudo['action_url'],
             ],
         ]);
+    }
+
+    public function pendingActivities(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($user, 403);
+
+        $queryUsuario = QuestaoResposta::query()
+            ->where('user_id', $user->id);
+
+        $totalQuestoes = Questao::query()->count();
+        $questoesRespondidasUnicas = (clone $queryUsuario)
+            ->whereNotNull('questao_id')
+            ->distinct('questao_id')
+            ->count('questao_id');
+        $questoesRestantes = max(0, $totalQuestoes - $questoesRespondidasUnicas);
+        $payload = $this->buildAtividadesPendentesData(
+            $totalQuestoes,
+            $questoesRespondidasUnicas,
+            $questoesRestantes
+        );
+
+        return response()->json($payload);
     }
 
     private function buildDesempenhoResumo(
@@ -87,24 +124,24 @@ class StudentDashboardController extends Controller
         ?float $variacaoTaxa
     ): string {
         if ($totalRespostas === 0) {
-            return 'Sem respostas registradas ainda. Comece a responder questoes para gerar desempenho real.';
+            return 'Sem dados ainda. Responda questoes para gerar desempenho dos seus simulados.';
         }
 
         if ($recenteTotal === 0 || $anteriorTotal === 0 || $variacaoTaxa === null) {
-            return "Desempenho calculado com base em {$totalRespostas} resposta(s) registrada(s).";
+            return "Desempenho dos seus simulados com base em {$totalRespostas} resposta(s).";
         }
 
         $variacaoFormatada = $this->formatPercent(abs($variacaoTaxa));
 
         if ($variacaoTaxa > 0) {
-            return "Voce subiu {$variacaoFormatada}% nas ultimas respostas comparadas ao bloco anterior.";
+            return "Seu desempenho nos simulados subiu {$variacaoFormatada}%.";
         }
 
         if ($variacaoTaxa < 0) {
-            return "Voce caiu {$variacaoFormatada}% nas ultimas respostas comparadas ao bloco anterior.";
+            return "Seu desempenho nos simulados caiu {$variacaoFormatada}%.";
         }
 
-        return 'Seu desempenho se manteve estavel nas ultimas respostas comparadas ao bloco anterior.';
+        return 'Seu desempenho nos simulados se manteve estavel.';
     }
 
     private function buildProgressoGeralResumo(
@@ -121,6 +158,63 @@ class StudentDashboardController extends Controller
         }
 
         return "Faltam {$questoesRestantes} questao(oes) para concluir {$totalQuestoes} questao(oes) disponivel(is).";
+    }
+
+    private function buildAtividadesPendentesData(
+        int $totalQuestoes,
+        int $questoesRespondidasUnicas,
+        int $questoesRestantes
+    ): array {
+        if ($totalQuestoes === 0) {
+            return [
+                'count' => 0,
+                'title' => 'Nenhuma atividade pendente',
+                'description' => 'Sem questoes cadastradas no sistema no momento.',
+            ];
+        }
+
+        if ($questoesRestantes === 0) {
+            return [
+                'count' => 0,
+                'title' => 'Nenhuma atividade pendente',
+                'description' => "Voce ja respondeu {$questoesRespondidasUnicas} questao(oes) disponivel(is).",
+            ];
+        }
+
+        return [
+            'count' => $questoesRestantes,
+            'title' => "{$questoesRestantes} questao(oes) para resolver",
+            'description' => "Voce ja respondeu {$questoesRespondidasUnicas} de {$totalQuestoes} questao(oes).",
+        ];
+    }
+
+    private function buildContinuarEstudoData(int $userId): array
+    {
+        $tentativaAberta = SimuladoTentativa::query()
+            ->with(['simulado:id,name'])
+            ->where('user_id', $userId)
+            ->where('status', SimuladoTentativa::STATUS_ABERTO)
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($tentativaAberta && $tentativaAberta->simulado) {
+            return [
+                'description' => "Voce possui um simulado em andamento: {$tentativaAberta->simulado->name}. Retome exatamente de onde parou.",
+                'action_label' => 'Retomar simulado',
+                'action_url' => route('simulados.play', [
+                    'simulado' => $tentativaAberta->simulado,
+                    'attempt' => $tentativaAberta->id,
+                    'i' => max(0, (int) $tentativaAberta->current_index),
+                ]),
+            ];
+        }
+
+        return [
+            'description' => 'Veja o desempenho dos seus simulados e continue seus estudos.',
+            'action_label' => 'Ir para simulados',
+            'action_url' => route('simulados.public'),
+        ];
     }
 
     private function formatPercent(float $value): string
