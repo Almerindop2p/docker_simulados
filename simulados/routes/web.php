@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BancaController;
 use App\Http\Controllers\Admin\CargoController;
 use App\Http\Controllers\Admin\AdminNotificationController;
+use App\Http\Controllers\Admin\AdPostController;
 use App\Http\Controllers\Admin\ConfiguracaoController;
 use App\Http\Controllers\Admin\InstituicaoController;
 use App\Http\Controllers\Admin\MateriaController;
@@ -79,6 +80,14 @@ Route::middleware('auth')->group(function () {
     Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {
         Route::get('/configuracoes', [ConfiguracaoController::class, 'index'])->name('configuracoes.index');
         Route::patch('/configuracoes/adsense', [ConfiguracaoController::class, 'updateAdsense'])->name('configuracoes.adsense.update');
+
+        Route::get('/anuncios', [AdPostController::class, 'index'])->name('anuncios.index');
+        Route::get('/anuncios/adicionar', [AdPostController::class, 'create'])->name('anuncios.create');
+        Route::get('/anuncios/verificar-campo', [AdPostController::class, 'checkField'])->name('anuncios.check-field');
+        Route::post('/anuncios', [AdPostController::class, 'store'])->name('anuncios.store');
+        Route::get('/anuncios/{anuncio}/editar', [AdPostController::class, 'edit'])->name('anuncios.edit');
+        Route::put('/anuncios/{anuncio}', [AdPostController::class, 'update'])->name('anuncios.update');
+        Route::delete('/anuncios/{anuncio}', [AdPostController::class, 'destroy'])->name('anuncios.destroy');
 
         Route::get('/bancas', [BancaController::class, 'index'])->name('bancas.index');
         Route::get('/bancas/adicionar', [BancaController::class, 'create'])->name('bancas.create');

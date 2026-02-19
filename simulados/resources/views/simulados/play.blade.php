@@ -254,15 +254,14 @@
             </div>
         </header>
 
-        @if (($adsenseEnabled ?? false))
-            <section class="simulado-inline-ad" aria-label="Publicidade do simulado">
-                @if (!blank($adsenseHorizontalCode ?? null))
-                    {!! $adsenseHorizontalCode !!}
-                @else
-                    <div class="simulado-inline-ad-placeholder">Espaco anuncio do simulado</div>
-                @endif
-            </section>
-        @endif
+        @include('partials.ad-slot', [
+            'format' => 'horizontal',
+            'tag' => 'section',
+            'slotClass' => 'simulado-inline-ad',
+            'placeholderClass' => 'simulado-inline-ad-placeholder',
+            'placeholder' => 'Espaco anuncio do simulado',
+            'ariaLabel' => 'Publicidade do simulado',
+        ])
 
         <section class="card">
             <div class="meta-grid">

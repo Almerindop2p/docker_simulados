@@ -102,6 +102,22 @@
             line-height: 1.5;
             resize: vertical;
         }
+        .adsense-fields[hidden] {
+            display: none !important;
+        }
+        .adsense-summary {
+            border: 1px solid #d6e2f4;
+            border-radius: 12px;
+            background: #f8fbff;
+            padding: 12px;
+            display: grid;
+            gap: 8px;
+        }
+        .adsense-summary p {
+            margin: 0;
+            color: #36577f;
+            font-size: 14px;
+        }
         .read-only {
             min-height: 42px;
             border: 1px solid #d6e2f4;
@@ -179,8 +195,6 @@
     @php
         $adsenseEnabled = old('adsense_enabled', (int) (($siteConfig->adsense_enabled ?? false) ? 1 : 0));
         $adsenseScript = old('adsense_head_script', (string) ($siteConfig->adsense_head_script ?? ''));
-        $horizontalAdCode = old('horizontal_ad_code', (string) ($horizontalAd->embed_code ?? ''));
-        $verticalAdCode = old('vertical_ad_code', (string) ($verticalAd->embed_code ?? ''));
     @endphp
 
     @if (session('status'))
@@ -235,7 +249,7 @@
     <section class="config-card">
         <div class="form-pane">
             <h2 class="section-title">Configuracao de Adsense</h2>
-            <p class="hint">Defina se o anuncio fica ativo e informe o script para insercao no <code>&lt;head&gt;</code> do site.</p>
+            <p class="hint">Defina se o Adsense fica ativo. Quando ativo, o campo de script e liberado e os anuncios ativos sao exibidos no site.</p>
 
             <form method="POST" action="{{ route('adm.configuracoes.adsense.update') }}">
                 @csrf
@@ -247,34 +261,28 @@
                     <option value="0" @selected((string) $adsenseEnabled === '0')>Inativo</option>
                 </select>
 
-                <label class="label" for="adsense_head_script" style="margin-top: 12px;">Script do Adsense (head)</label>
-                <textarea
-                    id="adsense_head_script"
-                    name="adsense_head_script"
-                    class="code-input"
-                    placeholder="<script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=...'></script>"
-                >{{ $adsenseScript }}</textarea>
-
-                <label class="label" for="horizontal_ad_code" style="margin-top: 12px;">Anuncio horizontal (codigo)</label>
-                <textarea
-                    id="horizontal_ad_code"
-                    name="horizontal_ad_code"
-                    class="code-input"
-                    placeholder="<ins class='adsbygoogle' style='display:block' data-ad-client='...' data-ad-slot='...'></ins>"
-                >{{ $horizontalAdCode }}</textarea>
-
-                <label class="label" for="vertical_ad_code" style="margin-top: 12px;">Anuncio vertical (codigo)</label>
-                <textarea
-                    id="vertical_ad_code"
-                    name="vertical_ad_code"
-                    class="code-input"
-                    placeholder="<ins class='adsbygoogle' style='display:block' data-ad-client='...' data-ad-slot='...'></ins>"
-                >{{ $verticalAdCode }}</textarea>
+                <div id="adsenseFields" class="adsense-fields" @if((string) $adsenseEnabled !== '1') hidden @endif>
+                    <label class="label" for="adsense_head_script" style="margin-top: 12px;">Script do Adsense (head)</label>
+                    <textarea
+                        id="adsense_head_script"
+                        name="adsense_head_script"
+                        class="code-input"
+                        placeholder="<script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=...'></script>"
+                    >{{ $adsenseScript }}</textarea>
+                </div>
 
                 <div style="margin-top: 12px;">
                     <button class="btn-primary" type="submit">Salvar configuracoes</button>
                 </div>
             </form>
+
+            <div class="adsense-summary">
+                <p>Total de anuncios cadastrados: <strong>{{ (int) ($totalAds ?? 0) }}</strong></p>
+                <p>Anuncios ativos: <strong>{{ (int) ($activeAds ?? 0) }}</strong></p>
+                <div>
+                    <a class="btn-primary" href="{{ route('adm.anuncios.index') }}">Gerenciar formatos de anuncios</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -284,6 +292,8 @@
             var fileInput = document.getElementById('avatar');
             var preview = document.getElementById('avatarPreview');
             var submit = document.getElementById('submitAvatar');
+            var adsenseEnabledSelect = document.getElementById('adsense_enabled');
+            var adsenseFields = document.getElementById('adsenseFields');
 
             if (!form || !fileInput || !preview || !submit) {
                 return;
@@ -313,6 +323,12 @@
                     text.textContent = 'Salvando...';
                 }
             });
+
+            if (adsenseEnabledSelect && adsenseFields) {
+                adsenseEnabledSelect.addEventListener('change', function () {
+                    adsenseFields.hidden = adsenseEnabledSelect.value !== '1';
+                });
+            }
         })();
     </script>
 @endsection

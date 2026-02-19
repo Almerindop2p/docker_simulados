@@ -791,15 +791,14 @@
             <p class="hero-note">Dica: combine mais de um filtro para resultados mais precisos.</p>
         </section>
 
-        @if (($adsenseEnabled ?? false))
-            <section class="inline-ads-slot" aria-label="Publicidade apos filtro">
-                @if (!blank($adsenseHorizontalCode ?? null))
-                    {!! $adsenseHorizontalCode !!}
-                @else
-                    <div class="adsense-inline-placeholder">Espaco anuncio apos pesquisa</div>
-                @endif
-            </section>
-        @endif
+        @include('partials.ad-slot', [
+            'format' => 'horizontal',
+            'tag' => 'section',
+            'slotClass' => 'inline-ads-slot',
+            'placeholderClass' => 'adsense-inline-placeholder',
+            'placeholder' => 'Espaco anuncio apos pesquisa',
+            'ariaLabel' => 'Publicidade apos filtro',
+        ])
 
         @if ($temPesquisa && $questoes)
             <section class="result-card" aria-labelledby="titulo-resultados">
@@ -923,14 +922,15 @@
                                 @endif
                             </article>
 
-                            @if (($adsenseEnabled ?? false) && !$loop->last && $loop->iteration % 2 === 0)
-                                <article class="inline-ads-slot in-results" aria-label="Publicidade entre questoes">
-                                    @if (!blank($adsenseHorizontalCode ?? null))
-                                        {!! $adsenseHorizontalCode !!}
-                                    @else
-                                        <div class="adsense-inline-placeholder">Espaco anuncio entre questoes</div>
-                                    @endif
-                                </article>
+                            @if (!$loop->last && $loop->iteration % 2 === 0)
+                                @include('partials.ad-slot', [
+                                    'format' => 'horizontal',
+                                    'tag' => 'article',
+                                    'slotClass' => 'inline-ads-slot in-results',
+                                    'placeholderClass' => 'adsense-inline-placeholder',
+                                    'placeholder' => 'Espaco anuncio entre questoes',
+                                    'ariaLabel' => 'Publicidade entre questoes',
+                                ])
                             @endif
                         @endforeach
                     </div>

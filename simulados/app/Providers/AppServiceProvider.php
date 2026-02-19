@@ -29,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         $adsenseEnabled = false;
         $adsenseHorizontalCode = null;
         $adsenseVerticalCode = null;
+        $adsenseFormatCodes = [];
 
         try {
             if (Schema::hasTable('site_configurations')) {
@@ -43,21 +44,23 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 if ($adsenseEnabled && Schema::hasTable('ad_posts')) {
-                    $horizontalAd = AdPost::query()
-                        ->where('format', AdPost::FORMAT_HORIZONTAL)
+                    $activeAds = AdPost::query()
                         ->where('is_active', true)
                         ->whereNotNull('embed_code')
-                        ->latest('id')
-                        ->first();
-                    $verticalAd = AdPost::query()
-                        ->where('format', AdPost::FORMAT_VERTICAL)
-                        ->where('is_active', true)
-                        ->whereNotNull('embed_code')
-                        ->latest('id')
-                        ->first();
+                        ->whereNotNull('format')
+                        ->orderByDesc('id')
+                        ->get(['format', 'embed_code']);
 
-                    $adsenseHorizontalCode = $horizontalAd?->embed_code;
-                    $adsenseVerticalCode = $verticalAd?->embed_code;
+                    foreach ($activeAds as $adPost) {
+                        $format = strtolower(trim((string) $adPost->format));
+
+                        if ($format !== '' && !isset($adsenseFormatCodes[$format])) {
+                            $adsenseFormatCodes[$format] = $adPost->embed_code;
+                        }
+                    }
+
+                    $adsenseHorizontalCode = $adsenseFormatCodes[AdPost::FORMAT_HORIZONTAL] ?? null;
+                    $adsenseVerticalCode = $adsenseFormatCodes[AdPost::FORMAT_VERTICAL] ?? null;
                 }
             }
         } catch (Throwable) {
@@ -65,12 +68,14 @@ class AppServiceProvider extends ServiceProvider
             $adsenseEnabled = false;
             $adsenseHorizontalCode = null;
             $adsenseVerticalCode = null;
+            $adsenseFormatCodes = [];
         }
 
         View::share('adsenseHeadScript', $adsenseHeadScript);
         View::share('adsenseEnabled', $adsenseEnabled);
         View::share('adsenseHorizontalCode', $adsenseHorizontalCode);
         View::share('adsenseVerticalCode', $adsenseVerticalCode);
+        View::share('adsenseFormatCodes', $adsenseFormatCodes);
 
         View::composer(['welcome', 'area_aluno', 'perfil', 'layouts.admin-panel'], function ($view) {
             $user = auth()->user();

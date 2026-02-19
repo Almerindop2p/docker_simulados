@@ -513,6 +513,7 @@
         $isAdm = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_ADM;
         $isBancaRoute = request()->routeIs('adm.bancas.*');
         $isSimuladoRoute = request()->routeIs('adm.simulados.*');
+        $isAnuncioRoute = request()->routeIs('adm.anuncios.*');
         $isMateriaRoute = request()->routeIs('adm.materias.*');
         $isCargoRoute = request()->routeIs('adm.cargos.*');
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
@@ -636,6 +637,23 @@
                             <ul id="simuladoSubmenu" class="nav-submenu {{ $isSimuladoRoute ? 'is-open' : '' }}">
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.simulados.create') ? 'is-active' : '' }}" href="{{ route('adm.simulados.create') }}">Adicionar Simulado</a></li>
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.simulados.index') ? 'is-active' : '' }}" href="{{ route('adm.simulados.index') }}">Lista de Simulados</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button
+                                id="anuncioToggle"
+                                class="nav-link nav-toggle {{ $isAnuncioRoute ? 'is-active' : '' }}"
+                                type="button"
+                                aria-expanded="{{ $isAnuncioRoute ? 'true' : 'false' }}"
+                                aria-controls="anuncioSubmenu"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.8" y="6.4" width="16.4" height="11.2" rx="2.2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Anuncios</span>
+                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <ul id="anuncioSubmenu" class="nav-submenu {{ $isAnuncioRoute ? 'is-open' : '' }}">
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.anuncios.create') ? 'is-active' : '' }}" href="{{ route('adm.anuncios.create') }}">Adicionar Anuncio</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.anuncios.index') ? 'is-active' : '' }}" href="{{ route('adm.anuncios.index') }}">Lista de Anuncios</a></li>
                             </ul>
                         </li>
                         <li>
@@ -809,6 +827,7 @@
             var menuToggles = [
                 {button: document.getElementById('bancaToggle'), submenu: document.getElementById('bancaSubmenu')},
                 {button: document.getElementById('simuladoToggle'), submenu: document.getElementById('simuladoSubmenu')},
+                {button: document.getElementById('anuncioToggle'), submenu: document.getElementById('anuncioSubmenu')},
                 {button: document.getElementById('materiaToggle'), submenu: document.getElementById('materiaSubmenu')},
                 {button: document.getElementById('cargoToggle'), submenu: document.getElementById('cargoSubmenu')},
                 {button: document.getElementById('questaoToggle'), submenu: document.getElementById('questaoSubmenu')}

@@ -1,7 +1,5 @@
 @php
     $showAdsensePlacements = (bool) ($adsenseEnabled ?? false);
-    $horizontalAdCode = (string) ($adsenseHorizontalCode ?? '');
-    $verticalAdCode = (string) ($adsenseVerticalCode ?? '');
 @endphp
 
 @if ($showAdsensePlacements)
@@ -67,20 +65,23 @@
 
     <div class="adsense-global-wrapper" aria-label="Publicidade">
         <div class="adsense-global-grid">
-            <div class="adsense-slot adsense-slot-horizontal">
-                @if ($horizontalAdCode !== '')
-                    {!! $horizontalAdCode !!}
-                @else
-                    <div class="adsense-placeholder">Espaco anuncio horizontal</div>
-                @endif
-            </div>
-            <aside class="adsense-slot adsense-slot-vertical" aria-label="Publicidade lateral">
-                @if ($verticalAdCode !== '')
-                    {!! $verticalAdCode !!}
-                @else
-                    <div class="adsense-placeholder">Espaco anuncio vertical</div>
-                @endif
-            </aside>
+            @include('partials.ad-slot', [
+                'format' => 'horizontal',
+                'tag' => 'div',
+                'slotClass' => 'adsense-slot adsense-slot-horizontal',
+                'placeholderClass' => 'adsense-placeholder',
+                'placeholder' => 'Espaco anuncio horizontal',
+                'ariaLabel' => 'Publicidade horizontal',
+            ])
+
+            @include('partials.ad-slot', [
+                'format' => 'vertical',
+                'tag' => 'aside',
+                'slotClass' => 'adsense-slot adsense-slot-vertical',
+                'placeholderClass' => 'adsense-placeholder',
+                'placeholder' => 'Espaco anuncio vertical',
+                'ariaLabel' => 'Publicidade lateral',
+            ])
         </div>
     </div>
 @endif

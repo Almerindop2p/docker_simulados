@@ -351,15 +351,14 @@
             <a class="link-btn" href="{{ route('simulados.public') }}">Voltar para simulados</a>
         </header>
 
-        @if (($adsenseEnabled ?? false))
-            <section class="result-inline-vertical-ad" aria-label="Publicidade horizontal do resultado">
-                @if (!blank($adsenseHorizontalCode ?? null))
-                    {!! $adsenseHorizontalCode !!}
-                @else
-                    <div class="result-inline-vertical-ad-placeholder">Espaco anuncio horizontal</div>
-                @endif
-            </section>
-        @endif
+        @include('partials.ad-slot', [
+            'format' => 'horizontal',
+            'tag' => 'section',
+            'slotClass' => 'result-inline-vertical-ad',
+            'placeholderClass' => 'result-inline-vertical-ad-placeholder',
+            'placeholder' => 'Espaco anuncio horizontal',
+            'ariaLabel' => 'Publicidade horizontal do resultado',
+        ])
 
         <section class="card">
             <h1 class="title">Resultado final do simulado</h1>

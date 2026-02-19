@@ -16,18 +16,14 @@ class ConfiguracaoController extends Controller
     {
         $this->ensureAdmin($request);
 
-        $horizontalAd = AdPost::query()
-            ->where('slug', AdPost::GLOBAL_HORIZONTAL_SLUG)
-            ->first();
-        $verticalAd = AdPost::query()
-            ->where('slug', AdPost::GLOBAL_VERTICAL_SLUG)
-            ->first();
+        $totalAds = AdPost::query()->count();
+        $activeAds = AdPost::query()->where('is_active', true)->count();
 
         return view('adm.configuracoes.index', [
             'user' => $request->user(),
             'siteConfig' => SiteConfiguration::current(),
-            'horizontalAd' => $horizontalAd,
-            'verticalAd' => $verticalAd,
+            'totalAds' => $totalAds,
+            'activeAds' => $activeAds,
         ]);
     }
 
@@ -53,33 +49,36 @@ class ConfiguracaoController extends Controller
 
         $config = SiteConfiguration::current();
         $script = isset($data['adsense_head_script']) ? trim((string) $data['adsense_head_script']) : '';
-        $horizontalCode = isset($data['horizontal_ad_code']) ? trim((string) $data['horizontal_ad_code']) : '';
-        $verticalCode = isset($data['vertical_ad_code']) ? trim((string) $data['vertical_ad_code']) : '';
 
         $config->update([
             'adsense_enabled' => (bool) $data['adsense_enabled'],
             'adsense_head_script' => $script === '' ? null : $script,
         ]);
 
-        AdPost::query()->updateOrCreate(
-            ['slug' => AdPost::GLOBAL_HORIZONTAL_SLUG],
-            [
-                'title' => 'Anuncio Global Horizontal',
-                'format' => AdPost::FORMAT_HORIZONTAL,
-                'is_active' => $horizontalCode !== '',
-                'embed_code' => $horizontalCode === '' ? null : $horizontalCode,
-            ]
-        );
+        if ($request->hasAny(['horizontal_ad_code', 'vertical_ad_code'])) {
+            $horizontalCode = isset($data['horizontal_ad_code']) ? trim((string) $data['horizontal_ad_code']) : '';
+            $verticalCode = isset($data['vertical_ad_code']) ? trim((string) $data['vertical_ad_code']) : '';
 
-        AdPost::query()->updateOrCreate(
-            ['slug' => AdPost::GLOBAL_VERTICAL_SLUG],
-            [
-                'title' => 'Anuncio Global Vertical',
-                'format' => AdPost::FORMAT_VERTICAL,
-                'is_active' => $verticalCode !== '',
-                'embed_code' => $verticalCode === '' ? null : $verticalCode,
-            ]
-        );
+            AdPost::query()->updateOrCreate(
+                ['slug' => AdPost::GLOBAL_HORIZONTAL_SLUG],
+                [
+                    'title' => 'Anuncio Global Horizontal',
+                    'format' => AdPost::FORMAT_HORIZONTAL,
+                    'is_active' => $horizontalCode !== '',
+                    'embed_code' => $horizontalCode === '' ? null : $horizontalCode,
+                ]
+            );
+
+            AdPost::query()->updateOrCreate(
+                ['slug' => AdPost::GLOBAL_VERTICAL_SLUG],
+                [
+                    'title' => 'Anuncio Global Vertical',
+                    'format' => AdPost::FORMAT_VERTICAL,
+                    'is_active' => $verticalCode !== '',
+                    'embed_code' => $verticalCode === '' ? null : $verticalCode,
+                ]
+            );
+        }
 
         return redirect()
             ->route('adm.configuracoes.index')
