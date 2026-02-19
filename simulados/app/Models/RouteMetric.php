@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryFlagIcon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RouteMetric extends Model
 {
+    use HasCountryFlagIcon;
+
     protected $fillable = [
         'user_id',
         'anonymous_id',
@@ -24,6 +27,7 @@ class RouteMetric extends Model
         'device_model',
         'operating_system',
         'country',
+        'country_code',
         'state',
         'city',
         'neighborhood',

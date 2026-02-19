@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 class GeoIpLookup
 {
     /**
-     * @return array{country:?string,state:?string,city:?string,neighborhood:?string,latitude:?float,longitude:?float}
+     * @return array{country:?string,country_code:?string,state:?string,city:?string,neighborhood:?string,latitude:?float,longitude:?float}
      */
     public function lookup(?string $ip): array
     {
@@ -35,6 +35,7 @@ class GeoIpLookup
 
                 return [
                     'country' => $this->nullableString($data['country'] ?? null),
+                    'country_code' => $this->nullableCountryCode($data['country_code'] ?? null),
                     'state' => $this->nullableString($data['region'] ?? null),
                     'city' => $this->nullableString($data['city'] ?? null),
                     'neighborhood' => $this->nullableString($data['district'] ?? null),
@@ -72,17 +73,28 @@ class GeoIpLookup
     }
 
     /**
-     * @return array{country:?string,state:?string,city:?string,neighborhood:?string,latitude:?float,longitude:?float}
+     * @return array{country:?string,country_code:?string,state:?string,city:?string,neighborhood:?string,latitude:?float,longitude:?float}
      */
     private function emptyResult(): array
     {
         return [
             'country' => null,
+            'country_code' => null,
             'state' => null,
             'city' => null,
             'neighborhood' => null,
             'latitude' => null,
             'longitude' => null,
         ];
+    }
+
+    private function nullableCountryCode(mixed $value): ?string
+    {
+        $code = strtoupper(preg_replace('/[^a-z]/i', '', (string) $value));
+        if (strlen($code) !== 2) {
+            return null;
+        }
+
+        return $code;
     }
 }

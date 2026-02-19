@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryFlagIcon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserMetricConsent extends Model
 {
+    use HasCountryFlagIcon;
+
     protected $fillable = [
         'user_id',
         'is_granted',
@@ -14,6 +17,7 @@ class UserMetricConsent extends Model
         'ip_address',
         'user_agent',
         'country',
+        'country_code',
         'state',
         'city',
         'neighborhood',

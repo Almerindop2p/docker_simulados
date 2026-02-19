@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryFlagIcon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PageVisitCounter extends Model
 {
+    use HasCountryFlagIcon;
+
     protected $fillable = [
         'user_id',
         'anonymous_id',
@@ -15,6 +18,7 @@ class PageVisitCounter extends Model
         'page_path',
         'page_hash',
         'country',
+        'country_code',
         'state',
         'city',
         'location_hash',

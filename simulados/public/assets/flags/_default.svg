@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 48" role="img" aria-label="Bandeira padrao">
+  <rect width="64" height="48" rx="4" fill="#e8edf5"/>
+  <circle cx="32" cy="24" r="11.5" fill="none" stroke="#6b7f99" stroke-width="2"/>
+  <path d="M20.5 24h23M32 12.5v23" stroke="#6b7f99" stroke-width="2" stroke-linecap="round"/>
+  <path d="M23.5 18.5c2.6 1.2 5.7 1.8 8.5 1.8 2.8 0 5.9-.6 8.5-1.8M23.5 29.5c2.6-1.2 5.7-1.8 8.5-1.8 2.8 0 5.9.6 8.5 1.8" stroke="#6b7f99" stroke-width="2" stroke-linecap="round"/>
+</svg>

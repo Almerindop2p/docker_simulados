@@ -10,6 +10,8 @@ use App\Support\GeoIpLookup;
 use App\Support\UserAgentDetails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -43,6 +45,7 @@ class MetricsConsentController extends Controller
                     'ip_address' => $ipAddress,
                     'user_agent' => $request->userAgent(),
                     'country' => $geoDetails['country'],
+                    'country_code' => $geoDetails['country_code'],
                     'state' => $geoDetails['state'],
                     'city' => $geoDetails['city'],
                     'neighborhood' => $geoDetails['neighborhood'],
@@ -151,6 +154,7 @@ class MetricsConsentController extends Controller
             'device_model' => $deviceModel,
             'operating_system' => $uaDetails['operating_system'],
             'country' => $geoDetails['country'],
+            'country_code' => $geoDetails['country_code'],
             'state' => $geoDetails['state'],
             'city' => $geoDetails['city'],
             'neighborhood' => $geoDetails['neighborhood'],
@@ -170,6 +174,7 @@ class MetricsConsentController extends Controller
             routeName: $payload['route_name'] ?? null,
             pagePath: $pagePath,
             country: $geoDetails['country'],
+            countryCode: $geoDetails['country_code'],
             state: $geoDetails['state'],
             city: $geoDetails['city'],
             capturedAt: $capturedAt
@@ -244,6 +249,19 @@ class MetricsConsentController extends Controller
         return mb_substr($joined !== '' ? $joined : '/', 0, 2048);
     }
 
+    private function normalizeCounterPath(string $pagePath): string
+    {
+        $basePath = (string) preg_replace('/\?.*$/', '', trim($pagePath));
+        $basePath = (string) preg_replace('/\#.*$/', '', $basePath);
+        $basePath = trim($basePath);
+
+        if ($basePath === '') {
+            $basePath = '/';
+        }
+
+        return mb_substr($basePath, 0, 2048);
+    }
+
     private function upsertPageVisitCounter(
         ?int $userId,
         ?string $anonymousId,
@@ -251,6 +269,7 @@ class MetricsConsentController extends Controller
         ?string $routeName,
         string $pagePath,
         ?string $country,
+        ?string $countryCode,
         ?string $state,
         ?string $city,
         \DateTimeInterface $capturedAt
@@ -260,39 +279,88 @@ class MetricsConsentController extends Controller
         }
 
         $countryNorm = $this->normalizeNullableText($country);
+        $countryCodeNorm = $this->normalizeCountryCode($countryCode);
         $stateNorm = $this->normalizeNullableText($state);
         $cityNorm = $this->normalizeNullableText($city);
         $routeNameNorm = $this->normalizeNullableText($routeName);
-        $pathNorm = mb_substr(trim($pagePath) !== '' ? trim($pagePath) : '/', 0, 2048);
-        $pageHash = sha1(mb_strtolower(($routeNameNorm ?? '') . '|' . $pathNorm));
+        $counterPath = $this->normalizeCounterPath($pagePath);
+        $pageHash = sha1(mb_strtolower(($routeNameNorm ?? '') . '|' . $counterPath));
         $locationHash = sha1(mb_strtolower(($countryNorm ?? '') . '|' . ($stateNorm ?? '') . '|' . ($cityNorm ?? '')));
-
-        $counter = PageVisitCounter::query()->firstOrNew([
+        $where = [
             'visitor_key' => $visitorKey,
             'page_hash' => $pageHash,
             'location_hash' => $locationHash,
-        ]);
+        ];
 
-        if (!$counter->exists) {
-            $counter->visits_count = 0;
-            $counter->first_visited_at = $capturedAt;
+        $updated = PageVisitCounter::query()
+            ->where($where)
+            ->update([
+                'user_id' => $userId,
+                'anonymous_id' => $anonymousId,
+                'route_name' => $routeNameNorm,
+                'page_path' => $counterPath,
+                'country' => $countryNorm,
+                'country_code' => $countryCodeNorm,
+                'state' => $stateNorm,
+                'city' => $cityNorm,
+                'visits_count' => DB::raw('visits_count + 1'),
+                'last_visited_at' => $capturedAt,
+                'updated_at' => now(),
+            ]);
+
+        if ($updated > 0) {
+            return;
         }
 
-        $counter->user_id = $userId;
-        $counter->anonymous_id = $anonymousId;
-        $counter->route_name = $routeNameNorm;
-        $counter->page_path = $pathNorm;
-        $counter->country = $countryNorm;
-        $counter->state = $stateNorm;
-        $counter->city = $cityNorm;
-        $counter->visits_count = (int) $counter->visits_count + 1;
-        $counter->last_visited_at = $capturedAt;
-        $counter->save();
+        try {
+            PageVisitCounter::query()->create([
+                'user_id' => $userId,
+                'anonymous_id' => $anonymousId,
+                'visitor_key' => $visitorKey,
+                'route_name' => $routeNameNorm,
+                'page_path' => $counterPath,
+                'page_hash' => $pageHash,
+                'country' => $countryNorm,
+                'country_code' => $countryCodeNorm,
+                'state' => $stateNorm,
+                'city' => $cityNorm,
+                'location_hash' => $locationHash,
+                'visits_count' => 1,
+                'first_visited_at' => $capturedAt,
+                'last_visited_at' => $capturedAt,
+            ]);
+        } catch (QueryException) {
+            PageVisitCounter::query()
+                ->where($where)
+                ->update([
+                    'user_id' => $userId,
+                    'anonymous_id' => $anonymousId,
+                    'route_name' => $routeNameNorm,
+                    'page_path' => $counterPath,
+                    'country' => $countryNorm,
+                    'country_code' => $countryCodeNorm,
+                    'state' => $stateNorm,
+                    'city' => $cityNorm,
+                    'visits_count' => DB::raw('visits_count + 1'),
+                    'last_visited_at' => $capturedAt,
+                    'updated_at' => now(),
+                ]);
+        }
     }
 
     private function normalizeNullableText(?string $value): ?string
     {
         $text = trim((string) $value);
         return $text !== '' ? mb_substr($text, 0, 120) : null;
+    }
+
+    private function normalizeCountryCode(?string $value): ?string
+    {
+        $code = strtoupper(preg_replace('/[^a-z]/i', '', (string) $value));
+        if (strlen($code) !== 2) {
+            return null;
+        }
+
+        return $code;
     }
 }
