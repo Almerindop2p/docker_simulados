@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AdPost;
+use App\Models\UserMetricConsent;
 use App\Models\SiteConfiguration;
 use App\Support\HeaderNotifications;
 use Illuminate\Support\Facades\Schema;
@@ -30,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
         $adsenseHorizontalCode = null;
         $adsenseVerticalCode = null;
         $adsenseFormatCodes = [];
+        $metricsConsentGranted = false;
+        $metricsConsentCookie = 'lgpd_metrics_consent';
 
         try {
             if (Schema::hasTable('site_configurations')) {
@@ -71,11 +74,28 @@ class AppServiceProvider extends ServiceProvider
             $adsenseFormatCodes = [];
         }
 
+        try {
+            $user = auth()->user();
+
+            if ($user && Schema::hasTable('user_metric_consents')) {
+                $metricsConsentGranted = UserMetricConsent::query()
+                    ->where('user_id', $user->id)
+                    ->where('is_granted', true)
+                    ->exists();
+            } else {
+                $metricsConsentGranted = request()->cookie($metricsConsentCookie) === 'granted';
+            }
+        } catch (Throwable) {
+            $metricsConsentGranted = false;
+        }
+
         View::share('adsenseHeadScript', $adsenseHeadScript);
         View::share('adsenseEnabled', $adsenseEnabled);
         View::share('adsenseHorizontalCode', $adsenseHorizontalCode);
         View::share('adsenseVerticalCode', $adsenseVerticalCode);
         View::share('adsenseFormatCodes', $adsenseFormatCodes);
+        View::share('metricsConsentGranted', $metricsConsentGranted);
+        View::share('metricsCurrentRouteName', request()->route()?->getName());
 
         View::composer(['welcome', 'area_aluno', 'perfil', 'layouts.admin-panel'], function ($view) {
             $user = auth()->user();

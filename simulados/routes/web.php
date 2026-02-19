@@ -16,6 +16,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedbackTicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MeusSimuladosController;
+use App\Http\Controllers\MetricsConsentController;
 use App\Http\Controllers\NotificationFeedController;
 use App\Http\Controllers\NotificationReadController;
 use App\Http\Controllers\ProgressController;
@@ -36,6 +37,12 @@ Route::post('/questoes/{questao}/responder', [HomeController::class, 'answer'])-
 Route::post('/feedback/tickets', [FeedbackTicketController::class, 'store'])
     ->middleware('throttle:30,1')
     ->name('feedback.tickets.store');
+Route::post('/lgpd/consentimento-metricas', [MetricsConsentController::class, 'grant'])
+    ->middleware('throttle:20,1')
+    ->name('metrics.consent.grant');
+Route::post('/lgpd/metricas', [MetricsConsentController::class, 'storeMetric'])
+    ->middleware('throttle:80,1')
+    ->name('metrics.capture');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
