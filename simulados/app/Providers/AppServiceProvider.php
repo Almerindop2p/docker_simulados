@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AdPost;
+use App\Models\User;
 use App\Models\UserMetricConsent;
 use App\Models\SiteConfiguration;
 use App\Support\HeaderNotifications;
@@ -13,6 +14,8 @@ use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
+    private const USER_CONSENT_VALID_DAYS = 7;
+
     /**
      * Register any application services.
      */
@@ -32,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         $adsenseVerticalCode = null;
         $adsenseFormatCodes = [];
         $metricsConsentGranted = false;
+        $metricsConsentEnabled = true;
         $metricsConsentCookie = 'lgpd_metrics_consent';
 
         try {
@@ -76,17 +80,22 @@ class AppServiceProvider extends ServiceProvider
 
         try {
             $user = auth()->user();
+            $metricsConsentEnabled = !($user && $user->user_type === User::TYPE_ADM);
 
-            if ($user && Schema::hasTable('user_metric_consents')) {
+            if (!$metricsConsentEnabled) {
+                $metricsConsentGranted = false;
+            } elseif ($user && Schema::hasTable('user_metric_consents')) {
                 $metricsConsentGranted = UserMetricConsent::query()
                     ->where('user_id', $user->id)
                     ->where('is_granted', true)
+                    ->where('granted_at', '>=', now()->subDays(self::USER_CONSENT_VALID_DAYS))
                     ->exists();
             } else {
-                $metricsConsentGranted = request()->cookie($metricsConsentCookie) === 'granted';
+                $metricsConsentGranted = request()->hasCookie($metricsConsentCookie);
             }
         } catch (Throwable) {
             $metricsConsentGranted = false;
+            $metricsConsentEnabled = false;
         }
 
         View::share('adsenseHeadScript', $adsenseHeadScript);
@@ -94,6 +103,7 @@ class AppServiceProvider extends ServiceProvider
         View::share('adsenseHorizontalCode', $adsenseHorizontalCode);
         View::share('adsenseVerticalCode', $adsenseVerticalCode);
         View::share('adsenseFormatCodes', $adsenseFormatCodes);
+        View::share('metricsConsentEnabled', $metricsConsentEnabled);
         View::share('metricsConsentGranted', $metricsConsentGranted);
         View::share('metricsCurrentRouteName', request()->route()?->getName());
 

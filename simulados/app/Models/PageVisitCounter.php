@@ -5,27 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserMetricConsent extends Model
+class PageVisitCounter extends Model
 {
     protected $fillable = [
         'user_id',
-        'is_granted',
-        'granted_at',
-        'ip_address',
-        'user_agent',
+        'anonymous_id',
+        'visitor_key',
+        'route_name',
+        'page_path',
+        'page_hash',
         'country',
         'state',
         'city',
-        'neighborhood',
-        'latitude',
-        'longitude',
+        'location_hash',
+        'visits_count',
+        'first_visited_at',
+        'last_visited_at',
     ];
 
     protected $casts = [
-        'is_granted' => 'boolean',
-        'granted_at' => 'datetime',
-        'latitude' => 'float',
-        'longitude' => 'float',
+        'first_visited_at' => 'datetime',
+        'last_visited_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

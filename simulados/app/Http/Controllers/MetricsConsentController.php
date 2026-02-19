@@ -2,23 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PageVisitCounter;
 use App\Models\RouteMetric;
+use App\Models\User;
 use App\Models\UserMetricConsent;
 use App\Support\GeoIpLookup;
 use App\Support\UserAgentDetails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class MetricsConsentController extends Controller
 {
     public const CONSENT_COOKIE_NAME = 'lgpd_metrics_consent';
-    public const CONSENT_COOKIE_VALUE = 'granted';
-    private const CONSENT_COOKIE_MINUTES = 525600; // 365 dias
+    public const VISITOR_COOKIE_NAME = 'lgpd_metrics_visitor';
+    public const CONSENT_COOKIE_VALUE = '1';
+    private const CONSENT_COOKIE_MINUTES = 2880; // 48 horas
+    private const USER_CONSENT_VALID_DAYS = 7;
 
-    public function grant(Request $request): JsonResponse
+    public function grant(Request $request, GeoIpLookup $geoIpLookup): JsonResponse
     {
+        if ($this->isAdminUser($request)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Coleta de metricas desabilitada para administrador.',
+            ], 403);
+        }
+
         $user = $request->user();
+        $ipAddress = $request->ip();
+        $geoDetails = $geoIpLookup->lookup($ipAddress);
 
         if ($user && Schema::hasTable('user_metric_consents')) {
             UserMetricConsent::query()->updateOrCreate(
@@ -26,8 +40,14 @@ class MetricsConsentController extends Controller
                 [
                     'is_granted' => true,
                     'granted_at' => now(),
-                    'ip_address' => $request->ip(),
+                    'ip_address' => $ipAddress,
                     'user_agent' => $request->userAgent(),
+                    'country' => $geoDetails['country'],
+                    'state' => $geoDetails['state'],
+                    'city' => $geoDetails['city'],
+                    'neighborhood' => $geoDetails['neighborhood'],
+                    'latitude' => $geoDetails['latitude'],
+                    'longitude' => $geoDetails['longitude'],
                 ]
             );
         }
@@ -38,9 +58,23 @@ class MetricsConsentController extends Controller
         ]);
 
         if (!$user) {
+            $anonymousVisitorId = $this->resolveAnonymousVisitorId($request);
+
             $response->cookie(
                 self::CONSENT_COOKIE_NAME,
                 self::CONSENT_COOKIE_VALUE,
+                self::CONSENT_COOKIE_MINUTES,
+                '/',
+                null,
+                $request->isSecure(),
+                true,
+                false,
+                'Lax'
+            );
+
+            $response->cookie(
+                self::VISITOR_COOKIE_NAME,
+                $anonymousVisitorId,
                 self::CONSENT_COOKIE_MINUTES,
                 '/',
                 null,
@@ -56,6 +90,13 @@ class MetricsConsentController extends Controller
 
     public function storeMetric(Request $request, GeoIpLookup $geoIpLookup): JsonResponse
     {
+        if ($this->isAdminUser($request)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Coleta de metricas desabilitada para administrador.',
+            ], 403);
+        }
+
         if (!$this->hasConsent($request)) {
             return response()->json([
                 'ok' => false,
@@ -79,26 +120,35 @@ class MetricsConsentController extends Controller
             'language' => ['nullable', 'string', 'max:32'],
             'viewport_width' => ['nullable', 'integer', 'min:0', 'max:10000'],
             'viewport_height' => ['nullable', 'integer', 'min:0', 'max:10000'],
+            'device_model' => ['nullable', 'string', 'max:120'],
         ]);
 
         $user = $request->user();
         $userAgent = (string) $request->userAgent();
         $ipAddress = (string) $request->ip();
+        $anonymousId = $user ? null : $this->resolveAnonymousVisitorId($request);
+        $visitorKey = $user ? ('user:' . $user->id) : ('anon:' . $anonymousId);
         $uaDetails = UserAgentDetails::parse($userAgent);
         $geoDetails = $geoIpLookup->lookup($ipAddress);
+        $deviceModel = trim((string) ($payload['device_model'] ?? '')) ?: $uaDetails['device_model'];
+        $capturedAt = now();
+        $pagePath = $this->normalizePagePath((string) ($payload['path'] ?? ''), (string) $payload['page_url']);
 
         RouteMetric::query()->create([
             'user_id' => $user?->id,
+            'anonymous_id' => $anonymousId,
+            'visitor_key' => $visitorKey,
             'consent_mode' => $user ? 'user' : 'cookie',
             'route_name' => $payload['route_name'] ?? null,
             'page_url' => $payload['page_url'],
-            'path' => $payload['path'] ?? null,
+            'path' => $pagePath,
             'referrer' => $payload['referrer'] ?? null,
             'ip_address' => $ipAddress !== '' ? $ipAddress : null,
             'user_agent' => $userAgent !== '' ? $userAgent : null,
             'browser' => $uaDetails['browser'],
             'browser_version' => $uaDetails['browser_version'],
             'device_type' => $uaDetails['device_type'],
+            'device_model' => $deviceModel,
             'operating_system' => $uaDetails['operating_system'],
             'country' => $geoDetails['country'],
             'state' => $geoDetails['state'],
@@ -110,12 +160,40 @@ class MetricsConsentController extends Controller
             'language' => $payload['language'] ?? null,
             'viewport_width' => $payload['viewport_width'] ?? null,
             'viewport_height' => $payload['viewport_height'] ?? null,
-            'captured_at' => now(),
+            'captured_at' => $capturedAt,
         ]);
 
-        return response()->json([
+        $this->upsertPageVisitCounter(
+            userId: $user?->id,
+            anonymousId: $anonymousId,
+            visitorKey: $visitorKey,
+            routeName: $payload['route_name'] ?? null,
+            pagePath: $pagePath,
+            country: $geoDetails['country'],
+            state: $geoDetails['state'],
+            city: $geoDetails['city'],
+            capturedAt: $capturedAt
+        );
+
+        $response = response()->json([
             'ok' => true,
         ]);
+
+        if (!$user && !$request->hasCookie(self::VISITOR_COOKIE_NAME)) {
+            $response->cookie(
+                self::VISITOR_COOKIE_NAME,
+                $anonymousId,
+                self::CONSENT_COOKIE_MINUTES,
+                '/',
+                null,
+                $request->isSecure(),
+                true,
+                false,
+                'Lax'
+            );
+        }
+
+        return $response;
     }
 
     private function hasConsent(Request $request): bool
@@ -129,9 +207,92 @@ class MetricsConsentController extends Controller
             return UserMetricConsent::query()
                 ->where('user_id', $user->id)
                 ->where('is_granted', true)
+                ->where('granted_at', '>=', now()->subDays(self::USER_CONSENT_VALID_DAYS))
                 ->exists();
         }
 
-        return $request->cookie(self::CONSENT_COOKIE_NAME) === self::CONSENT_COOKIE_VALUE;
+        return $request->hasCookie(self::CONSENT_COOKIE_NAME);
+    }
+
+    private function isAdminUser(Request $request): bool
+    {
+        return $request->user()?->user_type === User::TYPE_ADM;
+    }
+
+    private function resolveAnonymousVisitorId(Request $request): string
+    {
+        $existing = trim((string) $request->cookie(self::VISITOR_COOKIE_NAME));
+        if ($existing !== '') {
+            return mb_substr($existing, 0, 64);
+        }
+
+        return Str::uuid()->toString();
+    }
+
+    private function normalizePagePath(string $path, string $pageUrl): string
+    {
+        $normalizedPath = trim($path);
+        if ($normalizedPath !== '') {
+            return mb_substr($normalizedPath, 0, 2048);
+        }
+
+        $parsed = parse_url($pageUrl);
+        $pathPart = (string) ($parsed['path'] ?? '/');
+        $queryPart = (string) ($parsed['query'] ?? '');
+        $joined = $queryPart !== '' ? "{$pathPart}?{$queryPart}" : $pathPart;
+
+        return mb_substr($joined !== '' ? $joined : '/', 0, 2048);
+    }
+
+    private function upsertPageVisitCounter(
+        ?int $userId,
+        ?string $anonymousId,
+        string $visitorKey,
+        ?string $routeName,
+        string $pagePath,
+        ?string $country,
+        ?string $state,
+        ?string $city,
+        \DateTimeInterface $capturedAt
+    ): void {
+        if (!Schema::hasTable('page_visit_counters')) {
+            return;
+        }
+
+        $countryNorm = $this->normalizeNullableText($country);
+        $stateNorm = $this->normalizeNullableText($state);
+        $cityNorm = $this->normalizeNullableText($city);
+        $routeNameNorm = $this->normalizeNullableText($routeName);
+        $pathNorm = mb_substr(trim($pagePath) !== '' ? trim($pagePath) : '/', 0, 2048);
+        $pageHash = sha1(mb_strtolower(($routeNameNorm ?? '') . '|' . $pathNorm));
+        $locationHash = sha1(mb_strtolower(($countryNorm ?? '') . '|' . ($stateNorm ?? '') . '|' . ($cityNorm ?? '')));
+
+        $counter = PageVisitCounter::query()->firstOrNew([
+            'visitor_key' => $visitorKey,
+            'page_hash' => $pageHash,
+            'location_hash' => $locationHash,
+        ]);
+
+        if (!$counter->exists) {
+            $counter->visits_count = 0;
+            $counter->first_visited_at = $capturedAt;
+        }
+
+        $counter->user_id = $userId;
+        $counter->anonymous_id = $anonymousId;
+        $counter->route_name = $routeNameNorm;
+        $counter->page_path = $pathNorm;
+        $counter->country = $countryNorm;
+        $counter->state = $stateNorm;
+        $counter->city = $cityNorm;
+        $counter->visits_count = (int) $counter->visits_count + 1;
+        $counter->last_visited_at = $capturedAt;
+        $counter->save();
+    }
+
+    private function normalizeNullableText(?string $value): ?string
+    {
+        $text = trim((string) $value);
+        return $text !== '' ? mb_substr($text, 0, 120) : null;
     }
 }

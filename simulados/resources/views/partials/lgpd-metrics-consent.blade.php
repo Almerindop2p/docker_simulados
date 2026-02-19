@@ -1,8 +1,14 @@
 @php
+    $loggedUser = auth()->user();
+    $metricsConsentEnabledForCurrentUser = (bool) ($metricsConsentEnabled ?? true);
+    if ($loggedUser && ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_ADM) {
+        $metricsConsentEnabledForCurrentUser = false;
+    }
     $metricsConsentInitial = (bool) ($metricsConsentGranted ?? false);
     $metricsRouteName = (string) ($metricsCurrentRouteName ?? request()->route()?->getName() ?? '');
 @endphp
 
+@if ($metricsConsentEnabledForCurrentUser)
 <style>
     .lgpd-consent-bar {
         position: fixed;
@@ -183,10 +189,11 @@
             var payload = {
                 route_name: config.routeName || null,
                 page_url: window.location.href || null,
-                path: (window.location.pathname || '') + (window.location.search || '') + (window.location.hash || ''),
+                path: (window.location.pathname || '') + (window.location.search || ''),
                 referrer: document.referrer || null,
                 timezone: (Intl.DateTimeFormat && Intl.DateTimeFormat().resolvedOptions().timeZone) || null,
                 language: navigator.language || null,
+                device_model: (navigator.userAgentData && navigator.userAgentData.model) || null,
                 viewport_width: window.innerWidth || null,
                 viewport_height: window.innerHeight || null
             };
@@ -213,3 +220,4 @@
         });
     })();
 </script>
+@endif

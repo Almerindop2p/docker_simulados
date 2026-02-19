@@ -87,4 +87,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(SimuladoTentativa::class);
     }
+
+    public function routeMetrics(): HasMany
+    {
+        return $this->hasMany(RouteMetric::class);
+    }
+
+    public function pageVisitCounters(): HasMany
+    {
+        return $this->hasMany(PageVisitCounter::class);
+    }
 }

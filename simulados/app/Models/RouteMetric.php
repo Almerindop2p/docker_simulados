@@ -9,6 +9,8 @@ class RouteMetric extends Model
 {
     protected $fillable = [
         'user_id',
+        'anonymous_id',
+        'visitor_key',
         'consent_mode',
         'route_name',
         'page_url',
@@ -19,6 +21,7 @@ class RouteMetric extends Model
         'browser',
         'browser_version',
         'device_type',
+        'device_model',
         'operating_system',
         'country',
         'state',
