@@ -93,8 +93,8 @@
 
         var consentGranted = !!config.consentGranted;
         var captureSent = false;
-        var loadTimerReady = false;
         var bannerElement = null;
+        var isPageReady = false;
 
         function getCsrfToken() {
             var meta = document.querySelector('meta[name="csrf-token"]');
@@ -169,7 +169,7 @@
                         consentGranted = true;
                         hideBanner();
 
-                        if (loadTimerReady && !captureSent) {
+                        if (isPageReady && !captureSent) {
                             setTimeout(sendMetric, 120);
                         }
                     } catch (e) {
@@ -179,14 +179,8 @@
             }
         }
 
-        async function sendMetric() {
-            if (captureSent || !consentGranted) {
-                return;
-            }
-
-            captureSent = true;
-
-            var payload = {
+        function buildPayload() {
+            return {
                 route_name: config.routeName || null,
                 page_url: window.location.href || null,
                 path: (window.location.pathname || '') + (window.location.search || ''),
@@ -195,11 +189,20 @@
                 language: navigator.language || null,
                 device_model: (navigator.userAgentData && navigator.userAgentData.model) || null,
                 viewport_width: window.innerWidth || null,
-                viewport_height: window.innerHeight || null
+                viewport_height: window.innerHeight || null,
+                consent_granted: consentGranted ? 1 : 0
             };
+        }
+
+        async function sendMetric() {
+            if (captureSent) {
+                return;
+            }
+
+            captureSent = true;
 
             try {
-                var response = await postJson(config.collectUrl, payload);
+                var response = await postJson(config.collectUrl, buildPayload());
                 if (!response.ok) {
                     captureSent = false;
                 }
@@ -208,15 +211,34 @@
             }
         }
 
+        function scheduleMetricCapture(delayMs) {
+            window.setTimeout(function () {
+                sendMetric();
+            }, delayMs);
+        }
+
         window.addEventListener('load', function () {
+            isPageReady = true;
+
             if (!consentGranted) {
                 buildBanner();
             }
 
-            setTimeout(function () {
-                loadTimerReady = true;
-                sendMetric();
-            }, 5000);
+            scheduleMetricCapture(5000);
+        });
+
+        window.addEventListener('pageshow', function (event) {
+            if (!event || !event.persisted) {
+                return;
+            }
+
+            captureSent = false;
+
+            if (!consentGranted) {
+                buildBanner();
+            }
+
+            scheduleMetricCapture(5000);
         });
     })();
 </script>

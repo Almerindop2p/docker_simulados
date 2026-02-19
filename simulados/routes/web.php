@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CargoController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdPostController;
 use App\Http\Controllers\Admin\ConfiguracaoController;
+use App\Http\Controllers\Admin\InicioController;
 use App\Http\Controllers\Admin\InstituicaoController;
 use App\Http\Controllers\Admin\MateriaController;
 use App\Http\Controllers\Admin\ProgressController as AdminProgressController;
@@ -85,6 +86,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('adm')->name('adm.')->middleware('profile:adm')->group(function () {
+        Route::get('/inicio', [InicioController::class, 'index'])->name('inicio');
+        Route::get('/inicio/metricas', [InicioController::class, 'metrics'])
+            ->middleware('throttle:60,1')
+            ->name('inicio.metrics');
+
         Route::get('/configuracoes', [ConfiguracaoController::class, 'index'])->name('configuracoes.index');
         Route::patch('/configuracoes/adsense', [ConfiguracaoController::class, 'updateAdsense'])->name('configuracoes.adsense.update');
 

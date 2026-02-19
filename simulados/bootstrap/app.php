@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $user = $request->user();
 
             return match ($user?->user_type) {
-                User::TYPE_ADM => '/adm/bancas',
+                User::TYPE_ADM => '/adm/inicio',
                 User::TYPE_USER => '/area_aluno',
                 User::TYPE_USER_ASSINANTE => '/area_assinante',
                 default => '/',

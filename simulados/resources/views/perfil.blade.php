@@ -595,9 +595,11 @@
             \App\Models\User::TYPE_USER,
             \App\Models\User::TYPE_USER_ASSINANTE,
         ], true);
-        $homeRoute = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_USER_ASSINANTE
-            ? route('area_assinante')
-            : route('area_aluno');
+        $homeRoute = match ($loggedUser->user_type ?? null) {
+            \App\Models\User::TYPE_ADM => route('adm.inicio'),
+            \App\Models\User::TYPE_USER_ASSINANTE => route('area_assinante'),
+            default => route('area_aluno'),
+        };
     @endphp
 
     <div class="layout">

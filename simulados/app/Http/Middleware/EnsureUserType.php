@@ -42,7 +42,7 @@ class EnsureUserType
     private function redirectToProfileRoute(User $user): RedirectResponse
     {
         return match ($user->user_type) {
-            User::TYPE_ADM => redirect()->route('adm.bancas.index'),
+            User::TYPE_ADM => redirect()->route('adm.inicio'),
             User::TYPE_USER => redirect()->route('area_aluno'),
             User::TYPE_USER_ASSINANTE => redirect()->route('area_assinante'),
             default => redirect()->route('home'),

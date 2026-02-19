@@ -335,6 +335,7 @@
         $isCargoRoute = request()->routeIs('adm.cargos.*');
         $isQuestaoRoute = request()->routeIs('adm.questoes.*');
         $isTicketRoute = request()->routeIs('adm.tickets.*');
+        $isAdmInicioRoute = request()->routeIs('adm.inicio');
         $isProgressoRoute = $isAdm
             ? request()->routeIs('adm.progresso.*')
             : request()->routeIs('progresso.*');
@@ -343,9 +344,11 @@
             \App\Models\User::TYPE_USER,
             \App\Models\User::TYPE_USER_ASSINANTE,
         ], true);
-        $homeRoute = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_USER_ASSINANTE
-            ? route('area_assinante')
-            : route('area_aluno');
+        $homeRoute = match ($loggedUser->user_type ?? null) {
+            \App\Models\User::TYPE_ADM => route('adm.inicio'),
+            \App\Models\User::TYPE_USER_ASSINANTE => route('area_assinante'),
+            default => route('area_aluno'),
+        };
     @endphp
 
     <div class="layout">
@@ -359,7 +362,7 @@
             <nav>
                 <ul class="nav">
                     <li>
-                        <a class="nav-link {{ request()->routeIs('area_aluno') || request()->routeIs('area_assinante') ? 'is-active' : '' }}" href="{{ $homeRoute }}">
+                        <a class="nav-link {{ ($isAdm && $isAdmInicioRoute) || request()->routeIs('area_aluno') || request()->routeIs('area_assinante') ? 'is-active' : '' }}" href="{{ $homeRoute }}">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 11.8 12 4l9 7.8V21a1 1 0 0 1-1 1h-5.8v-6h-4.4v6H4a1 1 0 0 1-1-1v-9.2Z" stroke="currentColor" stroke-width="1.8"/></svg>
                             <span>Inicio</span>
                         </a>

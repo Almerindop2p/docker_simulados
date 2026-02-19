@@ -524,9 +524,11 @@
             \App\Models\User::TYPE_USER,
             \App\Models\User::TYPE_USER_ASSINANTE,
         ], true);
-        $homeRoute = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_USER_ASSINANTE
-            ? route('area_assinante')
-            : route('area_aluno');
+        $homeRoute = match ($loggedUser->user_type ?? null) {
+            \App\Models\User::TYPE_ADM => route('adm.inicio'),
+            \App\Models\User::TYPE_USER_ASSINANTE => route('area_assinante'),
+            default => route('area_aluno'),
+        };
         $respostasHoje = (int) data_get($dashboardStats ?? [], 'respostas_hoje', 0);
         $totalRespostas = (int) data_get($dashboardStats ?? [], 'total_respostas', 0);
         $taxaAcertoPercent = (string) data_get($dashboardStats ?? [], 'taxa_acerto_percent', '0');

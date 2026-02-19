@@ -100,13 +100,6 @@ class MetricsConsentController extends Controller
             ], 403);
         }
 
-        if (!$this->hasConsent($request)) {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Consentimento LGPD ausente para coleta.',
-            ], 403);
-        }
-
         if (!Schema::hasTable('route_metrics')) {
             return response()->json([
                 'ok' => false,
@@ -127,13 +120,25 @@ class MetricsConsentController extends Controller
         ]);
 
         $user = $request->user();
-        $userAgent = (string) $request->userAgent();
-        $ipAddress = (string) $request->ip();
-        $anonymousId = $user ? null : $this->resolveAnonymousVisitorId($request);
-        $visitorKey = $user ? ('user:' . $user->id) : ('anon:' . $anonymousId);
+        $hasSensitiveConsent = $this->hasSensitiveConsent($request);
+        $rawUserAgent = (string) $request->userAgent();
+        $rawIpAddress = (string) $request->ip();
+        $anonymousId = $user
+            ? null
+            : ($hasSensitiveConsent ? $this->resolveAnonymousVisitorId($request) : null);
+        $visitorKey = $this->resolveVisitorKey(
+            userId: $user?->id,
+            anonymousId: $anonymousId,
+            hasSensitiveConsent: $hasSensitiveConsent
+        );
+        $userAgent = $hasSensitiveConsent ? $rawUserAgent : '';
+        $ipAddress = $hasSensitiveConsent ? $rawIpAddress : '';
         $uaDetails = UserAgentDetails::parse($userAgent);
         $geoDetails = $geoIpLookup->lookup($ipAddress);
-        $deviceModel = trim((string) ($payload['device_model'] ?? '')) ?: $uaDetails['device_model'];
+        $payloadDeviceModel = trim((string) ($payload['device_model'] ?? ''));
+        $deviceModel = $hasSensitiveConsent
+            ? ($payloadDeviceModel !== '' ? $payloadDeviceModel : $uaDetails['device_model'])
+            : null;
         $capturedAt = now();
         $pagePath = $this->normalizePagePath((string) ($payload['path'] ?? ''), (string) $payload['page_url']);
 
@@ -141,7 +146,7 @@ class MetricsConsentController extends Controller
             'user_id' => $user?->id,
             'anonymous_id' => $anonymousId,
             'visitor_key' => $visitorKey,
-            'consent_mode' => $user ? 'user' : 'cookie',
+            'consent_mode' => $hasSensitiveConsent ? ($user ? 'user' : 'cookie') : 'basic',
             'route_name' => $payload['route_name'] ?? null,
             'page_url' => $payload['page_url'],
             'path' => $pagePath,
@@ -160,10 +165,10 @@ class MetricsConsentController extends Controller
             'neighborhood' => $geoDetails['neighborhood'],
             'latitude' => $geoDetails['latitude'],
             'longitude' => $geoDetails['longitude'],
-            'timezone' => $payload['timezone'] ?? null,
-            'language' => $payload['language'] ?? null,
-            'viewport_width' => $payload['viewport_width'] ?? null,
-            'viewport_height' => $payload['viewport_height'] ?? null,
+            'timezone' => $hasSensitiveConsent ? ($payload['timezone'] ?? null) : null,
+            'language' => $hasSensitiveConsent ? ($payload['language'] ?? null) : null,
+            'viewport_width' => $hasSensitiveConsent ? ($payload['viewport_width'] ?? null) : null,
+            'viewport_height' => $hasSensitiveConsent ? ($payload['viewport_height'] ?? null) : null,
             'captured_at' => $capturedAt,
         ]);
 
@@ -182,9 +187,10 @@ class MetricsConsentController extends Controller
 
         $response = response()->json([
             'ok' => true,
+            'consent_mode' => $hasSensitiveConsent ? ($user ? 'user' : 'cookie') : 'basic',
         ]);
 
-        if (!$user && !$request->hasCookie(self::VISITOR_COOKIE_NAME)) {
+        if (!$user && $hasSensitiveConsent && !$request->hasCookie(self::VISITOR_COOKIE_NAME)) {
             $response->cookie(
                 self::VISITOR_COOKIE_NAME,
                 $anonymousId,
@@ -201,7 +207,7 @@ class MetricsConsentController extends Controller
         return $response;
     }
 
-    private function hasConsent(Request $request): bool
+    private function hasSensitiveConsent(Request $request): bool
     {
         $user = $request->user();
         if ($user) {
@@ -217,6 +223,19 @@ class MetricsConsentController extends Controller
         }
 
         return $request->hasCookie(self::CONSENT_COOKIE_NAME);
+    }
+
+    private function resolveVisitorKey(?int $userId, ?string $anonymousId, bool $hasSensitiveConsent): string
+    {
+        if ($userId) {
+            return 'user:' . $userId;
+        }
+
+        if ($hasSensitiveConsent && $anonymousId) {
+            return 'anon:' . $anonymousId;
+        }
+
+        return 'guest:basic';
     }
 
     private function isAdminUser(Request $request): bool

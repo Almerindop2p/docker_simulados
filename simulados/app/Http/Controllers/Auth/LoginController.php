@@ -90,7 +90,7 @@ class LoginController extends Controller
     private function resolveRedirectRoute(): string
     {
         return match (Auth::user()?->user_type) {
-            User::TYPE_ADM => 'adm.bancas.index',
+            User::TYPE_ADM => 'adm.inicio',
             User::TYPE_USER_ASSINANTE => 'area_assinante',
             default => 'area_aluno',
         };
