@@ -95,6 +95,7 @@ Route::middleware('auth')->group(function () {
             ->name('inicio.metrics.details');
 
         Route::get('/configuracoes', [ConfiguracaoController::class, 'index'])->name('configuracoes.index');
+        Route::patch('/configuracoes/feed', [ConfiguracaoController::class, 'updateFeedbackFeed'])->name('configuracoes.feed.update');
         Route::patch('/configuracoes/adsense', [ConfiguracaoController::class, 'updateAdsense'])->name('configuracoes.adsense.update');
 
         Route::get('/anuncios', [AdPostController::class, 'index'])->name('anuncios.index');

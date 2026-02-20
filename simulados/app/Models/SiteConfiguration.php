@@ -10,11 +10,13 @@ class SiteConfiguration extends Model
 
     protected $fillable = [
         'adsense_enabled',
+        'feedback_feed_enabled',
         'adsense_head_script',
     ];
 
     protected $casts = [
         'adsense_enabled' => 'boolean',
+        'feedback_feed_enabled' => 'boolean',
     ];
 
     public static function current(): self
@@ -23,6 +25,7 @@ class SiteConfiguration extends Model
             ['id' => self::SINGLETON_ID],
             [
                 'adsense_enabled' => false,
+                'feedback_feed_enabled' => true,
                 'adsense_head_script' => null,
             ]
         );

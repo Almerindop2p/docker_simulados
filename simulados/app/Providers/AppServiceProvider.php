@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $adsenseHeadScript = null;
         $adsenseEnabled = false;
+        $feedbackFeedEnabled = true;
         $adsenseHorizontalCode = null;
         $adsenseVerticalCode = null;
         $adsenseFormatCodes = [];
@@ -40,11 +41,17 @@ class AppServiceProvider extends ServiceProvider
 
         try {
             if (Schema::hasTable('site_configurations')) {
+                $siteConfigColumns = ['adsense_enabled', 'adsense_head_script'];
+                if (Schema::hasColumn('site_configurations', 'feedback_feed_enabled')) {
+                    $siteConfigColumns[] = 'feedback_feed_enabled';
+                }
+
                 $config = SiteConfiguration::query()
-                    ->select(['adsense_enabled', 'adsense_head_script'])
+                    ->select($siteConfigColumns)
                     ->find(SiteConfiguration::SINGLETON_ID);
 
                 $adsenseEnabled = (bool) ($config?->adsense_enabled ?? false);
+                $feedbackFeedEnabled = (bool) ($config?->feedback_feed_enabled ?? true);
 
                 if ($adsenseEnabled && filled($config->adsense_head_script)) {
                     $adsenseHeadScript = (string) $config->adsense_head_script;
@@ -73,6 +80,7 @@ class AppServiceProvider extends ServiceProvider
         } catch (Throwable) {
             $adsenseHeadScript = null;
             $adsenseEnabled = false;
+            $feedbackFeedEnabled = true;
             $adsenseHorizontalCode = null;
             $adsenseVerticalCode = null;
             $adsenseFormatCodes = [];
@@ -100,6 +108,7 @@ class AppServiceProvider extends ServiceProvider
 
         View::share('adsenseHeadScript', $adsenseHeadScript);
         View::share('adsenseEnabled', $adsenseEnabled);
+        View::share('feedbackFeedEnabled', $feedbackFeedEnabled);
         View::share('adsenseHorizontalCode', $adsenseHorizontalCode);
         View::share('adsenseVerticalCode', $adsenseVerticalCode);
         View::share('adsenseFormatCodes', $adsenseFormatCodes);

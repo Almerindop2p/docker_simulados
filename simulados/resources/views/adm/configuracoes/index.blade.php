@@ -193,6 +193,7 @@
 
 @section('content')
     @php
+        $feedbackFeedEnabled = old('feedback_feed_enabled', (int) (($siteConfig->feedback_feed_enabled ?? true) ? 1 : 0));
         $adsenseEnabled = old('adsense_enabled', (int) (($siteConfig->adsense_enabled ?? false) ? 1 : 0));
         $adsenseScript = old('adsense_head_script', (string) ($siteConfig->adsense_head_script ?? ''));
     @endphp
@@ -248,6 +249,28 @@
 
     <section class="config-card">
         <div class="form-pane">
+            <h2 class="section-title">Configuracao do feed de feedback</h2>
+            <p class="hint">Defina se o feed de feedback (icone flutuante) ficara ativo no site.</p>
+
+            <form method="POST" action="{{ route('adm.configuracoes.feed.update') }}">
+                @csrf
+                @method('PATCH')
+
+                <label class="label" for="feedback_feed_enabled">Feed de feedback</label>
+                <select id="feedback_feed_enabled" name="feedback_feed_enabled" class="file-input" required>
+                    <option value="1" @selected((string) $feedbackFeedEnabled === '1')>Ativo</option>
+                    <option value="0" @selected((string) $feedbackFeedEnabled === '0')>Inativo</option>
+                </select>
+
+                <div style="margin-top: 12px;">
+                    <button class="btn-primary" type="submit">Salvar feed</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="config-card">
+        <div class="form-pane">
             <h2 class="section-title">Configuracao de Adsense</h2>
             <p class="hint">Defina se o Adsense fica ativo. Quando ativo, o campo de script e liberado e os anuncios ativos sao exibidos no site.</p>
 
@@ -256,7 +279,7 @@
                 @method('PATCH')
 
                 <label class="label" for="adsense_enabled">Anuncio Adsense</label>
-                <select id="adsense_enabled" name="adsense_enabled" class="file-input">
+                <select id="adsense_enabled" name="adsense_enabled" class="file-input" required>
                     <option value="1" @selected((string) $adsenseEnabled === '1')>Ativo</option>
                     <option value="0" @selected((string) $adsenseEnabled === '0')>Inativo</option>
                 </select>

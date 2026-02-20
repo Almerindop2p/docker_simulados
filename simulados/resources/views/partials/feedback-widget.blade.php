@@ -2,8 +2,11 @@
     $feedbackUser = auth()->user();
     $feedbackIsLogged = (bool) $feedbackUser;
     $feedbackCurrentUrl = url()->current() . (request()->getQueryString() ? '?' . request()->getQueryString() : '');
+    $feedbackEnabledForView = (bool) ($feedbackFeedEnabled ?? true)
+        && (($feedbackUser?->user_type ?? null) !== \App\Models\User::TYPE_ADM);
 @endphp
 
+@if ($feedbackEnabledForView)
 <div class="feedback-widget-root" id="feedbackWidgetRoot">
     <button
         id="feedbackFab"
@@ -413,3 +416,4 @@
         });
     })();
 </script>
+@endif

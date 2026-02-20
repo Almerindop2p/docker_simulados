@@ -85,6 +85,29 @@ class ConfiguracaoController extends Controller
             ->with('status', 'Configuracoes do Adsense atualizadas com sucesso.');
     }
 
+    public function updateFeedbackFeed(Request $request): RedirectResponse
+    {
+        $this->ensureAdmin($request);
+
+        $data = $request->validate(
+            [
+                'feedback_feed_enabled' => ['required', 'boolean'],
+            ],
+            [
+                'feedback_feed_enabled.required' => 'Informe se o feed deve ficar ativo ou inativo.',
+                'feedback_feed_enabled.boolean' => 'Valor invalido para ativacao do feed.',
+            ]
+        );
+
+        SiteConfiguration::current()->update([
+            'feedback_feed_enabled' => (bool) $data['feedback_feed_enabled'],
+        ]);
+
+        return redirect()
+            ->route('adm.configuracoes.index')
+            ->with('status', 'Configuracao do feed atualizada com sucesso.');
+    }
+
     private function ensureAdmin(Request $request): void
     {
         abort_unless($request->user()?->user_type === User::TYPE_ADM, 403);
