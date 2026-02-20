@@ -90,6 +90,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/inicio/metricas', [InicioController::class, 'metrics'])
             ->middleware('throttle:60,1')
             ->name('inicio.metrics');
+        Route::get('/inicio/metricas/detalhes', [InicioController::class, 'details'])
+            ->middleware('throttle:60,1')
+            ->name('inicio.metrics.details');
 
         Route::get('/configuracoes', [ConfiguracaoController::class, 'index'])->name('configuracoes.index');
         Route::patch('/configuracoes/adsense', [ConfiguracaoController::class, 'updateAdsense'])->name('configuracoes.adsense.update');
