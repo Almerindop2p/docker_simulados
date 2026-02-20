@@ -234,13 +234,174 @@
             font-size: 13px;
             line-height: 1.6;
         }
+
+        .sim-feedback-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 27, 44, 0.62);
+            z-index: 1200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .sim-feedback-backdrop.is-open {
+            display: flex;
+        }
+
+        .sim-feedback-modal {
+            width: min(520px, 100%);
+            border-radius: 16px;
+            border: 1px solid #d2dfef;
+            background: #fff;
+            box-shadow: 0 24px 60px rgba(16, 36, 63, 0.3);
+            padding: 16px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .sim-feedback-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .sim-feedback-title {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #163b63;
+            letter-spacing: -0.01em;
+        }
+
+        .sim-feedback-close {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #d7e2f0;
+            border-radius: 10px;
+            background: #fff;
+            color: #385a80;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .sim-feedback-copy {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #355677;
+        }
+
+        .sim-feedback-form {
+            display: grid;
+            gap: 8px;
+        }
+
+        .sim-feedback-label {
+            font-size: 12px;
+            color: #334d6e;
+            font-weight: 700;
+        }
+
+        .sim-feedback-input,
+        .sim-feedback-textarea {
+            width: 100%;
+            border: 1px solid #ccdaec;
+            border-radius: 10px;
+            background: #fff;
+            color: #1f3f66;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .sim-feedback-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .sim-feedback-user {
+            margin: 0;
+            font-size: 12px;
+            color: #49657f;
+            border: 1px solid #dce7f5;
+            border-radius: 10px;
+            background: #f7faff;
+            padding: 8px 9px;
+        }
+
+        .sim-feedback-submit {
+            min-height: 42px;
+            border: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #25d366, #1fa855);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .sim-feedback-submit[disabled] {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .sim-feedback-spinner {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 999px;
+            animation: simFeedbackSpin 0.7s linear infinite;
+        }
+
+        .sim-feedback-submit.is-loading .sim-feedback-spinner {
+            display: inline-block;
+        }
+
+        @keyframes simFeedbackSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .sim-feedback-message {
+            margin: 0;
+            font-size: 13px;
+            border-radius: 10px;
+            padding: 8px 10px;
+            line-height: 1.45;
+        }
+
+        .sim-feedback-message.error {
+            border: 1px solid #f3c9d1;
+            background: #fff4f6;
+            color: #8b1f34;
+        }
+
+        .sim-feedback-message.success {
+            border: 1px solid #b9e4c9;
+            background: #edfaf2;
+            color: #1d5c38;
+        }
     </style>
 </head>
 <body>
     @php
+        $loggedUser = auth()->user();
+        $isAdm = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_ADM;
         $canGoBack = $currentIndex > 0;
         $canGoNext = $currentIndex < ($totalQuestoes - 1);
         $questionNumber = $currentIndex + 1;
+        $feedbackPromptEnabled = false;
+        $showFeedbackPromptModal = false;
+        $feedbackPromptCurrentUrl = url()->current() . (request()->getQueryString() ? '?' . request()->getQueryString() : '');
     @endphp
 
     <div class="shell">
@@ -355,6 +516,61 @@
         </section>
     </div>
 
+    @if ($feedbackPromptEnabled)
+        <div
+            id="simFeedbackBackdrop"
+            class="sim-feedback-backdrop"
+            data-auto-open="{{ $showFeedbackPromptModal ? '1' : '0' }}"
+            aria-hidden="true"
+        >
+            <section class="sim-feedback-modal" role="dialog" aria-modal="true" aria-labelledby="simFeedbackTitle">
+                <header class="sim-feedback-head">
+                    <h2 id="simFeedbackTitle" class="sim-feedback-title">Sua opiniao melhora a plataforma</h2>
+                    <button id="simFeedbackClose" class="sim-feedback-close" type="button" aria-label="Fechar modal">X</button>
+                </header>
+
+                <p class="sim-feedback-copy">
+                    Seu feedback ajuda a priorizar melhorias da versao beta.
+                </p>
+
+                <form id="simFeedbackForm" class="sim-feedback-form" method="POST" action="{{ route('feedback.tickets.store') }}">
+                    @csrf
+                    <input type="hidden" name="origem_rota" value="simulados.play.feedback.modal">
+                    <input type="hidden" name="pagina_url" value="{{ $feedbackPromptCurrentUrl }}">
+
+                    @if (!$loggedUser)
+                        <label class="sim-feedback-label" for="sim_feedback_nome">Nome</label>
+                        <input id="sim_feedback_nome" class="sim-feedback-input" type="text" name="nome" maxlength="120" required>
+
+                        <label class="sim-feedback-label" for="sim_feedback_email">E-mail</label>
+                        <input id="sim_feedback_email" class="sim-feedback-input" type="email" name="email" maxlength="255" required>
+                    @else
+                        <p class="sim-feedback-user">
+                            Envio autenticado como <strong>{{ $loggedUser->name }}</strong> ({{ $loggedUser->email }}).
+                        </p>
+                    @endif
+
+                    <label class="sim-feedback-label" for="sim_feedback_mensagem">Mensagem</label>
+                    <textarea
+                        id="sim_feedback_mensagem"
+                        class="sim-feedback-textarea"
+                        name="mensagem"
+                        rows="4"
+                        maxlength="5000"
+                        required
+                    ></textarea>
+
+                    <p id="simFeedbackMessage" class="sim-feedback-message" hidden></p>
+
+                    <button id="simFeedbackSubmit" class="sim-feedback-submit" type="submit">
+                        <span class="sim-feedback-submit-label">Enviar feedback</span>
+                        <span class="sim-feedback-spinner" aria-hidden="true"></span>
+                    </button>
+                </form>
+            </section>
+        </div>
+    @endif
+
     @include('partials.feedback-widget')
     @include('partials.adsense-placements')
 
@@ -408,6 +624,155 @@
                     submitWithAction(button.getAttribute('data-action') || 'next');
                 });
             });
+
+            var feedbackBackdrop = document.getElementById('simFeedbackBackdrop');
+            var feedbackClose = document.getElementById('simFeedbackClose');
+            var feedbackForm = document.getElementById('simFeedbackForm');
+            var feedbackSubmit = document.getElementById('simFeedbackSubmit');
+            var feedbackMessage = document.getElementById('simFeedbackMessage');
+
+            function openFeedbackModal() {
+                if (!feedbackBackdrop) {
+                    return;
+                }
+
+                feedbackBackdrop.classList.add('is-open');
+                feedbackBackdrop.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeFeedbackModal() {
+                if (!feedbackBackdrop) {
+                    return;
+                }
+
+                feedbackBackdrop.classList.remove('is-open');
+                feedbackBackdrop.setAttribute('aria-hidden', 'true');
+            }
+
+            function setFeedbackMessage(text, type) {
+                if (!feedbackMessage) {
+                    return;
+                }
+
+                feedbackMessage.hidden = false;
+                feedbackMessage.textContent = text;
+                feedbackMessage.className = 'sim-feedback-message ' + type;
+            }
+
+            function clearFeedbackMessage() {
+                if (!feedbackMessage) {
+                    return;
+                }
+
+                feedbackMessage.hidden = true;
+                feedbackMessage.textContent = '';
+                feedbackMessage.className = 'sim-feedback-message';
+            }
+
+            function setFeedbackLoading(loading) {
+                if (!feedbackSubmit) {
+                    return;
+                }
+
+                var label = feedbackSubmit.querySelector('.sim-feedback-submit-label');
+                if (loading) {
+                    feedbackSubmit.setAttribute('disabled', 'disabled');
+                    feedbackSubmit.classList.add('is-loading');
+                    if (label) {
+                        label.textContent = 'Enviando...';
+                    }
+                    return;
+                }
+
+                feedbackSubmit.removeAttribute('disabled');
+                feedbackSubmit.classList.remove('is-loading');
+                if (label) {
+                    label.textContent = 'Enviar feedback';
+                }
+            }
+
+            if (feedbackBackdrop) {
+                if (feedbackBackdrop.getAttribute('data-auto-open') === '1') {
+                    openFeedbackModal();
+                }
+
+                if (feedbackClose) {
+                    feedbackClose.addEventListener('click', function () {
+                        closeFeedbackModal();
+                    });
+                }
+
+                feedbackBackdrop.addEventListener('click', function (event) {
+                    if (event.target === feedbackBackdrop) {
+                        closeFeedbackModal();
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && feedbackBackdrop.classList.contains('is-open')) {
+                        closeFeedbackModal();
+                    }
+                });
+            }
+
+            if (feedbackForm) {
+                feedbackForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    clearFeedbackMessage();
+                    setFeedbackLoading(true);
+
+                    try {
+                        var response = await fetch(feedbackForm.action, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: new FormData(feedbackForm)
+                        });
+
+                        var data = {};
+                        try {
+                            data = await response.json();
+                        } catch (error) {
+                            data = {};
+                        }
+
+                        if (response.ok && data.ok) {
+                            setFeedbackMessage(data.message || 'Feedback enviado com sucesso.', 'success');
+                            feedbackForm.reset();
+                            window.setTimeout(function () {
+                                closeFeedbackModal();
+                            }, 700);
+                            return;
+                        }
+
+                        if (response.status === 422 && data.errors) {
+                            var firstMessage = null;
+                            Object.keys(data.errors).forEach(function (field) {
+                                if (!firstMessage) {
+                                    var value = data.errors[field];
+                                    firstMessage = Array.isArray(value) ? value[0] : value;
+                                }
+                            });
+                            setFeedbackMessage(firstMessage || 'Verifique os campos e tente novamente.', 'error');
+                            return;
+                        }
+
+                        if (response.status === 429) {
+                            setFeedbackMessage('Muitas tentativas em pouco tempo. Aguarde e tente novamente.', 'error');
+                            return;
+                        }
+
+                        setFeedbackMessage(data.message || 'Nao foi possivel enviar agora. Tente novamente.', 'error');
+                    } catch (error) {
+                        setFeedbackMessage('Falha de conexao. Tente novamente.', 'error');
+                    } finally {
+                        setFeedbackLoading(false);
+                    }
+                });
+            }
         })();
     </script>
 </body>

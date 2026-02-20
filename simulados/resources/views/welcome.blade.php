@@ -566,6 +566,162 @@
             color: #7f4e1a;
         }
 
+        .feedback-prompt-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 27, 44, 0.62);
+            z-index: 1200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .feedback-prompt-backdrop.is-open {
+            display: flex;
+        }
+
+        .feedback-prompt-modal {
+            width: min(520px, 100%);
+            border-radius: 16px;
+            border: 1px solid #d2dfef;
+            background: #fff;
+            box-shadow: 0 24px 60px rgba(16, 36, 63, 0.3);
+            padding: 16px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .feedback-prompt-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .feedback-prompt-title {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #163b63;
+            letter-spacing: -0.01em;
+        }
+
+        .feedback-prompt-close {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #d7e2f0;
+            border-radius: 10px;
+            background: #fff;
+            color: #385a80;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .feedback-prompt-copy {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #355677;
+        }
+
+        .feedback-prompt-form {
+            display: grid;
+            gap: 8px;
+        }
+
+        .feedback-prompt-label {
+            font-size: 12px;
+            color: #334d6e;
+            font-weight: 700;
+        }
+
+        .feedback-prompt-input,
+        .feedback-prompt-textarea {
+            width: 100%;
+            border: 1px solid #ccdaec;
+            border-radius: 10px;
+            background: #fff;
+            color: #1f3f66;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .feedback-prompt-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .feedback-prompt-user {
+            margin: 0;
+            font-size: 12px;
+            color: #49657f;
+            border: 1px solid #dce7f5;
+            border-radius: 10px;
+            background: #f7faff;
+            padding: 8px 9px;
+        }
+
+        .feedback-prompt-submit {
+            min-height: 42px;
+            border: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #25d366, #1fa855);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .feedback-prompt-submit[disabled] {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .feedback-prompt-spinner {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 999px;
+            animation: feedbackPromptSpin 0.7s linear infinite;
+        }
+
+        .feedback-prompt-submit.is-loading .feedback-prompt-spinner {
+            display: inline-block;
+        }
+
+        @keyframes feedbackPromptSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .feedback-prompt-message {
+            margin: 0;
+            font-size: 13px;
+            border-radius: 10px;
+            padding: 8px 10px;
+            line-height: 1.45;
+        }
+
+        .feedback-prompt-message.error {
+            border: 1px solid #f3c9d1;
+            background: #fff4f6;
+            color: #8b1f34;
+        }
+
+        .feedback-prompt-message.success {
+            border: 1px solid #b9e4c9;
+            background: #edfaf2;
+            color: #1d5c38;
+        }
+
         .empty {
             margin: 0;
             border: 1px solid #d8e2f0;
@@ -695,6 +851,9 @@
         $isAdm = ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_ADM;
         $isAluno = in_array(($loggedUser->user_type ?? null), [\App\Models\User::TYPE_USER, \App\Models\User::TYPE_USER_ASSINANTE], true);
         $resultadoResposta = session('resultado_resposta');
+        $feedbackPromptEnabled = false;
+        $showFeedbackPromptModal = false;
+        $feedbackPromptCurrentUrl = url()->current() . (request()->getQueryString() ? '?' . request()->getQueryString() : '');
     @endphp
 
     <div class="shell">
@@ -981,6 +1140,62 @@
             </div>
         </section>
     </div>
+
+    @if ($feedbackPromptEnabled)
+        <div
+            id="feedbackPromptBackdrop"
+            class="feedback-prompt-backdrop"
+            data-auto-open="{{ $showFeedbackPromptModal ? '1' : '0' }}"
+            aria-hidden="true"
+        >
+            <section class="feedback-prompt-modal" role="dialog" aria-modal="true" aria-labelledby="feedbackPromptTitle">
+                <header class="feedback-prompt-head">
+                    <h2 id="feedbackPromptTitle" class="feedback-prompt-title">Sua opiniao melhora a plataforma</h2>
+                    <button id="feedbackPromptClose" class="feedback-prompt-close" type="button" aria-label="Fechar modal">X</button>
+                </header>
+
+                <p class="feedback-prompt-copy">
+                    Seu feedback ajuda a priorizar melhorias da versao beta.
+                </p>
+
+                <form id="feedbackPromptForm" class="feedback-prompt-form" method="POST" action="{{ route('feedback.tickets.store') }}">
+                    @csrf
+                    <input type="hidden" name="origem_rota" value="home.feedback.modal">
+                    <input type="hidden" name="pagina_url" value="{{ $feedbackPromptCurrentUrl }}">
+
+                    @if (!$loggedUser)
+                        <label class="feedback-prompt-label" for="feedback_prompt_nome">Nome</label>
+                        <input id="feedback_prompt_nome" class="feedback-prompt-input" type="text" name="nome" maxlength="120" required>
+
+                        <label class="feedback-prompt-label" for="feedback_prompt_email">E-mail</label>
+                        <input id="feedback_prompt_email" class="feedback-prompt-input" type="email" name="email" maxlength="255" required>
+                    @else
+                        <p class="feedback-prompt-user">
+                            Envio autenticado como <strong>{{ $loggedUser->name }}</strong> ({{ $loggedUser->email }}).
+                        </p>
+                    @endif
+
+                    <label class="feedback-prompt-label" for="feedback_prompt_mensagem">Mensagem</label>
+                    <textarea
+                        id="feedback_prompt_mensagem"
+                        class="feedback-prompt-textarea"
+                        name="mensagem"
+                        rows="4"
+                        maxlength="5000"
+                        required
+                    ></textarea>
+
+                    <p id="feedbackPromptMessage" class="feedback-prompt-message" hidden></p>
+
+                    <button id="feedbackPromptSubmit" class="feedback-prompt-submit" type="submit">
+                        <span class="feedback-prompt-submit-label">Enviar feedback</span>
+                        <span class="feedback-prompt-spinner" aria-hidden="true"></span>
+                    </button>
+                </form>
+            </section>
+        </div>
+    @endif
+
     @include('partials.feedback-widget')
     @include('partials.adsense-placements')
     <script>
@@ -1048,6 +1263,155 @@
                     button.textContent = 'Ocultar comentario';
                 });
             });
+
+            var feedbackPromptBackdrop = document.getElementById('feedbackPromptBackdrop');
+            var feedbackPromptClose = document.getElementById('feedbackPromptClose');
+            var feedbackPromptForm = document.getElementById('feedbackPromptForm');
+            var feedbackPromptSubmit = document.getElementById('feedbackPromptSubmit');
+            var feedbackPromptMessage = document.getElementById('feedbackPromptMessage');
+
+            function openFeedbackPromptModal() {
+                if (!feedbackPromptBackdrop) {
+                    return;
+                }
+
+                feedbackPromptBackdrop.classList.add('is-open');
+                feedbackPromptBackdrop.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeFeedbackPromptModal() {
+                if (!feedbackPromptBackdrop) {
+                    return;
+                }
+
+                feedbackPromptBackdrop.classList.remove('is-open');
+                feedbackPromptBackdrop.setAttribute('aria-hidden', 'true');
+            }
+
+            function setFeedbackPromptMessage(text, type) {
+                if (!feedbackPromptMessage) {
+                    return;
+                }
+
+                feedbackPromptMessage.hidden = false;
+                feedbackPromptMessage.textContent = text;
+                feedbackPromptMessage.className = 'feedback-prompt-message ' + type;
+            }
+
+            function clearFeedbackPromptMessage() {
+                if (!feedbackPromptMessage) {
+                    return;
+                }
+
+                feedbackPromptMessage.hidden = true;
+                feedbackPromptMessage.textContent = '';
+                feedbackPromptMessage.className = 'feedback-prompt-message';
+            }
+
+            function setFeedbackPromptLoading(loading) {
+                if (!feedbackPromptSubmit) {
+                    return;
+                }
+
+                var label = feedbackPromptSubmit.querySelector('.feedback-prompt-submit-label');
+                if (loading) {
+                    feedbackPromptSubmit.setAttribute('disabled', 'disabled');
+                    feedbackPromptSubmit.classList.add('is-loading');
+                    if (label) {
+                        label.textContent = 'Enviando...';
+                    }
+                    return;
+                }
+
+                feedbackPromptSubmit.removeAttribute('disabled');
+                feedbackPromptSubmit.classList.remove('is-loading');
+                if (label) {
+                    label.textContent = 'Enviar feedback';
+                }
+            }
+
+            if (feedbackPromptBackdrop) {
+                if (feedbackPromptBackdrop.getAttribute('data-auto-open') === '1') {
+                    openFeedbackPromptModal();
+                }
+
+                if (feedbackPromptClose) {
+                    feedbackPromptClose.addEventListener('click', function () {
+                        closeFeedbackPromptModal();
+                    });
+                }
+
+                feedbackPromptBackdrop.addEventListener('click', function (event) {
+                    if (event.target === feedbackPromptBackdrop) {
+                        closeFeedbackPromptModal();
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && feedbackPromptBackdrop.classList.contains('is-open')) {
+                        closeFeedbackPromptModal();
+                    }
+                });
+            }
+
+            if (feedbackPromptForm) {
+                feedbackPromptForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    clearFeedbackPromptMessage();
+                    setFeedbackPromptLoading(true);
+
+                    try {
+                        var response = await fetch(feedbackPromptForm.action, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: new FormData(feedbackPromptForm)
+                        });
+
+                        var data = {};
+                        try {
+                            data = await response.json();
+                        } catch (error) {
+                            data = {};
+                        }
+
+                        if (response.ok && data.ok) {
+                            setFeedbackPromptMessage(data.message || 'Feedback enviado com sucesso.', 'success');
+                            feedbackPromptForm.reset();
+                            window.setTimeout(function () {
+                                closeFeedbackPromptModal();
+                            }, 700);
+                            return;
+                        }
+
+                        if (response.status === 422 && data.errors) {
+                            var firstMessage = null;
+                            Object.keys(data.errors).forEach(function (field) {
+                                if (!firstMessage) {
+                                    var value = data.errors[field];
+                                    firstMessage = Array.isArray(value) ? value[0] : value;
+                                }
+                            });
+                            setFeedbackPromptMessage(firstMessage || 'Verifique os campos e tente novamente.', 'error');
+                            return;
+                        }
+
+                        if (response.status === 429) {
+                            setFeedbackPromptMessage('Muitas tentativas em pouco tempo. Aguarde e tente novamente.', 'error');
+                            return;
+                        }
+
+                        setFeedbackPromptMessage(data.message || 'Nao foi possivel enviar agora. Tente novamente.', 'error');
+                    } catch (error) {
+                        setFeedbackPromptMessage('Falha de conexao. Tente novamente.', 'error');
+                    } finally {
+                        setFeedbackPromptLoading(false);
+                    }
+                });
+            }
         })();
     </script>
 </body>

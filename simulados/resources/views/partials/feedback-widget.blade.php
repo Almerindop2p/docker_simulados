@@ -2,12 +2,24 @@
     $feedbackUser = auth()->user();
     $feedbackIsLogged = (bool) $feedbackUser;
     $feedbackCurrentUrl = url()->current() . (request()->getQueryString() ? '?' . request()->getQueryString() : '');
+    $feedbackPromptInitialDelayMs = (int) ($feedbackPromptInitialDelayMs ?? (60 * 60 * 1000));
+    $feedbackPromptCooldownSeconds = (int) ($feedbackPromptCooldownSeconds ?? (48 * 60 * 60));
+    $feedbackPromptCooldownUntilTs = max(0, (int) ($feedbackPromptCooldownUntilTs ?? 0));
     $feedbackEnabledForView = (bool) ($feedbackFeedEnabled ?? true)
         && (($feedbackUser?->user_type ?? null) !== \App\Models\User::TYPE_ADM);
 @endphp
 
 @if ($feedbackEnabledForView)
-<div class="feedback-widget-root" id="feedbackWidgetRoot">
+<div
+    class="feedback-widget-root"
+    id="feedbackWidgetRoot"
+    data-initial-delay-ms="{{ $feedbackPromptInitialDelayMs }}"
+    data-cooldown-seconds="{{ $feedbackPromptCooldownSeconds }}"
+    data-server-cooldown-until="{{ $feedbackPromptCooldownUntilTs }}"
+    data-dismiss-url="{{ route('feedback.prompt.dismiss') }}"
+    data-is-logged="{{ $feedbackIsLogged ? '1' : '0' }}"
+    data-csrf-token="{{ csrf_token() }}"
+>
     <button
         id="feedbackFab"
         class="feedback-fab"
@@ -22,44 +34,46 @@
         </svg>
     </button>
 
-    <section id="feedbackPanel" class="feedback-panel" hidden aria-label="Enviar feedback beta">
-        <header class="feedback-header">
-            <h3>Feedback beta</h3>
-            <button id="feedbackClose" class="feedback-close" type="button" aria-label="Fechar painel">X</button>
-        </header>
+    <div id="feedbackBackdrop" class="feedback-backdrop" aria-hidden="true">
+        <section id="feedbackPanel" class="feedback-panel" role="dialog" aria-modal="true" aria-label="Enviar feedback beta">
+            <header class="feedback-header">
+                <h3>Feedback beta</h3>
+                <button id="feedbackClose" class="feedback-close" type="button" aria-label="Fechar painel">X</button>
+            </header>
 
-        <p class="feedback-copy">
-            Encontrou um problema ou quer sugerir algo? Envie aqui sem sair da pagina.
-        </p>
+            <p class="feedback-copy">
+                Encontrou um problema ou quer sugerir algo? Envie aqui sem sair da pagina.
+            </p>
 
-        <form id="feedbackForm" class="feedback-form" method="POST" action="{{ route('feedback.tickets.store') }}">
-            @csrf
-            <input type="hidden" name="origem_rota" value="{{ request()->route()?->getName() }}">
-            <input type="hidden" name="pagina_url" value="{{ $feedbackCurrentUrl }}">
+            <form id="feedbackForm" class="feedback-form" method="POST" action="{{ route('feedback.tickets.store') }}">
+                @csrf
+                <input type="hidden" name="origem_rota" value="{{ request()->route()?->getName() }}">
+                <input type="hidden" name="pagina_url" value="{{ $feedbackCurrentUrl }}">
 
-            @if (!$feedbackIsLogged)
-                <label class="feedback-label" for="feedback_nome">Nome</label>
-                <input id="feedback_nome" class="feedback-input" type="text" name="nome" maxlength="120" required>
+                @if (!$feedbackIsLogged)
+                    <label class="feedback-label" for="feedback_nome">Nome</label>
+                    <input id="feedback_nome" class="feedback-input" type="text" name="nome" maxlength="120" required>
 
-                <label class="feedback-label" for="feedback_email">E-mail</label>
-                <input id="feedback_email" class="feedback-input" type="email" name="email" maxlength="255" required>
-            @else
-                <p class="feedback-user">
-                    Envio autenticado como <strong>{{ $feedbackUser->name }}</strong> ({{ $feedbackUser->email }}).
-                </p>
-            @endif
+                    <label class="feedback-label" for="feedback_email">E-mail</label>
+                    <input id="feedback_email" class="feedback-input" type="email" name="email" maxlength="255" required>
+                @else
+                    <p class="feedback-user">
+                        Envio autenticado como <strong>{{ $feedbackUser->name }}</strong> ({{ $feedbackUser->email }}).
+                    </p>
+                @endif
 
-            <label class="feedback-label" for="feedback_mensagem">Mensagem</label>
-            <textarea id="feedback_mensagem" class="feedback-textarea" name="mensagem" rows="4" maxlength="5000" required></textarea>
+                <label class="feedback-label" for="feedback_mensagem">Mensagem</label>
+                <textarea id="feedback_mensagem" class="feedback-textarea" name="mensagem" rows="4" maxlength="5000" required></textarea>
 
-            <p id="feedbackMessage" class="feedback-message" hidden></p>
+                <p id="feedbackMessage" class="feedback-message" hidden></p>
 
-            <button id="feedbackSubmit" class="feedback-submit" type="submit">
-                <span class="feedback-submit-label">Enviar feedback</span>
-                <span class="feedback-submit-spinner" aria-hidden="true"></span>
-            </button>
-        </form>
-    </section>
+                <button id="feedbackSubmit" class="feedback-submit" type="submit">
+                    <span class="feedback-submit-label">Enviar feedback</span>
+                    <span class="feedback-submit-spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+        </section>
+    </div>
 </div>
 
 <style>
@@ -67,7 +81,7 @@
         position: fixed;
         right: 16px;
         bottom: 16px;
-        z-index: 75;
+        z-index: 95;
     }
 
     .feedback-fab {
@@ -89,11 +103,25 @@
         height: 26px;
     }
 
+    .feedback-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1200;
+        background: rgba(15, 27, 44, 0.62);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .feedback-backdrop.is-open {
+        display: flex;
+    }
+
     .feedback-panel {
-        position: absolute;
-        right: 0;
-        bottom: 72px;
-        width: min(360px, calc(100vw - 20px));
+        width: min(520px, calc(100vw - 16px));
+        max-height: calc(100vh - 24px);
+        overflow: auto;
         border: 1px solid #d5e0ef;
         border-radius: 14px;
         background: #fff;
@@ -101,18 +129,6 @@
         padding: 12px;
         display: grid;
         gap: 10px;
-        opacity: 0;
-        transform: translateY(12px) scale(0.84);
-        transform-origin: calc(100% - 18px) calc(100% + 64px);
-        pointer-events: none;
-        transition: opacity .2s ease, transform .2s ease;
-        will-change: opacity, transform;
-    }
-
-    .feedback-panel.is-open {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        pointer-events: auto;
     }
 
     .feedback-header {
@@ -249,17 +265,13 @@
             right: 10px;
             bottom: 10px;
         }
-
-        .feedback-panel {
-            width: min(360px, calc(100vw - 14px));
-            bottom: 68px;
-        }
     }
 </style>
 
 <script>
     (function () {
         var root = document.getElementById('feedbackWidgetRoot');
+        var backdrop = document.getElementById('feedbackBackdrop');
         var fab = document.getElementById('feedbackFab');
         var panel = document.getElementById('feedbackPanel');
         var closeBtn = document.getElementById('feedbackClose');
@@ -267,39 +279,149 @@
         var submit = document.getElementById('feedbackSubmit');
         var messageBox = document.getElementById('feedbackMessage');
 
-        if (!root || !fab || !panel || !closeBtn || !form || !submit || !messageBox) {
+        if (!root || !backdrop || !fab || !panel || !closeBtn || !form || !submit || !messageBox) {
             return;
         }
 
-        var isAnimating = false;
+        var autoPromptDelayMs = parseInt(root.dataset.initialDelayMs || '3600000', 10) || (60 * 60 * 1000);
+        var promptCooldownSeconds = parseInt(root.dataset.cooldownSeconds || '172800', 10) || (48 * 60 * 60);
+        var serverCooldownUntilTs = parseInt(root.dataset.serverCooldownUntil || '0', 10) || 0;
+        var dismissUrl = root.dataset.dismissUrl || '';
+        var csrfToken = root.dataset.csrfToken || '';
+        var isLogged = root.dataset.isLogged === '1';
+        var promptCooldownCookieName = 'feedback_prompt_cooldown_until';
+        var promptCooldownLocalKey = 'feedback_prompt_cooldown_until_local';
+        var feedbackSubmitted = false;
+        var isSyncingDismiss = false;
 
-        function openPanel() {
-            if (isAnimating || !panel.hidden) {
+        function readCookie(name) {
+            var parts = document.cookie ? document.cookie.split('; ') : [];
+            for (var i = 0; i < parts.length; i++) {
+                var part = parts[i];
+                var eq = part.indexOf('=');
+                if (eq <= 0) {
+                    continue;
+                }
+                if (part.substring(0, eq) === name) {
+                    return decodeURIComponent(part.substring(eq + 1));
+                }
+            }
+            return '';
+        }
+
+        function getLocalCooldownUntil() {
+            try {
+                var raw = window.localStorage.getItem(promptCooldownLocalKey);
+                var value = parseInt(raw || '0', 10);
+                return Number.isFinite(value) ? value : 0;
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function setLocalCooldownUntil(until) {
+            try {
+                window.localStorage.setItem(promptCooldownLocalKey, String(until));
+            } catch (e) {
+                // no-op
+            }
+        }
+
+        function setCooldownCookie(until) {
+            var maxAge = Math.max(0, parseInt(promptCooldownSeconds, 10) || 0);
+            var cookie = promptCooldownCookieName + '=' + encodeURIComponent(String(until)) + '; path=/; max-age=' + maxAge + '; SameSite=Lax';
+            if (window.location.protocol === 'https:') {
+                cookie += '; Secure';
+            }
+            document.cookie = cookie;
+        }
+
+        function getCooldownUntil() {
+            var cookieUntil = parseInt(readCookie(promptCooldownCookieName) || '0', 10);
+            var localUntil = getLocalCooldownUntil();
+
+            cookieUntil = Number.isFinite(cookieUntil) ? cookieUntil : 0;
+            localUntil = Number.isFinite(localUntil) ? localUntil : 0;
+
+            return Math.max(cookieUntil, localUntil);
+        }
+
+        function hasActivePromptCooldown() {
+            return getCooldownUntil() > Math.floor(Date.now() / 1000);
+        }
+
+        function setPromptCooldown(untilTimestamp) {
+            setLocalCooldownUntil(untilTimestamp);
+            setCooldownCookie(untilTimestamp);
+        }
+
+        async function syncDismissState(keepalive) {
+            if (!isLogged || !dismissUrl || !csrfToken || isSyncingDismiss) {
                 return;
             }
 
-            isAnimating = true;
-            panel.hidden = false;
+            isSyncingDismiss = true;
+            try {
+                await fetch(dismissUrl, {
+                    method: 'POST',
+                    keepalive: !!keepalive,
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+            } catch (e) {
+                // no-op
+            } finally {
+                isSyncingDismiss = false;
+            }
+        }
+
+        function applyDismissCooldown(keepalive) {
+            if (feedbackSubmitted) {
+                return;
+            }
+
+            var until = Math.floor(Date.now() / 1000) + promptCooldownSeconds;
+            setPromptCooldown(until);
+            syncDismissState(keepalive);
+        }
+
+        function startAutoPromptTimer() {
+            if (hasActivePromptCooldown()) {
+                return;
+            }
+
+            window.setTimeout(function () {
+                if (hasActivePromptCooldown()) {
+                    return;
+                }
+                openPanel();
+            }, autoPromptDelayMs);
+        }
+
+        function openPanel() {
+            if (backdrop.classList.contains('is-open')) {
+                return;
+            }
+
+            backdrop.classList.add('is-open');
+            backdrop.setAttribute('aria-hidden', 'false');
             fab.setAttribute('aria-expanded', 'true');
-            requestAnimationFrame(function () {
-                panel.classList.add('is-open');
-                isAnimating = false;
-            });
         }
 
         function closePanel() {
-            if (isAnimating || panel.hidden) {
+            if (!backdrop.classList.contains('is-open')) {
                 return;
             }
 
-            isAnimating = true;
             fab.setAttribute('aria-expanded', 'false');
-            panel.classList.remove('is-open');
-
-            window.setTimeout(function () {
-                panel.hidden = true;
-                isAnimating = false;
-            }, 220);
+            backdrop.classList.remove('is-open');
+            backdrop.setAttribute('aria-hidden', 'true');
         }
 
         function showMessage(text, type) {
@@ -333,31 +455,38 @@
         }
 
         fab.addEventListener('click', function () {
-            if (panel.hidden) {
-                openPanel();
-            } else {
+            if (backdrop.classList.contains('is-open')) {
+                applyDismissCooldown(false);
                 closePanel();
+            } else {
+                openPanel();
             }
         });
 
         closeBtn.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
+            applyDismissCooldown(false);
             closePanel();
         });
 
-        document.addEventListener('click', function (event) {
-            if (panel.hidden) {
-                return;
-            }
-            if (!panel.contains(event.target) && !fab.contains(event.target)) {
+        backdrop.addEventListener('click', function (event) {
+            if (event.target === backdrop) {
+                applyDismissCooldown(false);
                 closePanel();
             }
         });
 
         document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
+            if (event.key === 'Escape' && backdrop.classList.contains('is-open')) {
+                applyDismissCooldown(false);
                 closePanel();
+            }
+        });
+
+        window.addEventListener('pagehide', function () {
+            if (backdrop.classList.contains('is-open') && !feedbackSubmitted) {
+                applyDismissCooldown(true);
             }
         });
 
@@ -387,6 +516,15 @@
                 if (response.ok && data.ok) {
                     showMessage(data.message || 'Feedback enviado com sucesso.', 'success');
                     form.reset();
+                    feedbackSubmitted = true;
+                    var cooldownUntil = parseInt(data.cooldown_until || '0', 10);
+                    if (!Number.isFinite(cooldownUntil) || cooldownUntil <= 0) {
+                        cooldownUntil = Math.floor(Date.now() / 1000) + promptCooldownSeconds;
+                    }
+                    setPromptCooldown(cooldownUntil);
+                    window.setTimeout(function () {
+                        closePanel();
+                    }, 900);
                     return;
                 }
 
@@ -414,6 +552,12 @@
                 setLoadingState(false);
             }
         });
+
+        if (serverCooldownUntilTs > 0 && serverCooldownUntilTs > getCooldownUntil()) {
+            setPromptCooldown(serverCooldownUntilTs);
+        }
+
+        startAutoPromptTimer();
     })();
 </script>
 @endif

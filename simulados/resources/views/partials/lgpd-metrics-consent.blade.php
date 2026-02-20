@@ -89,7 +89,70 @@
             collectUrl: @json(route('metrics.capture')),
             routeName: @json($metricsRouteName),
             isLogged: {{ auth()->check() ? 'true' : 'false' }},
+            dismissUntilCookieName: 'lgpd_metrics_dismiss_until',
+            localDismissUntilKey: 'lgpd_metrics_dismiss_until_local',
+            dismissTtlSeconds: {{ 7 * 24 * 60 * 60 }},
         };
+
+        function readCookie(name) {
+            var parts = document.cookie ? document.cookie.split('; ') : [];
+            for (var i = 0; i < parts.length; i++) {
+                var part = parts[i];
+                var eqIndex = part.indexOf('=');
+                if (eqIndex === -1) {
+                    continue;
+                }
+                var key = part.substring(0, eqIndex);
+                if (key === name) {
+                    return decodeURIComponent(part.substring(eqIndex + 1));
+                }
+            }
+            return '';
+        }
+
+        function getLocalDismissUntil() {
+            try {
+                var raw = window.localStorage.getItem(config.localDismissUntilKey);
+                var value = parseInt(raw || '0', 10);
+                return Number.isFinite(value) ? value : 0;
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function setLocalDismissUntil(untilTimestamp) {
+            try {
+                window.localStorage.setItem(config.localDismissUntilKey, String(untilTimestamp));
+            } catch (e) {
+                // no-op
+            }
+        }
+
+        function setDismissCookie(untilTimestamp) {
+            var maxAge = Math.max(0, parseInt(config.dismissTtlSeconds, 10) || 0);
+            var cookieValue = encodeURIComponent(String(untilTimestamp));
+            var cookie = config.dismissUntilCookieName + '=' + cookieValue + '; path=/; max-age=' + maxAge + '; SameSite=Lax';
+            if (window.location.protocol === 'https:') {
+                cookie += '; Secure';
+            }
+            document.cookie = cookie;
+        }
+
+        function hasActiveDismissWindow() {
+            var cookieUntil = parseInt(readCookie(config.dismissUntilCookieName) || '0', 10);
+            var localUntil = getLocalDismissUntil();
+            var until = Math.max(
+                Number.isFinite(cookieUntil) ? cookieUntil : 0,
+                Number.isFinite(localUntil) ? localUntil : 0
+            );
+
+            if (until <= 0) {
+                return false;
+            }
+
+            var nowTs = Math.floor(Date.now() / 1000);
+            return until > nowTs;
+        }
 
         var consentGranted = !!config.consentGranted;
         var captureSent = false;
@@ -123,7 +186,7 @@
         }
 
         function buildBanner() {
-            if (bannerElement || consentGranted || !document.body) {
+            if (bannerElement || consentGranted || !document.body || hasActiveDismissWindow()) {
                 return;
             }
 
@@ -147,6 +210,9 @@
 
             if (dismissButton) {
                 dismissButton.addEventListener('click', function () {
+                    var until = Math.floor(Date.now() / 1000) + (parseInt(config.dismissTtlSeconds, 10) || 0);
+                    setLocalDismissUntil(until);
+                    setDismissCookie(until);
                     hideBanner();
                 });
             }

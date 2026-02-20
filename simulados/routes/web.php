@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\SimuladoController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Auth\CadastroController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\FeedbackPromptStateController;
 use App\Http\Controllers\FeedbackTicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MeusSimuladosController;
@@ -38,6 +39,9 @@ Route::post('/questoes/{questao}/responder', [HomeController::class, 'answer'])-
 Route::post('/feedback/tickets', [FeedbackTicketController::class, 'store'])
     ->middleware('throttle:30,1')
     ->name('feedback.tickets.store');
+Route::post('/feedback/prompt/dismiss', [FeedbackPromptStateController::class, 'dismiss'])
+    ->middleware('throttle:60,1')
+    ->name('feedback.prompt.dismiss');
 Route::post('/lgpd/consentimento-metricas', [MetricsConsentController::class, 'grant'])
     ->middleware('throttle:20,1')
     ->name('metrics.consent.grant');

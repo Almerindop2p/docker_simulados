@@ -569,6 +569,7 @@
     </div>
 
     <div id="mobileOverlay" class="overlay" aria-hidden="true"></div>
+    @include('partials.feedback-widget')
     @include('partials.adsense-placements')
 
     <script>

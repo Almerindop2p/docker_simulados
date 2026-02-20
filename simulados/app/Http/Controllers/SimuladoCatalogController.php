@@ -643,4 +643,5 @@ class SimuladoCatalogController extends Controller
             'te' => max(0, (int) ($payload['te'] ?? 0)),
         ];
     }
+
 }
