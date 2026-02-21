@@ -484,7 +484,6 @@
                         <a class="nav-link" href="{{ route('adm.inicio') }}">Painel ADM</a>
                     @endif
 
-                    <a class="nav-link" href="{{ route('home') }}">Visitar site</a>
                     @include('partials.header-notifications')
 
                     <div class="avatar-menu-wrap">
