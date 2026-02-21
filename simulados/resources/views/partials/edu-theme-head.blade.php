@@ -5,7 +5,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="keywords" content="{{ $metaKeywordsContent ?? '' }}">
 <meta property="og:description" content="Estude de graca com simulados e milhares de questoes de ENEM e concursos. Monte seu plano de estudos, faca revisoes inteligentes e veja seu progresso em tempo real.">
-<meta property="og:image" content="{{ asset('assets/_img/hoje-e-dia-de-simulado-78660-1663251614-1663251614.png') }}">
+<meta property="og:image" content="{{ $metaOgImageContent ?? asset('assets/_img/hoje-e-dia-de-simulado-78660-1663251614-1663251614.png') }}">
 <style>
     :root {
         color-scheme: light;

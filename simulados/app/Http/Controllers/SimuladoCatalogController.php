@@ -154,6 +154,7 @@ class SimuladoCatalogController extends Controller
             abort(403);
         }
 
+        $metaOgImageContent = $this->resolveSimuladoOgImage($simulado);
         $user = $request->user();
 
         if ($user) {
@@ -202,6 +203,7 @@ class SimuladoCatalogController extends Controller
                 'attemptId' => $tentativa->id,
                 'isGuest' => false,
                 'guestState' => null,
+                'metaOgImageContent' => $metaOgImageContent,
             ]);
         }
 
@@ -240,6 +242,7 @@ class SimuladoCatalogController extends Controller
                 'e' => $elapsedMap,
                 'te' => (int) ($state['te'] ?? 0),
             ]),
+            'metaOgImageContent' => $metaOgImageContent,
         ]);
     }
 
@@ -533,6 +536,22 @@ class SimuladoCatalogController extends Controller
         }
 
         return false;
+    }
+
+    private function resolveSimuladoOgImage(Simulado $simulado): string
+    {
+        $defaultOgImage = asset('assets/_img/hoje-e-dia-de-simulado-78660-1663251614-1663251614.png');
+        $path = trim((string) ($simulado->imagem_destaque_url ?? ''));
+
+        if ($path === '') {
+            return $defaultOgImage;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        return url($path);
     }
 
     private function refreshAttemptProgress(SimuladoTentativa $tentativa, int $nextIndex): void
