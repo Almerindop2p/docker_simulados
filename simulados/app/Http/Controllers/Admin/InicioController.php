@@ -139,8 +139,6 @@ class InicioController extends Controller
     {
         $rows = RouteMetric::query()
             ->selectRaw('browser, COUNT(*) as total')
-            ->whereNotNull('browser')
-            ->where('browser', '<>', '')
             ->groupBy('browser')
             ->get();
 
@@ -157,6 +155,7 @@ class InicioController extends Controller
             $total = (int) $row->total;
 
             if ($browser === '') {
+                $buckets['Demais'] += $total;
                 continue;
             }
 

@@ -133,8 +133,18 @@ class MetricsConsentController extends Controller
         );
         $userAgent = $hasSensitiveConsent ? $rawUserAgent : '';
         $ipAddress = $hasSensitiveConsent ? $rawIpAddress : '';
-        $uaDetails = UserAgentDetails::parse($userAgent);
+        $uaDetails = UserAgentDetails::parse($rawUserAgent);
         $geoDetails = $geoIpLookup->lookup($ipAddress);
+        $localeGeo = $this->resolveLocaleGeo((string) ($payload['language'] ?? ''));
+
+        if ($geoDetails['country'] === null && $localeGeo['country'] !== null) {
+            $geoDetails['country'] = $localeGeo['country'];
+        }
+
+        if ($geoDetails['country_code'] === null && $localeGeo['country_code'] !== null) {
+            $geoDetails['country_code'] = $localeGeo['country_code'];
+        }
+
         $payloadDeviceModel = trim((string) ($payload['device_model'] ?? ''));
         $deviceModel = $hasSensitiveConsent
             ? ($payloadDeviceModel !== '' ? $payloadDeviceModel : $uaDetails['device_model'])
@@ -381,5 +391,78 @@ class MetricsConsentController extends Controller
         }
 
         return $code;
+    }
+
+    /**
+     * @return array{country:?string,country_code:?string}
+     */
+    private function resolveLocaleGeo(string $language): array
+    {
+        $language = trim($language);
+        if ($language === '') {
+            return [
+                'country' => null,
+                'country_code' => null,
+            ];
+        }
+
+        $region = null;
+
+        if (preg_match('/^[a-z]{2,3}[-_]([a-z]{2})/i', $language, $matches) === 1) {
+            $region = strtoupper((string) ($matches[1] ?? ''));
+        }
+
+        if (!$region) {
+            $languageCode = strtolower((string) strtok($language, '-_'));
+            $region = match ($languageCode) {
+                'pt' => 'BR',
+                'en' => 'US',
+                'es' => 'ES',
+                'fr' => 'FR',
+                'de' => 'DE',
+                'it' => 'IT',
+                'ja' => 'JP',
+                'ko' => 'KR',
+                'ru' => 'RU',
+                'zh' => 'CN',
+                default => null,
+            };
+        }
+
+        if (!$region) {
+            return [
+                'country' => null,
+                'country_code' => null,
+            ];
+        }
+
+        $countryNames = [
+            'AR' => 'Argentina',
+            'AU' => 'Australia',
+            'BR' => 'Brasil',
+            'CA' => 'Canada',
+            'CL' => 'Chile',
+            'CN' => 'China',
+            'CO' => 'Colombia',
+            'DE' => 'Alemanha',
+            'ES' => 'Espanha',
+            'FR' => 'Franca',
+            'GB' => 'Reino Unido',
+            'IT' => 'Italia',
+            'JP' => 'Japao',
+            'KR' => 'Coreia do Sul',
+            'MX' => 'Mexico',
+            'PE' => 'Peru',
+            'PT' => 'Portugal',
+            'RU' => 'Russia',
+            'US' => 'Estados Unidos',
+            'UY' => 'Uruguai',
+            'VE' => 'Venezuela',
+        ];
+
+        return [
+            'country' => $countryNames[$region] ?? $region,
+            'country_code' => $region,
+        ];
     }
 }
