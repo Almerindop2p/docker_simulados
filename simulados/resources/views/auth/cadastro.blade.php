@@ -691,8 +691,10 @@
             var currentStep = Number(form.getAttribute('data-initial-step') || 1);
             var fields = ['name', 'email', 'password', 'password_confirmation'];
             var passwordInput = form.querySelector('#password');
+            var passwordConfirmationInput = form.querySelector('#password_confirmation');
             var passwordStrengthFill = document.getElementById('password-strength-fill');
             var passwordStrengthLabel = document.getElementById('password-strength-label');
+            var passwordMismatchMessage = 'As senhas nao conferem.';
 
             function focusFirstInput(step) {
                 var active = form.querySelector('.form-step[data-step="' + step + '"] input');
@@ -750,6 +752,32 @@
                 }
 
                 passwordStrengthLabel.textContent = result.label;
+            }
+
+            function updatePasswordMatchFeedback() {
+                if (!passwordInput || !passwordConfirmationInput) return false;
+
+                var passwordValue = passwordInput.value || '';
+                var confirmationValue = passwordConfirmationInput.value || '';
+                var confirmationErrorEl = document.getElementById('error-password_confirmation');
+                var confirmationField = passwordConfirmationInput.closest('.field');
+                var hasMismatch = confirmationValue.length > 0 && passwordValue !== confirmationValue;
+
+                if (hasMismatch) {
+                    if (confirmationErrorEl) confirmationErrorEl.textContent = passwordMismatchMessage;
+                    if (confirmationField) confirmationField.classList.add('has-error');
+                    return true;
+                }
+
+                if (confirmationErrorEl && confirmationErrorEl.textContent.trim() === passwordMismatchMessage) {
+                    confirmationErrorEl.textContent = '';
+                }
+
+                if (confirmationField && confirmationErrorEl && confirmationErrorEl.textContent.trim() === '') {
+                    confirmationField.classList.remove('has-error');
+                }
+
+                return false;
             }
 
             function setLoading(isLoading) {
@@ -830,6 +858,14 @@
             form.addEventListener('submit', async function (event) {
                 event.preventDefault();
                 clearErrors();
+
+                if (updatePasswordMatchFeedback()) {
+                    setStep(2);
+                    if (passwordConfirmationInput) passwordConfirmationInput.focus();
+                    addSummaryMessage(passwordMismatchMessage);
+                    return;
+                }
+
                 setLoading(true);
 
                 try {
@@ -881,7 +917,13 @@
             if (passwordInput) {
                 passwordInput.addEventListener('input', updatePasswordStrength);
                 passwordInput.addEventListener('blur', updatePasswordStrength);
+                passwordInput.addEventListener('input', updatePasswordMatchFeedback);
                 updatePasswordStrength();
+            }
+
+            if (passwordConfirmationInput) {
+                passwordConfirmationInput.addEventListener('input', updatePasswordMatchFeedback);
+                passwordConfirmationInput.addEventListener('blur', updatePasswordMatchFeedback);
             }
 
             setStep(currentStep === 2 ? 2 : 1);
