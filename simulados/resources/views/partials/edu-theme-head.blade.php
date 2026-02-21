@@ -4,6 +4,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="keywords" content="{{ $metaKeywordsContent ?? '' }}">
+<meta property="og:image" content="{{ asset('assets/_img/hoje-e-dia-de-simulado-78660-1663251614-1663251614.png') }}">
 <style>
     :root {
         color-scheme: light;
