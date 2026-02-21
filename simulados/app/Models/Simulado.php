@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Simulado extends Model
 {
@@ -25,6 +26,8 @@ class Simulado extends Model
         'name',
         'slug',
         'visibilidade',
+        'descricao',
+        'imagem_destaque_path',
     ];
 
     public function questoes(): HasMany
@@ -46,5 +49,14 @@ class Simulado extends Model
             self::VISIBILIDADE_NAO_LISTADO => 'Nao listado',
             default => 'Nao informado',
         };
+    }
+
+    public function getImagemDestaqueUrlAttribute(): ?string
+    {
+        if (!$this->imagem_destaque_path) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->imagem_destaque_path);
     }
 }

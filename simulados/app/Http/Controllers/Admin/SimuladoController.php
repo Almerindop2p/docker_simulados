@@ -10,6 +10,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SimuladoController extends Controller
@@ -41,7 +43,14 @@ class SimuladoController extends Controller
 
     public function store(StoreSimuladoRequest $request): RedirectResponse
     {
-        Simulado::query()->create($request->validated());
+        $data = $request->safe()->except(['imagem_destaque']);
+        $data['descricao'] = trim((string) ($data['descricao'] ?? '')) ?: null;
+
+        if ($request->hasFile('imagem_destaque')) {
+            $data['imagem_destaque_path'] = $this->storeImagemDestaque($request->file('imagem_destaque'));
+        }
+
+        Simulado::query()->create($data);
 
         return redirect()
             ->route('adm.simulados.index')
@@ -50,7 +59,20 @@ class SimuladoController extends Controller
 
     public function update(StoreSimuladoRequest $request, Simulado $simulado): RedirectResponse
     {
-        $simulado->update($request->validated());
+        $data = $request->safe()->except(['imagem_destaque']);
+        $data['descricao'] = trim((string) ($data['descricao'] ?? '')) ?: null;
+
+        if ($request->hasFile('imagem_destaque')) {
+            $newPath = $this->storeImagemDestaque($request->file('imagem_destaque'));
+
+            if ($simulado->imagem_destaque_path) {
+                Storage::disk('public')->delete($simulado->imagem_destaque_path);
+            }
+
+            $data['imagem_destaque_path'] = $newPath;
+        }
+
+        $simulado->update($data);
 
         return redirect()
             ->route('adm.simulados.index')
@@ -60,6 +82,7 @@ class SimuladoController extends Controller
     public function destroy(Request $request, Simulado $simulado): RedirectResponse
     {
         $this->ensureAdmin($request);
+        $imagemPath = $simulado->imagem_destaque_path;
 
         try {
             $simulado->delete();
@@ -67,6 +90,10 @@ class SimuladoController extends Controller
             return redirect()
                 ->route('adm.simulados.index')
                 ->with('status', 'Nao foi possivel excluir o simulado porque ele possui questoes vinculadas.');
+        }
+
+        if ($imagemPath) {
+            Storage::disk('public')->delete($imagemPath);
         }
 
         return redirect()
@@ -146,5 +173,10 @@ class SimuladoController extends Controller
     private function ensureAdmin(Request $request): void
     {
         abort_unless($request->user()?->user_type === User::TYPE_ADM, 403);
+    }
+
+    private function storeImagemDestaque(UploadedFile $arquivo): string
+    {
+        return $arquivo->store('simulados', 'public');
     }
 }

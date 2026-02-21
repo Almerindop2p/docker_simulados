@@ -45,7 +45,9 @@
         }
 
         .input,
-        .select {
+        .select,
+        .textarea,
+        .file-input {
             width: 100%;
             min-height: 44px;
             border-radius: 12px;
@@ -58,9 +60,48 @@
         }
 
         .input:hover,
-        .select:hover { border-color: #b5c9e7; }
+        .select:hover,
+        .textarea:hover,
+        .file-input:hover { border-color: #b5c9e7; }
         .input:focus,
-        .select:focus { border-color: #2a67e8; box-shadow: 0 0 0 4px rgba(42, 103, 232, 0.16); outline: none; }
+        .select:focus,
+        .textarea:focus,
+        .file-input:focus { border-color: #2a67e8; box-shadow: 0 0 0 4px rgba(42, 103, 232, 0.16); outline: none; }
+
+        .textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .file-input {
+            padding: 9px 10px;
+            line-height: 1.4;
+        }
+
+        .image-preview-wrap {
+            margin-top: 6px;
+            border: 1px solid #d5e1f2;
+            border-radius: 12px;
+            padding: 10px;
+            background: #f8fbff;
+            display: none;
+            justify-content: center;
+        }
+
+        .image-preview-wrap.is-visible {
+            display: flex;
+        }
+
+        .image-preview {
+            display: block;
+            max-width: min(100%, 520px);
+            width: auto;
+            height: auto;
+            max-height: 260px;
+            border-radius: 10px;
+            border: 1px solid #d1ddf0;
+            background: #fff;
+        }
 
         .help {
             margin: 0;
@@ -156,7 +197,7 @@
             </div>
         @endif
 
-        <form id="simuladoForm" class="form-grid" method="POST" action="{{ route('adm.simulados.update', $simulado) }}" novalidate>
+        <form id="simuladoForm" class="form-grid" method="POST" action="{{ route('adm.simulados.update', $simulado) }}" enctype="multipart/form-data" novalidate>
             @csrf
             @method('PUT')
 
@@ -201,6 +242,47 @@
             </div>
 
             <div class="field">
+                <label class="label" for="descricao">Descricao</label>
+                <textarea
+                    id="descricao"
+                    name="descricao"
+                    class="textarea"
+                    maxlength="3000"
+                    aria-describedby="descricao-help"
+                >{{ old('descricao', $simulado->descricao) }}</textarea>
+                <p id="descricao-help" class="help">Resumo opcional do simulado para exibicao em listagens e detalhes.</p>
+                @error('descricao')
+                    <p class="field-error">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="field">
+                <label class="label" for="imagem_destaque">Imagem destaque</label>
+                <input
+                    id="imagem_destaque"
+                    name="imagem_destaque"
+                    class="file-input"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
+                    aria-describedby="imagem-help"
+                >
+                <p id="imagem-help" class="help">Upload opcional. Ao selecionar uma nova imagem, a atual sera substituida.</p>
+                <div id="imagemPreviewWrap" class="image-preview-wrap {{ $simulado->imagem_destaque_url ? 'is-visible' : '' }}" aria-live="polite">
+                    <img
+                        id="imagemPreview"
+                        class="image-preview"
+                        alt="Preview da imagem destaque do simulado"
+                        @if ($simulado->imagem_destaque_url)
+                            src="{{ $simulado->imagem_destaque_url }}"
+                        @endif
+                    >
+                </div>
+                @error('imagem_destaque')
+                    <p class="field-error">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="field">
                 <label class="label" for="visibilidade">Visibilidade</label>
                 <select id="visibilidade" name="visibilidade" class="select" required>
                     <option value="">Selecione</option>
@@ -231,6 +313,9 @@
             var form = document.getElementById('simuladoForm');
             var submitButton = document.getElementById('submitButton');
             var ignoreId = '{{ $simulado->id }}';
+            var imageInput = document.getElementById('imagem_destaque');
+            var imagePreviewWrap = document.getElementById('imagemPreviewWrap');
+            var imagePreview = document.getElementById('imagemPreview');
 
             if (!nameInput || !slugInput || !nameStatusEl || !slugStatusEl || !form || !submitButton) {
                 return;
@@ -424,7 +509,22 @@
                     form.submit();
                 });
             });
+
+            if (imageInput && imagePreviewWrap && imagePreview) {
+                imageInput.addEventListener('change', function () {
+                    var file = imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
+                    if (!file) {
+                        return;
+                    }
+
+                    var objectUrl = URL.createObjectURL(file);
+                    imagePreview.src = objectUrl;
+                    imagePreviewWrap.classList.add('is-visible');
+                    imagePreview.onload = function () {
+                        URL.revokeObjectURL(objectUrl);
+                    };
+                });
+            }
         })();
     </script>
 @endpush
-

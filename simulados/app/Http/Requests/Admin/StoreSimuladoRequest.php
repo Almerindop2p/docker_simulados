@@ -30,6 +30,7 @@ class StoreSimuladoRequest extends FormRequest
             'name' => $name,
             'slug' => Str::slug($slug !== '' ? $slug : $name),
             'visibilidade' => trim((string) $this->input('visibilidade')),
+            'descricao' => trim((string) $this->input('descricao')),
         ]);
     }
 
@@ -62,6 +63,17 @@ class StoreSimuladoRequest extends FormRequest
                 'required',
                 Rule::in(Simulado::VISIBILIDADES),
             ],
+            'descricao' => [
+                'nullable',
+                'string',
+                'max:3000',
+            ],
+            'imagem_destaque' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp,gif',
+                'max:5120',
+            ],
         ];
     }
 
@@ -84,7 +96,10 @@ class StoreSimuladoRequest extends FormRequest
             'slug.unique' => 'Esse slug ja esta em uso.',
             'visibilidade.required' => 'Selecione a visibilidade do simulado.',
             'visibilidade.in' => 'A visibilidade selecionada e invalida.',
+            'descricao.max' => 'A descricao deve ter no maximo :max caracteres.',
+            'imagem_destaque.image' => 'O arquivo de imagem destaque precisa ser uma imagem valida.',
+            'imagem_destaque.mimes' => 'Use um arquivo de imagem nos formatos: jpg, jpeg, png, webp ou gif.',
+            'imagem_destaque.max' => 'A imagem destaque deve ter no maximo 5MB.',
         ];
     }
 }
-
