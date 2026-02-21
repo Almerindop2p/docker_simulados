@@ -498,16 +498,7 @@ class SimuladoCatalogController extends Controller
 
         $alternativas = [];
         if ($questao) {
-            $alternativas = [
-                'A' => $questao->alternativa_a,
-                'B' => $questao->alternativa_b,
-                'C' => $questao->alternativa_c,
-                'D' => $questao->alternativa_d,
-            ];
-
-            if (!blank($questao->alternativa_e)) {
-                $alternativas['E'] = $questao->alternativa_e;
-            }
+            $alternativas = $questao->alternativasDisponiveis();
         }
 
         return view('simulados.question-result', [

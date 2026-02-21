@@ -165,13 +165,13 @@
                     @error('alternativa_b')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="field">
-                    <label class="label" for="alternativa_c">Alternativa C</label>
-                    <textarea id="alternativa_c" name="alternativa_c" class="textarea" required>{{ old('alternativa_c', $questao->alternativa_c) }}</textarea>
+                    <label class="label" for="alternativa_c">Alternativa C (opcional)</label>
+                    <textarea id="alternativa_c" name="alternativa_c" class="textarea">{{ old('alternativa_c', $questao->alternativa_c) }}</textarea>
                     @error('alternativa_c')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="field">
-                    <label class="label" for="alternativa_d">Alternativa D</label>
-                    <textarea id="alternativa_d" name="alternativa_d" class="textarea" required>{{ old('alternativa_d', $questao->alternativa_d) }}</textarea>
+                    <label class="label" for="alternativa_d">Alternativa D (opcional)</label>
+                    <textarea id="alternativa_d" name="alternativa_d" class="textarea">{{ old('alternativa_d', $questao->alternativa_d) }}</textarea>
                     @error('alternativa_d')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="field">

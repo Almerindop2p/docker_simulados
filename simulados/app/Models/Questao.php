@@ -89,4 +89,18 @@ class Questao extends Model
 
         return Storage::disk('public')->url($this->imagem_path);
     }
+
+    public function alternativasDisponiveis(): array
+    {
+        return collect([
+            'A' => $this->alternativa_a,
+            'B' => $this->alternativa_b,
+            'C' => $this->alternativa_c,
+            'D' => $this->alternativa_d,
+            'E' => $this->alternativa_e,
+        ])
+            ->filter(fn ($texto) => !blank($texto))
+            ->map(fn ($texto) => (string) $texto)
+            ->all();
+    }
 }
