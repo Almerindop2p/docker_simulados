@@ -390,12 +390,14 @@
                             <span>Inicio</span>
                         </a>
                     </li>
-                    <li>
-                        <a class="nav-link" href="#">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>Atividades</span>
-                        </a>
-                    </li>
+                    @if (! $isStudent)
+                        <li>
+                            <a class="nav-link" href="#">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Atividades</span>
+                            </a>
+                        </li>
+                    @endif
                     <li>
                         <a class="nav-link {{ $isProgressoRoute ? 'is-active' : '' }}" href="{{ $isAdm ? route('adm.progresso.index') : route('progresso.index') }}">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18h16M7 15V9m5 6V6m5 9v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
