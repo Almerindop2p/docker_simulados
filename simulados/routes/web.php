@@ -101,6 +101,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/configuracoes', [ConfiguracaoController::class, 'index'])->name('configuracoes.index');
         Route::patch('/configuracoes/feed', [ConfiguracaoController::class, 'updateFeedbackFeed'])->name('configuracoes.feed.update');
+        Route::patch('/configuracoes/recaptcha', [ConfiguracaoController::class, 'updateRecaptcha'])->name('configuracoes.recaptcha.update');
         Route::patch('/configuracoes/adsense', [ConfiguracaoController::class, 'updateAdsense'])->name('configuracoes.adsense.update');
         Route::patch('/configuracoes/custom-html', [ConfiguracaoController::class, 'updateCustomHtml'])->name('configuracoes.custom-html.update');
 

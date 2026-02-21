@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrar | Simulados e Questoes</title>
     @include('partials.edu-theme-head')
+    @if (!empty($recaptchaEnabled) && !empty($recaptchaSiteKey))
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
     <style>
         * { box-sizing: border-box; }
 
@@ -268,6 +271,20 @@
             color: #6b7d96;
         }
 
+        .recaptcha-wrap {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #d7e2f4;
+            border-radius: var(--radius-sm);
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .recaptcha-wrap .g-recaptcha {
+            display: inline-block;
+        }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -328,6 +345,16 @@
                         <div id="error-password" class="helper-error">@error('password'){{ $message }}@enderror</div>
                     </div>
 
+                    @if (!empty($recaptchaEnabled) && !empty($recaptchaSiteKey))
+                        <div class="field {{ $errors->has('g-recaptcha-response') ? 'has-error' : '' }}">
+                            <label>Validacao de seguranca</label>
+                            <div class="recaptcha-wrap">
+                                <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
+                            </div>
+                            <div id="error-g-recaptcha-response" class="helper-error">@error('g-recaptcha-response'){{ $message }}@enderror</div>
+                        </div>
+                    @endif
+
                     <div class="row">
                         <label class="remember" for="remember">
                             <input id="remember" name="remember" type="checkbox" value="1" {{ old('remember') ? 'checked' : '' }}>
@@ -374,7 +401,7 @@
             function clearErrors() {
                 summaryList.innerHTML = '';
                 summary.hidden = true;
-                ['email', 'password'].forEach(function (field) {
+                ['email', 'password', 'g-recaptcha-response'].forEach(function (field) {
                     var errorEl = document.getElementById('error-' + field);
                     var fieldWrap = form.querySelector('[name="' + field + '"]');
                     if (errorEl) errorEl.textContent = '';

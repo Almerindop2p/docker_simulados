@@ -108,6 +108,40 @@ class ConfiguracaoController extends Controller
             ->with('status', 'Configuracao do feed atualizada com sucesso.');
     }
 
+    public function updateRecaptcha(Request $request): RedirectResponse
+    {
+        $this->ensureAdmin($request);
+
+        $data = $request->validate(
+            [
+                'recaptcha_enabled' => ['required', 'boolean'],
+                'recaptcha_site_key' => ['nullable', 'string', 'max:60000', 'required_if:recaptcha_enabled,1'],
+                'recaptcha_secret_key' => ['nullable', 'string', 'max:60000', 'required_if:recaptcha_enabled,1'],
+            ],
+            [
+                'recaptcha_enabled.required' => 'Informe se o reCAPTCHA deve ficar ativo ou inativo.',
+                'recaptcha_enabled.boolean' => 'Valor invalido para ativacao do reCAPTCHA.',
+                'recaptcha_site_key.required_if' => 'Informe a chave publica do reCAPTCHA quando estiver ativo.',
+                'recaptcha_site_key.max' => 'A chave publica do reCAPTCHA deve ter no maximo :max caracteres.',
+                'recaptcha_secret_key.required_if' => 'Informe a chave privada do reCAPTCHA quando estiver ativo.',
+                'recaptcha_secret_key.max' => 'A chave privada do reCAPTCHA deve ter no maximo :max caracteres.',
+            ]
+        );
+
+        $recaptchaSiteKey = isset($data['recaptcha_site_key']) ? trim((string) $data['recaptcha_site_key']) : '';
+        $recaptchaSecretKey = isset($data['recaptcha_secret_key']) ? trim((string) $data['recaptcha_secret_key']) : '';
+
+        SiteConfiguration::current()->update([
+            'recaptcha_enabled' => (bool) $data['recaptcha_enabled'],
+            'recaptcha_site_key' => $recaptchaSiteKey === '' ? null : $recaptchaSiteKey,
+            'recaptcha_secret_key' => $recaptchaSecretKey === '' ? null : $recaptchaSecretKey,
+        ]);
+
+        return redirect()
+            ->route('adm.configuracoes.index')
+            ->with('status', 'Configuracoes do reCAPTCHA atualizadas com sucesso.');
+    }
+
     public function updateCustomHtml(Request $request): RedirectResponse
     {
         $this->ensureAdmin($request);

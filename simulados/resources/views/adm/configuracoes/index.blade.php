@@ -194,6 +194,9 @@
 @section('content')
     @php
         $feedbackFeedEnabled = old('feedback_feed_enabled', (int) (($siteConfig->feedback_feed_enabled ?? true) ? 1 : 0));
+        $recaptchaEnabled = old('recaptcha_enabled', (int) (($siteConfig->recaptcha_enabled ?? false) ? 1 : 0));
+        $recaptchaSiteKey = old('recaptcha_site_key', (string) ($siteConfig->recaptcha_site_key ?? ''));
+        $recaptchaSecretKey = old('recaptcha_secret_key', (string) ($siteConfig->recaptcha_secret_key ?? ''));
         $adsenseEnabled = old('adsense_enabled', (int) (($siteConfig->adsense_enabled ?? false) ? 1 : 0));
         $adsenseScript = old('adsense_head_script', (string) ($siteConfig->adsense_head_script ?? ''));
         $customHtmlCode = old('custom_html_code', (string) ($siteConfig->custom_html_code ?? ''));
@@ -272,6 +275,50 @@
 
     <section class="config-card">
         <div class="form-pane">
+            <h2 class="section-title">Configuracoes do reCAPTCHA do Google</h2>
+            <p class="hint">Ative para validar humano no cadastro. As chaves sao salvas de forma criptografada na base de dados.</p>
+
+            <form method="POST" action="{{ route('adm.configuracoes.recaptcha.update') }}">
+                @csrf
+                @method('PATCH')
+
+                <label class="label" for="recaptcha_enabled">reCAPTCHA</label>
+                <select id="recaptcha_enabled" name="recaptcha_enabled" class="file-input" required>
+                    <option value="1" @selected((string) $recaptchaEnabled === '1')>Ativo</option>
+                    <option value="0" @selected((string) $recaptchaEnabled === '0')>Inativo</option>
+                </select>
+
+                <div id="recaptchaFields" class="adsense-fields" @if((string) $recaptchaEnabled !== '1') hidden @endif>
+                    <label class="label" for="recaptcha_site_key" style="margin-top: 12px;">Site Key (publica)</label>
+                    <input
+                        id="recaptcha_site_key"
+                        name="recaptcha_site_key"
+                        type="text"
+                        class="file-input"
+                        value="{{ $recaptchaSiteKey }}"
+                        autocomplete="off"
+                    >
+
+                    <label class="label" for="recaptcha_secret_key" style="margin-top: 12px;">Secret Key (privada)</label>
+                    <input
+                        id="recaptcha_secret_key"
+                        name="recaptcha_secret_key"
+                        type="password"
+                        class="file-input"
+                        value="{{ $recaptchaSecretKey }}"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <button class="btn-primary" type="submit">Salvar reCAPTCHA</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="config-card">
+        <div class="form-pane">
             <h2 class="section-title">Configuracao de Adsense</h2>
             <p class="hint">Defina se o Adsense fica ativo. Quando ativo, o campo de script e liberado e os anuncios ativos sao exibidos no site.</p>
 
@@ -340,6 +387,8 @@
             var fileInput = document.getElementById('avatar');
             var preview = document.getElementById('avatarPreview');
             var submit = document.getElementById('submitAvatar');
+            var recaptchaEnabledSelect = document.getElementById('recaptcha_enabled');
+            var recaptchaFields = document.getElementById('recaptchaFields');
             var adsenseEnabledSelect = document.getElementById('adsense_enabled');
             var adsenseFields = document.getElementById('adsenseFields');
 
@@ -375,6 +424,12 @@
             if (adsenseEnabledSelect && adsenseFields) {
                 adsenseEnabledSelect.addEventListener('change', function () {
                     adsenseFields.hidden = adsenseEnabledSelect.value !== '1';
+                });
+            }
+
+            if (recaptchaEnabledSelect && recaptchaFields) {
+                recaptchaEnabledSelect.addEventListener('change', function () {
+                    recaptchaFields.hidden = recaptchaEnabledSelect.value !== '1';
                 });
             }
         })();

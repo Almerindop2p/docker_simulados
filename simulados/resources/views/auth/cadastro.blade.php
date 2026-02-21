@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro | Simulados e Questoes Gratuitas</title>
     @include('partials.edu-theme-head')
+    @if (!empty($recaptchaEnabled) && !empty($recaptchaSiteKey))
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
     <style>
         * {
             box-sizing: border-box;
@@ -468,6 +471,20 @@
             font-size: 12px;
         }
 
+        .recaptcha-wrap {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #d7e2f4;
+            border-radius: var(--radius-sm);
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .recaptcha-wrap .g-recaptcha {
+            display: inline-block;
+        }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -551,6 +568,9 @@
                         @if ($errors->first('password_confirmation'))
                             <li>{{ $errors->first('password_confirmation') }}</li>
                         @endif
+                        @if ($errors->first('g-recaptcha-response'))
+                            <li>{{ $errors->first('g-recaptcha-response') }}</li>
+                        @endif
                     </ul>
                 </div>
 
@@ -624,6 +644,16 @@
                             <div id="error-password_confirmation" class="helper-error">@error('password_confirmation'){{ $message }}@enderror</div>
                         </div>
 
+                        @if (!empty($recaptchaEnabled) && !empty($recaptchaSiteKey))
+                            <div class="field {{ $errors->has('g-recaptcha-response') ? 'has-error' : '' }}">
+                                <label>Validacao de seguranca</label>
+                                <div class="recaptcha-wrap">
+                                    <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
+                                </div>
+                                <div id="error-g-recaptcha-response" class="helper-error">@error('g-recaptcha-response'){{ $message }}@enderror</div>
+                            </div>
+                        @endif
+
                         <div class="step-actions">
                             <button type="button" class="btn btn-secondary" data-prev-step>Voltar</button>
                             <button id="submitBtn" class="btn btn-primary" type="submit">
@@ -689,7 +719,7 @@
             var nextBtn = form.querySelector('[data-next-step]');
             var prevBtn = form.querySelector('[data-prev-step]');
             var currentStep = Number(form.getAttribute('data-initial-step') || 1);
-            var fields = ['name', 'email', 'password', 'password_confirmation'];
+            var fields = ['name', 'email', 'password', 'password_confirmation', 'g-recaptcha-response'];
             var passwordInput = form.querySelector('#password');
             var passwordConfirmationInput = form.querySelector('#password_confirmation');
             var passwordStrengthFill = document.getElementById('password-strength-fill');
@@ -832,9 +862,15 @@
 
                     addSummaryMessage(message);
                     if (!firstField && input) firstField = input;
-                    if (field === 'password' || field === 'password_confirmation') {
+                    if (field === 'password' || field === 'password_confirmation' || field === 'g-recaptcha-response') {
                         hasStep2Error = true;
                     }
+                });
+
+                Object.keys(errors).forEach(function (field) {
+                    if (fields.indexOf(field) !== -1) return;
+                    var message = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+                    addSummaryMessage(message);
                 });
 
                 setStep(hasStep2Error ? 2 : 1);
