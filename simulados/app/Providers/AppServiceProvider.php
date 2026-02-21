@@ -17,7 +17,7 @@ use Throwable;
 class AppServiceProvider extends ServiceProvider
 {
     private const USER_CONSENT_VALID_DAYS = 7;
-    private const FEEDBACK_PROMPT_INITIAL_DELAY_MS = 60 * 60 * 1000;
+    private const FEEDBACK_PROMPT_INITIAL_DELAY_MS = 15 * 60 * 1000;
     private const FEEDBACK_PROMPT_COOLDOWN_SECONDS = 48 * 60 * 60;
     private const FEEDBACK_PROMPT_COOLDOWN_COOKIE = 'feedback_prompt_cooldown_until';
 

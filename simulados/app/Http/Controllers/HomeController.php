@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Banca;
 use App\Models\Cargo;
 use App\Models\Materia;
+use App\Models\MetaKeyword;
 use App\Models\Questao;
 use App\Models\QuestaoResposta;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
+use Throwable;
 
 class HomeController extends Controller
 {
@@ -29,6 +33,7 @@ class HomeController extends Controller
 
         $questoes = null;
         $totalResultados = null;
+        $metaKeywordsContent = null;
 
         if ($temPesquisa) {
             $query = Questao::query()
@@ -49,9 +54,10 @@ class HomeController extends Controller
 
             $questoes = $query->paginate(20)->withQueryString();
             $totalResultados = $questoes->total();
+            $metaKeywordsContent = $this->buildFilteredMetaKeywordsContent($questoes->getCollection());
         }
 
-        return view('welcome', [
+        $viewData = [
             'bancas' => $bancas,
             'cargos' => $cargos,
             'materias' => $materias,
@@ -63,7 +69,13 @@ class HomeController extends Controller
                 'cargo_id' => $cargoId,
                 'materia_id' => $materiaId,
             ],
-        ]);
+        ];
+
+        if ($metaKeywordsContent !== null) {
+            $viewData['metaKeywordsContent'] = $metaKeywordsContent;
+        }
+
+        return view('welcome', $viewData);
     }
 
     public function answer(Request $request, Questao $questao): RedirectResponse
@@ -149,5 +161,81 @@ class HomeController extends Controller
             'acertou' => $respostaEnviada === $gabarito,
             'respondida_em' => now(),
         ]);
+    }
+
+    private function buildFilteredMetaKeywordsContent(Collection $questoes): string
+    {
+        $keywords = [];
+
+        try {
+            if (Schema::hasTable('meta_keywords')) {
+                $keywords = MetaKeyword::query()
+                    ->orderBy('keyword')
+                    ->pluck('keyword')
+                    ->map(function ($keyword) {
+                        return trim((string) $keyword);
+                    })
+                    ->filter(function (string $keyword) {
+                        return $keyword !== '';
+                    })
+                    ->values()
+                    ->all();
+            }
+        } catch (Throwable) {
+            $keywords = [];
+        }
+
+        foreach ($questoes as $questao) {
+            foreach ($this->splitKeywords((string) ($questao->keywords ?? '')) as $keyword) {
+                $keywords[] = $keyword;
+            }
+        }
+
+        return $this->joinUniqueKeywords($keywords);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function splitKeywords(string $raw): array
+    {
+        if (trim($raw) === '') {
+            return [];
+        }
+
+        $parts = preg_split('/[,;\|\n\r\t]+/u', $raw) ?: [];
+
+        $keywords = [];
+        foreach ($parts as $part) {
+            $keyword = trim((string) $part);
+            if ($keyword === '') {
+                continue;
+            }
+
+            $keywords[] = $keyword;
+        }
+
+        return $keywords;
+    }
+
+    /**
+     * @param array<int, string> $keywords
+     */
+    private function joinUniqueKeywords(array $keywords): string
+    {
+        $unique = [];
+        $seen = [];
+
+        foreach ($keywords as $keyword) {
+            $normalized = mb_strtolower(trim($keyword));
+            if ($normalized === '' || isset($seen[$normalized])) {
+                continue;
+            }
+
+            $seen[$normalized] = true;
+            $unique[] = trim($keyword);
+        }
+
+        return implode(', ', $unique);
     }
 }

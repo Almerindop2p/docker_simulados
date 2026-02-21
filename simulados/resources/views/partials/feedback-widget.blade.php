@@ -2,7 +2,7 @@
     $feedbackUser = auth()->user();
     $feedbackIsLogged = (bool) $feedbackUser;
     $feedbackCurrentUrl = url()->current() . (request()->getQueryString() ? '?' . request()->getQueryString() : '');
-    $feedbackPromptInitialDelayMs = (int) ($feedbackPromptInitialDelayMs ?? (60 * 60 * 1000));
+    $feedbackPromptInitialDelayMs = (int) ($feedbackPromptInitialDelayMs ?? (15 * 60 * 1000));
     $feedbackPromptCooldownSeconds = (int) ($feedbackPromptCooldownSeconds ?? (48 * 60 * 60));
     $feedbackPromptCooldownUntilTs = max(0, (int) ($feedbackPromptCooldownUntilTs ?? 0));
     $feedbackEnabledForView = (bool) ($feedbackFeedEnabled ?? true)
@@ -283,7 +283,7 @@
             return;
         }
 
-        var autoPromptDelayMs = parseInt(root.dataset.initialDelayMs || '3600000', 10) || (60 * 60 * 1000);
+        var autoPromptDelayMs = parseInt(root.dataset.initialDelayMs || '900000', 10) || (15 * 60 * 1000);
         var promptCooldownSeconds = parseInt(root.dataset.cooldownSeconds || '172800', 10) || (48 * 60 * 60);
         var serverCooldownUntilTs = parseInt(root.dataset.serverCooldownUntil || '0', 10) || 0;
         var dismissUrl = root.dataset.dismissUrl || '';
