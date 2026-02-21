@@ -33,4 +33,7 @@
 @if (!empty($adsenseHeadScript))
     {!! $adsenseHeadScript !!}
 @endif
+@if (!empty($customHeadHtml))
+    {!! $customHeadHtml !!}
+@endif
 @include('partials.lgpd-metrics-consent')

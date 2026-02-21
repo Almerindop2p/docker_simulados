@@ -108,6 +108,30 @@ class ConfiguracaoController extends Controller
             ->with('status', 'Configuracao do feed atualizada com sucesso.');
     }
 
+    public function updateCustomHtml(Request $request): RedirectResponse
+    {
+        $this->ensureAdmin($request);
+
+        $data = $request->validate(
+            [
+                'custom_html_code' => ['nullable', 'string', 'max:500000'],
+            ],
+            [
+                'custom_html_code.max' => 'O codigo HTML deve ter no maximo :max caracteres.',
+            ]
+        );
+
+        $customHtmlCode = isset($data['custom_html_code']) ? trim((string) $data['custom_html_code']) : '';
+
+        SiteConfiguration::current()->update([
+            'custom_html_code' => $customHtmlCode === '' ? null : $customHtmlCode,
+        ]);
+
+        return redirect()
+            ->route('adm.configuracoes.index')
+            ->with('status', 'Codigo HTML personalizado atualizado com sucesso.');
+    }
+
     private function ensureAdmin(Request $request): void
     {
         abort_unless($request->user()?->user_type === User::TYPE_ADM, 403);

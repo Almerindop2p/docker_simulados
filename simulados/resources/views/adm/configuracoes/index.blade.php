@@ -196,6 +196,7 @@
         $feedbackFeedEnabled = old('feedback_feed_enabled', (int) (($siteConfig->feedback_feed_enabled ?? true) ? 1 : 0));
         $adsenseEnabled = old('adsense_enabled', (int) (($siteConfig->adsense_enabled ?? false) ? 1 : 0));
         $adsenseScript = old('adsense_head_script', (string) ($siteConfig->adsense_head_script ?? ''));
+        $customHtmlCode = old('custom_html_code', (string) ($siteConfig->custom_html_code ?? ''));
     @endphp
 
     @if (session('status'))
@@ -306,6 +307,30 @@
                     <a class="btn-primary" href="{{ route('adm.anuncios.index') }}">Gerenciar formatos de anuncios</a>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section class="config-card">
+        <div class="form-pane">
+            <h2 class="section-title">Codigo HTML personalizado</h2>
+            <p class="hint">Cole abaixo um codigo HTML longo para manter salvo na base de dados.</p>
+
+            <form method="POST" action="{{ route('adm.configuracoes.custom-html.update') }}">
+                @csrf
+                @method('PATCH')
+
+                <label class="label" for="custom_html_code">Codigo HTML</label>
+                <textarea
+                    id="custom_html_code"
+                    name="custom_html_code"
+                    class="code-input"
+                    placeholder="<div>Seu codigo HTML personalizado</div>"
+                >{{ $customHtmlCode }}</textarea>
+
+                <div style="margin-top: 12px;">
+                    <button class="btn-primary" type="submit">Salvar codigo HTML</button>
+                </div>
+            </form>
         </div>
     </section>
 

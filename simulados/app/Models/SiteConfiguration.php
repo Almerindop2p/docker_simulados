@@ -12,6 +12,7 @@ class SiteConfiguration extends Model
         'adsense_enabled',
         'feedback_feed_enabled',
         'adsense_head_script',
+        'custom_html_code',
     ];
 
     protected $casts = [
@@ -27,6 +28,7 @@ class SiteConfiguration extends Model
                 'adsense_enabled' => false,
                 'feedback_feed_enabled' => true,
                 'adsense_head_script' => null,
+                'custom_html_code' => null,
             ]
         );
     }
