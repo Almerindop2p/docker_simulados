@@ -4,120 +4,10 @@ Arquivo de contexto operacional para continuidade entre tarefas.
 Limite maximo: 80000 caracteres (janela deslizante).
 
 <!-- CONTEXT_START -->
-### 2026-02-17T01:12:35Z
-
-Confirmado ao usuario que codex_context.md esta em uso: leitura via script executada nesta tarefa e historico com entradas recentes de append em 2026-02-16.
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
----
 ### 2026-02-17T02:25:02Z
 
 Modulo ADM de Instituicoes criado no padrao de Bancas: migration create_instituicoes_table, model Instituicao, StoreInstituicaoRequest, InstituicaoController, views adm/instituicoes (index/create/edit), rotas adm.instituicoes.*, e submenu Instituicao no layout admin-panel. Validado com php -l, route:list --path=instituicoes, migrate --force (migration aplicada) e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -334,9 +224,11 @@ Confirmacao da base de dados via Docker: tabela instituicoes existe (Schema::has
 ---
 ---
 ---
+---
 ### 2026-02-17T02:29:31Z
 
 Verificado pedido de exibicao apenas para ADM: rotas /adm/instituicoes confirmadas com middlewares web+auth+profile:adm (route:list -v). Links no menu admin-panel ficam dentro de @if(isAdm). Nenhuma alteracao adicional necessaria.
+---
 ---
 ---
 ---
@@ -549,9 +441,11 @@ Corrigido erro 500 em /adm/instituicoes por pluralizacao Eloquent: App\\Models\\
 ---
 ---
 ---
+---
 ### 2026-02-17T02:43:15Z
 
 Modulo de questoes integrado com Instituicoes: migration 2026_02_17_021000 adicionou questoes.instituicao_id (FK+indice), Questao model/request/controller atualizados para validar/salvar/filtrar e gerar keywords com instituicao. Views adm/questoes create/edit ganharam select de instituicao e index exibicao/filtro. Validado com php -l, migrate --force, tinker (hasColumn=true) e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -760,9 +654,11 @@ Rota /adm/questoes/adicionar recebeu upload de imagem antes do enunciado com pre
 ---
 ---
 ---
+---
 ### 2026-02-17T03:28:56Z
 
 Ajustada rota /adm/questoes/editar/{id} para mesma regra de imagem da criacao: form com multipart/form-data, campo imagem com validacao ja existente, exibicao da imagem atual (quando houver) e preview dinamica ao selecionar novo arquivo. Mantido fallback para imagem atual se nenhum novo arquivo for escolhido. Validado com php -l e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -967,9 +863,11 @@ Filtro publico da home ajustado para exibir instituicao antes do enunciado nas q
 ---
 ---
 ---
+---
 ### 2026-02-17T03:38:53Z
 
 Enunciado da questao centralizado na home de pesquisa: classe .question-text em welcome.blade.php recebeu text-align:center. Validado no Docker com php artisan view:cache.
+---
 ---
 ---
 ---
@@ -1170,9 +1068,11 @@ Desfeita a centralizacao do enunciado na home: .question-text em welcome.blade.p
 ---
 ---
 ---
+---
 ### 2026-02-17T04:16:22Z
 
 Home de pesquisa atualizada para exibir imagem da questao (quando houver imagem vinculada) com renderizacao condicional em welcome.blade.php. Imagem centralizada no card via .question-image-wrap e responsiva via .question-image (max-width 760px). Validado no Docker com php artisan view:cache.
+---
 ---
 ---
 ---
@@ -1369,9 +1269,11 @@ Ajustado texto do enunciado na home para ficar justificado e com respiro lateral
 ---
 ---
 ---
+---
 ### 2026-02-17T04:24:03Z
 
 Home de pesquisa: enunciado reorganizado visualmente para evitar texto colado na esquerda. Em welcome.blade.php, h3/instituicao/enunciado agora usam largura centralizada (min(760px,100%)); enunciado manteve justify com text-align-last:left, hyphens:auto, overflow-wrap:anywhere e padding-inline ampliado. Validado no Docker com php artisan view:cache.
+---
 ---
 ---
 ---
@@ -1564,9 +1466,11 @@ Desfeitas alteracoes de formato do enunciado na home de pesquisa. Em welcome.bla
 ---
 ---
 ---
+---
 ### 2026-02-17T16:36:11Z
 
 Mapeadas 47 rotas com classificacao UI vs acao/API e gerado docs/mapa-rotas-responsividade.md com status de responsividade por rota. Reforco global aplicado em layouts/admin-panel.blade.php para responsividade (img/campos/tabelas em .content). Validado com docker compose exec app php artisan route:list --json e view:cache.
+---
 ---
 ---
 ---
@@ -1755,9 +1659,11 @@ Implementado feedback beta com icone flutuante estilo WhatsApp em todas as telas
 ---
 ---
 ---
+---
 ### 2026-02-17T17:07:43Z
 
 Corrigido comportamento do widget de feedback: botao X agora fecha de forma consistente e minimiza o painel; reabertura pelo icone com animacao de entrada/saida a partir do proprio FAB (feedback-panel com classe is-open, transform-origin no canto do icone e transicao). Alteracao centralizada em partial compartilhada, valendo para todas as rotas nao-ADM. Validado com docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -1942,9 +1848,11 @@ Adicionado icone de notificacoes ao lado do avatar em todos os paineis (welcome 
 ---
 ---
 ---
+---
 ### 2026-02-17T18:15:28Z
 
 Implementado fluxo completo de notificacoes ADM para feedback: criada tabela admin_notifications com read_at/reference_key, model AdminNotification, geracao automatica de notificacao de ticket no FeedbackTicketController para todos os admins e mensagem diaria padrao do sistema no HeaderNotifications. Icone de notificacoes agora mostra quantidade nao visualizada para ADM, abre modal para notificacao de sistema e redireciona para ticket para notificacao de usuario. Criadas rotas/controllers ADM para abrir e marcar notificacoes (adm.notificacoes.*) e novo modulo Tickets no painel (lista e detalhe) com views adm/tickets e item Tickets no menu lateral visivel apenas para ADM em admin-panel, area_aluno e perfil. Validado com php -l, migrate --force (migration 2026_02_17_181000 aplicada), view:cache e route:list para tickets/notificacoes.
+---
 ---
 ---
 ---
@@ -2125,9 +2033,11 @@ Corrigido bug do modal de notificacoes abrindo sozinho: no partial header-notifi
 ---
 ---
 ---
+---
 ### 2026-02-17T18:36:19Z
 
 Ajustado contador de notificacoes para diminuir ao clicar em cada item visualizado. No partial header-notifications, notificacoes agora marcam como lidas de forma otimista (remove classe is-unread e recalcula badge imediatamente), com sincronizacao posterior pelo unread_count retornado da API. Tambem aplicado no clique de notificacao tipo link (ticket) antes do redirecionamento. View recompilada no Docker com view:cache.
+---
 ---
 ---
 ---
@@ -2304,9 +2214,11 @@ Implementado refresh em segundo plano do sino de notificacoes sem recarregar pag
 ---
 ---
 ---
+---
 ### 2026-02-17T19:06:23Z
 
 Rota /adm/tickets/{id} atualizada para permitir edicao de atendimento pelo ADM: adicionado PATCH adm.tickets.update no TicketController com validacao de status (aberto, pendente, processando, concluido) e campo observacao_admin (textarea ate 5000). Criada migration 2026_02_17_191000_add_observacao_admin_to_feedback_tickets_table para nova coluna observacao_admin. Views de tickets (show/index) atualizadas com select de status, textarea de observacao e badges para novos status. FeedbackTicket model ganhou constantes de status e fillable observacao_admin. Validado com php -l, migrate --force, route:list --path=adm/tickets e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -2479,9 +2391,11 @@ Removidos dos paineis os itens de menu Meus Cursos, Certificados e Suporte em ar
 ---
 ---
 ---
+---
 ### 2026-02-17T19:17:26Z
 
 Ajustado redirecionamento apos atualizar ticket: TicketController@update agora redireciona para adm.tickets.index (lista) em vez de adm.tickets.show, mantendo mensagem de sucesso. Sintaxe PHP validada.
+---
 ---
 ---
 ---
@@ -2650,9 +2564,11 @@ Adicionado loading visual no envio do formulario de atualizacao de ticket em /ad
 ---
 ---
 ---
+---
 ### 2026-02-17T19:27:45Z
 
 Widget de feedback ajustado: botao de envio agora mostra loading visivel (spinner + texto 'Enviando...') durante envio AJAX, alem de desabilitar/reabilitar corretamente. Alteracao em resources/views/partials/feedback-widget.blade.php e validacao no Docker com php artisan view:cache.
+---
 ---
 ---
 ---
@@ -2817,9 +2733,11 @@ Notificacoes ajustadas para usuarios nao-ADM: criada persistencia de leitura por
 ---
 ---
 ---
+---
 ### 2026-02-17T19:55:21Z
 
 Notificacoes: ajuste visual global no partial header-notifications para que somente itens nao lidos fiquem destacados. Itens lidos agora usam fundo branco padrao; cores warning/success/danger aplicam apenas com classe is-unread. Comportamento vale para todos os perfis (adm, colaborador, user, assinante). Validado no Docker com php artisan view:cache.
+---
 ---
 ---
 ---
@@ -2980,9 +2898,11 @@ Icone de notificacoes ajustado para todos os usuarios: botao ao lado do avatar a
 ---
 ---
 ---
+---
 ### 2026-02-17T20:09:10Z
 
 Notificacoes com tempo relativo curto implementado: HeaderNotifications agora envia created_at como 1s/min/h/d/mes/a. Para ADM, created_at do banco passou para relativo; para demais perfis, itens sem timestamp usam fallback inferido (data no notificationKey ou agora) e exibem meta temporal no dropdown. Validado com php -l (local e docker) e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -3139,9 +3059,11 @@ Implementado plano de correção das notificações: HeaderNotifications agora u
 ---
 ---
 ---
+---
 ### 2026-02-17T20:56:01Z
 
 Modulo ADM de Simulados implementado no padrao de Bancas: migration create_simulados_table (name/slug unicos + visibilidade), model Simulado com opcoes de visibilidade, StoreSimuladoRequest com slug auto/regex/unicidade e visibilidade obrigatoria, SimuladoController com CRUD + check-name/check-field, views adm/simulados (index/create/edit) com validacao AJAX de nome/slug e listagem com editar/excluir. Rotas adm.simulados.* adicionadas e submenu Simulados incluido no menu ADM de admin-panel, area_aluno e perfil (somente em @if isAdm). Validado no Docker com migrate --force, route:list --path=adm/simulados e view:cache.
+---
 ---
 ---
 ---
@@ -3294,9 +3216,11 @@ Vinculo de simulados em questoes implementado: migration add_simulado_id_to_ques
 ---
 ---
 ---
+---
 ### 2026-02-17T22:35:11Z
 
 Exclusao em /adm/questoes reforcada contra inconsistencias: QuestaoController@destroy agora usa transacao (detach cargos + delete), trata QueryException com mensagem amigavel e apaga imagem apenas apos delete confirmado. Validado com php -l, consulta de FKs (cargo_questao CASCADE e questao_respostas SET NULL) e teste pratico no Docker retornando QUESTAO_EXISTS=0;PIVOT=0;RESPOSTA_QUESTAO_ID=NULL.
+---
 ---
 ---
 ---
@@ -3445,9 +3369,11 @@ Rota publica de questoes (/?banca_id&cargo_id&materia_id) ajustada: apos respond
 ---
 ---
 ---
+---
 ### 2026-02-17T23:19:40Z
 
 Corrigido bug do botao de comentario para usuario anonimo na rota de filtro publica: em welcome.blade.php o script nao retorna mais quando nao ha avatar; menu de avatar foi encapsulado em condicao e a inicializacao de [data-comment-toggle] agora roda para todos (logado e visitante). Validado com docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -3592,9 +3518,11 @@ Novo modulo de Progresso para user/user_assinante implementado: rotas protegidas
 ---
 ---
 ---
+---
 ### 2026-02-17T23:55:45Z
 
 Notificacoes de pratica removidas para user/user_assinante: HeaderNotifications agora chama buildStudentCore(..., false) nesses perfis, evitando itens 'Seu ritmo hoje' e 'Historico de pratica' no sino. Dados migrados para cards da /area_aluno e /area_assinante via novo StudentDashboardController (respostas_hoje e total_respostas de questao_respostas). Rotas area_aluno/area_assinante passaram a controller e area_aluno.blade ganhou 2 cards com essas informacoes. Validado com php -l, route:list --path=area_ e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -3735,9 +3663,11 @@ Rota /progresso/respostas/{id} atualizada para exibir comentario da questao quan
 ---
 ---
 ---
+---
 ### 2026-02-18T00:00:24Z
 
 View de detalhe do progresso ajustada: em /progresso/respostas/{id}, o card 'Comentario da resposta' foi movido para depois do bloco de alternativas, mantendo exibicao condicional apenas quando questao.explicacao existir. Validado com php -l e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -3874,9 +3804,11 @@ Removidas notificacoes recorrentes do aluno em HeaderNotifications: excluidos it
 ---
 ---
 ---
+---
 ### 2026-02-18T00:10:06Z
 
 Rota /progresso: grafico de pizza atualizado para usar acertos em azul e erros em vermelho via conic-gradient, corrigindo caso de 100% erros (circulo totalmente vermelho) e 100% acertos (totalmente azul). Periodos sem dados usam fallback neutro. Validado com php -l em progresso/index.blade.php e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -4009,9 +3941,11 @@ Rota principal (/): adicionado menu superior com Inicio, Redacao (desabilitado) 
 ---
 ---
 ---
+---
 ### 2026-02-18T00:20:03Z
 
 Criada view publica separada de simulados com busca por texto (nome/slug) no mesmo padrao visual da home: nova rota GET /simulados (simulados.public), novo SimuladoCatalogController com filtro por visibilidade e paginação, e menu principal da home atualizado para apontar para Simulados. Validado com php -l, route:list --path=simulados e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -4140,9 +4074,11 @@ Modulo publico de simulados expandido: /simulados agora pesquisa com max 20 por 
 ---
 ---
 ---
+---
 ### 2026-02-18T00:45:19Z
 
 Ajuste visual em /simulados: botao Realizar/Continuar ficou mais largo (min-width 150px) e alinhado a direita no card da listagem via CSS em resources/views/simulados/index.blade.php. Validado com php -l e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -4267,9 +4203,11 @@ Rota /simulados/{id}/resultado aprimorada: para usuario logado (user/user_assina
 ---
 ---
 ---
+---
 ### 2026-02-18T01:07:18Z
 
 Ajuste de layout em /simulados/{id}/resultado: removido breakpoint que dividia tabelas em 2 colunas; agora erros e acertos permanecem sempre uma abaixo da outra (stack vertical). Validado com php -l em resources/views/simulados/result.blade.php e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -4390,9 +4328,11 @@ Corrigidas cores invertidas do grafico/legenda em /simulados/{id}/resultado: ace
 ---
 ---
 ---
+---
 ### 2026-02-18T01:23:06Z
 
 Implementado modulo 'Meus Simulados' para user/user_assinante: nova rota GET /meus-simulados (meus-simulados.index), novo MeusSimuladosController listando tentativas em andamento/finalizadas com paginacao e botao 'Ver resultado' para /simulados/{simulado}/resultado?attempt={id}. Adicionado item de menu 'Meus Simulados' nos paineis/layouts (area_aluno, perfil e admin-panel apenas para tipos user/user_assinante). Nova view resources/views/simulados/my-index.blade.php com tabela contendo ID tentativa, ID simulado, nome, status e acao. Validado com php -l, route:list --path=meus-simulados e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -4509,9 +4449,11 @@ Rota /progresso ajustada para manter tabelas de acertos e erros sempre empilhada
 ---
 ---
 ---
+---
 ### 2026-02-18T01:29:00Z
 
 Rota /progresso com graficos de pizza significativamente maiores: pie alterado para clamp(132px,18vw,180px), miolo e fonte central ampliados, legenda levemente maior e cards de periodo ajustados para minmax(280px). Em mobile, pie-wrap agora empilha para manter leitura. Validado com php -l e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -4624,9 +4566,11 @@ Card 'Desempenho' da area do aluno/assinante agora usa dados reais de questao_re
 ---
 ---
 ---
+---
 ### 2026-02-18T01:37:44Z
 
 Card 'Progresso geral' em /area_aluno e /area_assinante substituido por dados reais: StudentDashboardController agora calcula percentual de progresso com base em questoes unicas respondidas (questao_respostas distinct questao_id) sobre total de questoes cadastradas (questoes). area_aluno.blade.php passou a exibir progresso_geral_percent e progresso_geral_resumo dinamicos no lugar de 65%/3 modulos fixos. Validado com php -l e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -4735,9 +4679,11 @@ Card 'Atividades pendentes' em /area_aluno e /area_assinante agora usa dados rea
 ---
 ---
 ---
+---
 ### 2026-02-18T01:45:59Z
 
 Card 'Proxima aula' em /area_aluno e /area_assinante agora usa dados reais e assincronos: StudentDashboardController ganhou endpoint JSON GET /dashboard/proxima-aula (dashboard.next-lesson) para user/user_assinante, recomendando materia com maior pendencia (questoes por materia menos questoes unicas respondidas) e texto dinamico com horario sugerido. area_aluno.blade.php foi atualizada com fallback inicial e fetch periodico (60s) no card 'Proxima aula'. Validado com php -l, route:list --path=dashboard/proxima-aula e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -4842,9 +4788,11 @@ Bloco hero 'Continuar de onde voce parou' em /area_aluno e /area_assinante agora
 ---
 ---
 ---
+---
 ### 2026-02-18T01:55:47Z
 
 Ajustado texto do dashboard user/user_assinante para copia curta focada em simulados (StudentDashboardController buildDesempenhoResumo e buildContinuarEstudoData), removidas mencoes a ENEM nos paineis area_aluno/perfil/admin-panel, e validado com php -l + docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -4945,9 +4893,11 @@ Removido card 'Proxima aula' de /area_aluno e /area_assinante (view compartilhad
 ---
 ---
 ---
+---
 ### 2026-02-18T02:04:04Z
 
 Alterado titulo do bloco hero em /area_aluno e /area_assinante (view compartilhada area_aluno.blade.php) de 'Continuar de onde voce parou' para 'Veja o historico de progresso'. Validado com docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -5044,9 +4994,11 @@ Ajustado titulo do hero em area_aluno/area_assinante para usar acento: 'Veja o h
 ---
 ---
 ---
+---
 ### 2026-02-18T02:18:42Z
 
 Criada rota exclusiva de progresso para ADM (/adm/progresso, adm.progresso.index) com novo Admin\ProgressController e view adm/progresso/index exibindo apenas graficos de pizza agregados de todos os usuarios (questao_respostas). Mantida rota /progresso para user/user_assinante. Menus de Progresso ajustados em layouts/admin-panel e perfil para direcionar ADM à nova rota. Validado com php -l, route:list --path=progresso e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -5139,9 +5091,11 @@ Separada configuracao do ADM em rota exclusiva: GET /adm/configuracoes (adm.conf
 ---
 ---
 ---
+---
 ### 2026-02-18T02:32:25Z
 
 Implementada configuracao de Adsense na rota /adm/configuracoes: novos campos adsense_enabled (ativo/inativo) e adsense_head_script (script para head) com salvamento no banco. Criada migration create_site_configurations_table e model SiteConfiguration (singleton). Adicionada rota PATCH /adm/configuracoes/adsense e metodo updateAdsense no Admin\ConfiguracaoController. Script salvo passou a ser injetado no head quando ativo via AppServiceProvider + partial edu-theme-head. Validado com php -l, migrate --force, route:list --path=configuracoes e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -5230,9 +5184,11 @@ Adsense global responsivo implementado em todas as views base do sistema: criado
 ---
 ---
 ---
+---
 ### 2026-02-18T03:03:59Z
 
 Ajustado visual dos slots de Adsense para area cinza com borda tracejada e placeholders de posicao (horizontal/vertical) no partial adsense-placements. Slots agora aparecem quando adsense_enabled=true mesmo sem codigo, para facilitar visualizacao de espaco de anuncio. Recompilado com php artisan view:cache no Docker.
+---
 ---
 ---
 ---
@@ -5317,9 +5273,11 @@ Ajustado adsense lateral para nao flutuante: partial adsense-placements trocado 
 ---
 ---
 ---
+---
 ### 2026-02-18T03:10:19Z
 
 Home ajustada para novos pontos de anuncio: adicionado slot responsivo apos o filtro de pesquisa e slots entre questoes (a cada 2 itens) em welcome.blade, usando adsenseHorizontalCode quando existir e placeholder cinza quando vazio. Validado com php -l e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -5400,9 +5358,11 @@ Rota /simulados/{id}/realizar ajustada: adicionado slot de anuncio inline antes 
 ---
 ---
 ---
+---
 ### 2026-02-18T22:07:19Z
 
 Ajuste visual na rota de resultado de simulados: adicionado espacamento superior na secao de tabelas (tables-grid margin-top) e no botao da coluna Acao (btn-soft margin-top). Texto do botao alterado de 'Ver' para 'Ver resposta'. Validado com php -l e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -5479,9 +5439,11 @@ Rota /simulados/{id}/realizar: corrigido espacamento do botao Proximo/Voltar/Fin
 ---
 ---
 ---
+---
 ### 2026-02-18T22:14:46Z
 
 Rota /simulados/{id}/resultado atualizada: adicionado anuncio vertical inline antes do card 'Resultado final do simulado' em simulados/result.blade.php, exibindo adsenseVerticalCode quando ativo e placeholder cinza quando sem codigo. Validado com php -l e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -5554,9 +5516,11 @@ Ajustado anuncio vertical na rota /simulados/{id}/resultado para formato realmen
 ---
 ---
 ---
+---
 ### 2026-02-18T22:19:22Z
 
 Rota /simulados/{id}/resultado corrigida para anuncio horizontal antes do card principal: bloco passou a usar adsenseHorizontalCode e dimensoes horizontais (width ate 960px, altura minima 96px) com placeholder horizontal. Validado com php -l e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -5625,9 +5589,11 @@ Implementado modulo ADM de anuncios com CRUD completo (rotas /adm/anuncios, cont
 ---
 ---
 ---
+---
 ### 2026-02-18T22:42:13Z
 
 Padronizada exibicao de anuncios por formato em todas as views com slot: criado partial reutilizavel partials/ad-slot que verifica adsense_enabled, busca codigo pelo formato em adsenseFormatCodes e renderiza placeholder/codigo. Home, simulados/play, simulados/result e partial global adsense-placements migrados para esse fluxo automatico. AppServiceProvider ajustado para montar mapa de codigos ativos por formato a partir de ad_posts (sem hardcode de formatos na consulta). Validado com php -l e docker compose exec app php artisan view:cache.
+---
 ---
 ---
 ---
@@ -5692,9 +5658,11 @@ Respondida duvida tecnica sobre captura de contexto do visitante (IP, user-agent
 ---
 ---
 ---
+---
 ### 2026-02-19T02:05:14Z
 
 Implementada camada LGPD de metricas global. Criadas tabelas user_metric_consents (consentimento do usuario logado em DB) e route_metrics (captura de metricas por rota). Adicionados Models, services de parse de user-agent e geolocalizacao por IP com cache, e controller MetricsConsentController com endpoints POST /lgpd/consentimento-metricas e POST /lgpd/metricas. Barra inferior de consentimento adicionada globalmente via partial no head, exibida para logado e anonimo; logado salva consentimento na base, anonimo salva em cookie. Coleta em segundo plano ocorre 5s apos load em todas as paginas/paineis, enviando rota/url/referrer/viewport/timezone/language e backend agrega IP, browser, device e localizacao aproximada. Validado com migrate --force, route:list --path=lgpd e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -5755,9 +5723,11 @@ Ajuste LGPD solicitado: usuario ADM nao recebe mais barra de consentimento e nao
 ---
 ---
 ---
+---
 ### 2026-02-19T02:22:28Z
 
 Reforco final da regra LGPD para ADM: partial lgpd-metrics-consent agora checa diretamente auth()->user()->user_type e desativa renderizacao quando for adm, independentemente de variavel compartilhada. Executado view:clear e view:cache no Docker para garantir aplicacao imediata.
+---
 ---
 ---
 ---
@@ -5814,9 +5784,11 @@ Ajustada politica de consentimento LGPD conforme solicitado: anonimo agora receb
 ---
 ---
 ---
+---
 ### 2026-02-19T02:37:36Z
 
 Implementado vinculo de consentimento anonimo ao usuario no login. LoginController agora, apos autenticar, verifica cookie lgpd_metrics_consent para usuarios nao-ADM; se presente, cria/atualiza user_metric_consents com granted_at e dados disponiveis, e reatribui route_metrics anonimas recentes (janela 48h, matching por IP/user-agent) para user_id autenticado, mudando consent_mode para user. Incluido safeguard para nao reatribuir metricas em massa quando nao ha sinais de identidade (IP/UA). Validado com php -l, route:list --path=login e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -5869,9 +5841,11 @@ Corrigido reaparecimento indevido da barra LGPD para anonimo em todas as rotas. 
 ---
 ---
 ---
+---
 ### 2026-02-19T02:55:20Z
 
 Implementada segunda parte de metricas com relacao por pagina/pais/usuario reaproveitando route_metrics. Adicionadas colunas em route_metrics (anonymous_id, visitor_key, device_model) e criada tabela agregada page_visit_counters para contagem incremental de visitas por visitante+pagina+localizacao (visits_count, first/last_visited_at). MetricsConsentController agora usa cookie de visitante anonimo (lgpd_metrics_visitor), salva visitor_key em route_metrics, captura model code quando disponivel e atualiza page_visit_counters a cada visita de pagina apos consentimento. LoginController passou a vincular dados anonimos ao usuario logado usando anonymous_id (route_metrics e page_visit_counters), alem do consentimento. User model recebeu relacoes routeMetrics e pageVisitCounters. Validado com php -l, migrate --force e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -5920,9 +5894,11 @@ Refinada consistencia da agregacao de visualizacoes: contador page_visit_counter
 ---
 ---
 ---
+---
 ### 2026-02-19T03:17:10Z
 
 Implementado suporte completo a bandeiras por pais em metricas. Adicionado country_code (ISO-2) nas tabelas route_metrics, page_visit_counters e user_metric_consents via migration 2026_02_19_040000. GeoIpLookup agora captura country_code do provedor de IP. MetricsConsentController e LoginController atualizados para persistir country_code no consentimento e nas metricas detalhadas/agregadas. Criado helper CountryFlagIcon + trait HasCountryFlagIcon para retornar country_flag_url com fallback local. Models RouteMetric, PageVisitCounter e UserMetricConsent agora expõem acessores de bandeira. Criada estrutura local de icones em public/assets/flags com _default.svg e README para pacote ISO-2 (br.svg, us.svg etc.). Validado com php -l, migrate --force e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -5967,9 +5943,11 @@ Verificacao solicitada de metricas na tabela route_metrics: colunas de localizac
 ---
 ---
 ---
+---
 ### 2026-02-19T17:04:16Z
 
 Criada rota/admin inicio (/adm/inicio) com Admin\InicioController e view adm/inicio/index exibindo cards de metricas (inclui total de visualizacoes de route_metrics). Menu/link Inicio do ADM ajustado para nova rota e redirecionamentos de adm (login/middleware/bootstrap) atualizados para /adm/inicio. Validado com route:list adm/inicio e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -6010,9 +5988,11 @@ ADM inicio atualizado para dados reais/dinamicos: InicioController agora agrega 
 ---
 ---
 ---
+---
 ### 2026-02-19T17:15:44Z
 
 Rota /adm/inicio ajustada para carregamento 100% assincrono: index nao consulta mais metricas no servidor (sem preload estatico), view inicia com placeholders e preenche via AJAX no endpoint /adm/inicio/metricas apos window load, com atualizacao recorrente a cada 15s. Validado com php -l e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -6049,9 +6029,11 @@ Ajustada captura de visualizacoes para registrar entrada em toda rota (exceto AD
 ---
 ---
 ---
+---
 ### 2026-02-19T22:47:44Z
 
 Dashboard de metricas do ADM (/adm/inicio) expandido com analiticos assincronos: novo endpoint GET /adm/inicio/metricas/detalhes com agregacoes reais de route_metrics/page_visit_counters/user_metric_consents. Implementados grafico de pizza de navegadores (Chrome/Firefox/Opera/Demais), mapa 2D simplificado com pontos por pais (lat/lon + fallback), listas de paises e regioes, e tabela de 50 acessos recentes com IP/usuario/rota/pagina/dispositivo/consent_mode. View adm/inicio/index agora carrega tudo via fetch em segundo plano (summary 15s, detalhes 30s). Incluido card de consentimentos ativos (7 dias) baseado em user_metric_consents. Validado com php -l, route:list adm/inicio, view:cache e migrate:status no Docker.
+---
 ---
 ---
 ---
@@ -6084,9 +6066,11 @@ Painel ADM /adm/inicio ajustado para navegadores: adicionado bucket Edge na dist
 ---
 ---
 ---
+---
 ### 2026-02-19T22:58:58Z
 
 Rota /adm/inicio recebeu estado visual de carregamento: adicionado loader com spinner (status bar) e efeito de fade/skeleton nos blocos de resumo, graficos e tabela enquanto os fetch assíncronos iniciais rodam. JS agora controla begin/end loading por requisicao, exibindo mensagens de carregamento/atualizacao e removendo o estado ao concluir. Atualizacoes periodicas continuam funcionando (15s resumo, 30s detalhes). Validado com view:cache no Docker.
+---
 ---
 ---
 ---
@@ -6115,9 +6099,11 @@ Rota /adm/configuracoes atualizada com campo obrigatorio Feed de feedback (ativo
 ---
 ---
 ---
+---
 ### 2026-02-20T01:56:10Z
 
 /adm/configuracoes ajustada para separar Feed e Adsense em cards distintos. Criada rota PATCH adm/configuracoes/feed (adm.configuracoes.feed.update) e novo metodo ConfiguracaoController@updateFeedbackFeed com validacao obrigatoria de feedback_feed_enabled. updateAdsense passou a salvar apenas configuracoes de adsense. View adm/configuracoes/index agora possui formulario proprio para Feed e formulario separado para Adsense. Validado com php -l, route:list --path=configuracoes e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -6142,9 +6128,11 @@ Home/filtro integrado ao feed de feedback ativo. HomeController agora conta resp
 ---
 ---
 ---
+---
 ### 2026-02-20T02:28:58Z
 
 Ajustada regra do modal de feedback na home/filtro para exibir em todos os multiplos de 5 respostas (5,10,15...). HomeController::trackFeedbackPromptCounter agora dispara flash feedback_prompt_modal quando home_feedback_answer_count % 5 == 0, removendo bloqueio de exibicao unica. Validado com php -l e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -6165,9 +6153,11 @@ Confirmada regra do modal de feedback na home/filtro: exibicao ocorre somente co
 ---
 ---
 ---
+---
 ### 2026-02-20T02:36:24Z
 
 Regra de modal de feedback replicada no fluxo de simulados (/simulados/{id}/realizar). SimuladoCatalogController agora contabiliza questoes respondidas (logado via tentativa_respostas, anonimo via state.a) e dispara simulado_feedback_prompt_modal em todos os multiplos de 5, somente se feedback_feed_enabled estiver ativo e usuario nao for ADM; controle de marcos por sessao (simulado_feedback_prompt_milestones) evita repeticao do mesmo marco por tentativa/guest-simulado. play.blade recebeu modal de feedback com AJAX para feedback.tickets.store (mesmo fluxo de tickets/notificacao ADM), abertura automatica por flash, fechamento por X/backdrop/Esc e mensagens de envio/erro. Validado com php -l e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -6184,9 +6174,11 @@ Reforcada regra de reexibicao do banner LGPD em todas as rotas: MetricsConsentCo
 ---
 ---
 ---
+---
 ### 2026-02-20T03:01:18Z
 
 Atendida solicitacao de LGPD: removidas alteracoes no fluxo do botao Autorizar. Revertido MetricsConsentController e AppServiceProvider para nao usar cookie de validade no aceitar. Implementada regra de reexibicao exclusivamente no botao Agora nao no partial lgpd-metrics-consent: ao clicar, grava janela de supressao 48h (anonimo) ou 7 dias (logado) em cookie JS (lgpd_metrics_dismiss_until) + localStorage, e o banner so renderiza novamente apos expirar. Validado com php -l e view:cache no Docker.
+---
 ---
 ---
 ---
@@ -6199,9 +6191,11 @@ Banner LGPD: alterado somente o TTL do botao 'Agora nao' para 7 dias tambem para
 ---
 ---
 ---
+---
 ### 2026-02-20T16:59:39Z
 
 Feedback: removido gatilho por 5 questoes e aplicada solicitacao global por tempo no widget (abre apos 51 min na pagina), com cooldown de 48h apos envio via cookie/localStorage e cookie backend em FeedbackTicketController. Mantida regra feed ativo/inativo e exclusao de ADM. Widget incluido no layout admin-panel para cobrir rotas de usuario/assinante que usam esse layout (ex.: progresso/meus simulados). Atualizada mensagem para remover referencia a 5 questoes nas views welcome/play e desativado auto-open legado nesses dois pontos. Validado com php -l nos controllers e php artisan view:cache local.
+---
 ---
 ---
 ---
@@ -6210,14 +6204,21 @@ Feedback: removido gatilho por 5 questoes e aplicada solicitacao global por temp
 Feedback widget: tempo de exibicao automatica alterado de 51 minutos para 1 minuto (autoPromptDelayMs) em resources/views/partials/feedback-widget.blade.php. Mantidas regras existentes: ativo/inativo via configuracao, cooldown de 48h apos envio e exclusao de ADM. Views recompiladas com php artisan view:cache.
 ---
 ---
+---
 ### 2026-02-20T17:12:18Z
 
 Feedback widget restaurado para exibicao em janela modal central (backdrop + dialog) no partial global resources/views/partials/feedback-widget.blade.php, mantendo icone flutuante, envio AJAX, disparo automatico apos 1 minuto, cooldown de 48h e exclusao de ADM. Fechamento por X, clique fora e Esc ajustado para o modal. Views recompiladas com php artisan view:cache.
 ---
+---
 ### 2026-02-20T22:28:43Z
 
 Feedback prompt ajustado para 1 hora inicial (quando sem registro/cooldown), com cooldown de 48h apos envio OU dismiss (X, clique fora, Esc, fechar pelo icon e pagehide/sair). Criada persistencia para logado em user_feedback_prompt_states (migration 2026_02_20_180000 + model UserFeedbackPromptState), endpoint POST /feedback/prompt/dismiss e integracao no widget via AJAX/keepalive. FeedbackTicketController agora grava cooldown no banco para logado apos envio. AppServiceProvider sincroniza cookie->banco para logado e compartilha cooldown/tempo para o widget; quando feed inativo, nao executa logica de prompt. Mantida regra de exclusao de ADM. Migrate --force executado no Docker e view:cache atualizado.
+---
+### 2026-02-21T01:34:08Z
+
+Corrigidos pontos de entrada do Painel ADM para sempre redirecionar a /adm/inicio: links 'Painel ADM' em welcome.blade.php e simulados/index.blade.php alterados de adm.bancas.index para adm.inicio; fallback de AdminNotificationController@open alterado para adm.inicio. Validado com rg, php -l e php artisan view:cache no Docker.
 <!-- CONTEXT_END -->
+
 
 
 

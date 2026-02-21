@@ -875,7 +875,7 @@
                         <a class="nav-link" href="{{ ($loggedUser->user_type ?? null) === \App\Models\User::TYPE_USER_ASSINANTE ? route('area_assinante') : route('area_aluno') }}">Area do Aluno</a>
                     @endif
                     @if ($isAdm)
-                        <a class="nav-link" href="{{ route('adm.bancas.index') }}">Painel ADM</a>
+                        <a class="nav-link" href="{{ route('adm.inicio') }}">Painel ADM</a>
                     @endif
 
                     @include('partials.header-notifications')

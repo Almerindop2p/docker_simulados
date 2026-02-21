@@ -48,7 +48,7 @@ class AdminNotificationController extends Controller
         }
 
         return redirect()
-            ->route('adm.bancas.index')
+            ->route('adm.inicio')
             ->with('status', 'Notificacao visualizada.');
     }
 
@@ -58,4 +58,3 @@ class AdminNotificationController extends Controller
         abort_unless((int) $notification->user_id === (int) $request->user()->id, 404);
     }
 }
-
