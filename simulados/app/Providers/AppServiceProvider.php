@@ -47,12 +47,16 @@ class AppServiceProvider extends ServiceProvider
         $feedbackPromptCooldownSeconds = self::FEEDBACK_PROMPT_COOLDOWN_SECONDS;
         $feedbackPromptCooldownUntilTs = 0;
         $metaKeywordsContent = '';
+        $customHeadHtml = null;
 
         try {
             if (Schema::hasTable('site_configurations')) {
                 $siteConfigColumns = ['adsense_enabled', 'adsense_head_script'];
                 if (Schema::hasColumn('site_configurations', 'feedback_feed_enabled')) {
                     $siteConfigColumns[] = 'feedback_feed_enabled';
+                }
+                if (Schema::hasColumn('site_configurations', 'custom_html_code')) {
+                    $siteConfigColumns[] = 'custom_html_code';
                 }
 
                 $config = SiteConfiguration::query()
@@ -64,6 +68,10 @@ class AppServiceProvider extends ServiceProvider
 
                 if ($adsenseEnabled && filled($config->adsense_head_script)) {
                     $adsenseHeadScript = (string) $config->adsense_head_script;
+                }
+
+                if (filled($config?->custom_html_code)) {
+                    $customHeadHtml = trim((string) $config->custom_html_code);
                 }
 
                 if ($adsenseEnabled && Schema::hasTable('ad_posts')) {
@@ -93,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
             $adsenseHorizontalCode = null;
             $adsenseVerticalCode = null;
             $adsenseFormatCodes = [];
+            $customHeadHtml = null;
         }
 
         try {
@@ -170,6 +179,15 @@ class AppServiceProvider extends ServiceProvider
             $feedbackPromptCooldownUntilTs = 0;
         }
 
+        try {
+            $user = auth()->user();
+            if ($user && $user->user_type === User::TYPE_ADM) {
+                $customHeadHtml = null;
+            }
+        } catch (Throwable) {
+            $customHeadHtml = null;
+        }
+
         View::share('adsenseHeadScript', $adsenseHeadScript);
         View::share('adsenseEnabled', $adsenseEnabled);
         View::share('feedbackFeedEnabled', $feedbackFeedEnabled);
@@ -183,6 +201,7 @@ class AppServiceProvider extends ServiceProvider
         View::share('feedbackPromptCooldownSeconds', $feedbackPromptCooldownSeconds);
         View::share('feedbackPromptCooldownUntilTs', $feedbackPromptCooldownUntilTs);
         View::share('metaKeywordsContent', $metaKeywordsContent);
+        View::share('customHeadHtml', $customHeadHtml);
 
         View::composer(['welcome', 'area_aluno', 'perfil', 'layouts.admin-panel'], function ($view) {
             $user = auth()->user();
