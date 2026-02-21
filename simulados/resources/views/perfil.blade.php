@@ -261,6 +261,28 @@
             gap: 10px;
         }
 
+        .visit-site-btn {
+            min-height: 44px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #d3e0f2;
+            background: #fff;
+            color: #1f3f67;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+        }
+
+        .visit-site-btn:hover {
+            background: #f4f8ff;
+            border-color: #bfd2ee;
+            color: #1f436f;
+        }
+
         .avatar-btn {
             min-height: 44px;
             padding: 6px 8px 6px 6px;
@@ -769,6 +791,7 @@
                 </div>
 
                 <div class="topbar-right">
+                    <a class="visit-site-btn" href="{{ route('home') }}">Visitar site</a>
                     @include('partials.header-notifications')
 
                     <div class="avatar-menu-wrap">
