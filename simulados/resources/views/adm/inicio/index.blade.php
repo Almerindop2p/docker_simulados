@@ -399,6 +399,32 @@
         </article>
 
         <article class="panel-card">
+            <h3 class="panel-title">Top estados por visualizacao</h3>
+            <p class="panel-subtitle">Estados com maior volume de visualizacoes registradas.</p>
+            <div class="pie-wrap">
+                <div class="pie-chart" id="topStatesPieChart">
+                    <div class="pie-center" id="topStatesPieCenter">0</div>
+                </div>
+                <div class="legend" id="topStatesLegend">
+                    <div class="legend-item">Carregando...</div>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel-card">
+            <h3 class="panel-title">Top paises por visualizacao</h3>
+            <p class="panel-subtitle">Paises com maior volume de visualizacoes registradas.</p>
+            <div class="pie-wrap">
+                <div class="pie-chart" id="topCountriesPieChart">
+                    <div class="pie-center" id="topCountriesPieCenter">0</div>
+                </div>
+                <div class="legend" id="topCountriesLegend">
+                    <div class="legend-item">Carregando...</div>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel-card">
             <h3 class="panel-title">Mapa 2D de paises de acesso</h3>
             <p class="panel-subtitle">Visao geografica simplificada por coordenadas e agrupamento regional.</p>
 
@@ -478,6 +504,12 @@
             var browserPieChart = document.getElementById('browserPieChart');
             var browserPieCenter = document.getElementById('browserPieCenter');
             var browserLegend = document.getElementById('browserLegend');
+            var topStatesPieChart = document.getElementById('topStatesPieChart');
+            var topStatesPieCenter = document.getElementById('topStatesPieCenter');
+            var topStatesLegend = document.getElementById('topStatesLegend');
+            var topCountriesPieChart = document.getElementById('topCountriesPieChart');
+            var topCountriesPieCenter = document.getElementById('topCountriesPieCenter');
+            var topCountriesLegend = document.getElementById('topCountriesLegend');
             var countryMapPoints = document.getElementById('countryMapPoints');
             var countriesList = document.getElementById('countriesList');
             var regionsList = document.getElementById('regionsList');
@@ -618,15 +650,15 @@
                     });
             }
 
-            function renderBrowserPie(items) {
-                if (!browserPieChart || !browserPieCenter || !browserLegend) {
+            function renderDistributionPie(chart, center, legend, items, emptyMessage, centerTextResolver) {
+                if (!chart || !center || !legend) {
                     return;
                 }
 
                 if (!Array.isArray(items) || items.length === 0) {
-                    browserPieChart.style.background = 'conic-gradient(#d9e3f4 0 100%)';
-                    browserPieCenter.textContent = '0%';
-                    browserLegend.innerHTML = '<div class="legend-item">Sem dados de navegador.</div>';
+                    chart.style.background = 'conic-gradient(#d9e3f4 0 100%)';
+                    center.textContent = '0';
+                    legend.innerHTML = '<div class="legend-item">' + escapeHtml(emptyMessage || 'Sem dados.') + '</div>';
                     return;
                 }
 
@@ -661,9 +693,50 @@
                     slices = ['#d9e3f4 0 100%'];
                 }
 
-                browserPieChart.style.background = 'conic-gradient(' + slices.join(',') + ')';
-                browserPieCenter.textContent = total > 0 ? '100%' : '0%';
-                browserLegend.innerHTML = legendHtml.join('');
+                chart.style.background = 'conic-gradient(' + slices.join(',') + ')';
+                center.textContent = typeof centerTextResolver === 'function'
+                    ? centerTextResolver(total)
+                    : (total > 0 ? '100%' : '0%');
+                legend.innerHTML = legendHtml.join('');
+            }
+
+            function renderBrowserPie(items) {
+                renderDistributionPie(
+                    browserPieChart,
+                    browserPieCenter,
+                    browserLegend,
+                    items,
+                    'Sem dados de navegador.',
+                    function (total) {
+                        return total > 0 ? '100%' : '0%';
+                    }
+                );
+            }
+
+            function renderTopStatesPie(items) {
+                renderDistributionPie(
+                    topStatesPieChart,
+                    topStatesPieCenter,
+                    topStatesLegend,
+                    items,
+                    'Sem dados de estado.',
+                    function (total) {
+                        return formatNumber(total);
+                    }
+                );
+            }
+
+            function renderTopCountriesPie(items) {
+                renderDistributionPie(
+                    topCountriesPieChart,
+                    topCountriesPieCenter,
+                    topCountriesLegend,
+                    items,
+                    'Sem dados de pais.',
+                    function (total) {
+                        return formatNumber(total);
+                    }
+                );
             }
 
             function projectPoint(lat, lon, width, height) {
@@ -786,6 +859,8 @@
                 fetchJson(detailsUrl)
                     .then(function (payload) {
                         renderBrowserPie(payload.browsers || []);
+                        renderTopStatesPie(payload.top_states_pie || []);
+                        renderTopCountriesPie(payload.top_countries_pie || []);
                         renderMapPoints(payload.map_points || []);
                         renderCountriesList(payload.countries || []);
                         renderRegionsList(payload.regions || []);

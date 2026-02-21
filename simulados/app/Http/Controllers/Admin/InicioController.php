@@ -122,11 +122,15 @@ class InicioController extends Controller
     private function buildDetails(): array
     {
         $browserDistribution = $this->buildBrowserDistribution();
+        $topStatesPie = $this->buildTopStatesViewsDistribution();
+        $topCountriesPie = $this->buildTopCountriesViewsDistribution();
         $geoDistribution = $this->buildGeoDistribution();
         $recentAccesses = $this->buildRecentAccesses();
 
         return [
             'browsers' => $browserDistribution,
+            'top_states_pie' => $topStatesPie,
+            'top_countries_pie' => $topCountriesPie,
             'countries' => $geoDistribution['countries'],
             'regions' => $geoDistribution['regions'],
             'map_points' => $geoDistribution['map_points'],
@@ -198,6 +202,96 @@ class InicioController extends Controller
                 'count' => $count,
                 'percent' => $totalAll > 0 ? round(($count / $totalAll) * 100, 1) : 0,
                 'color' => $colors[$label] ?? '#8aa1bf',
+            ];
+        }
+
+        return $result;
+    }
+
+    private function buildTopStatesViewsDistribution(int $limit = 6): array
+    {
+        $rows = PageVisitCounter::query()
+            ->selectRaw('state as label, SUM(visits_count) as total_visits')
+            ->whereNotNull('state')
+            ->where('state', '<>', '')
+            ->groupBy('state')
+            ->orderByDesc('total_visits')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            $rows = RouteMetric::query()
+                ->selectRaw('state as label, COUNT(*) as total_visits')
+                ->whereNotNull('state')
+                ->where('state', '<>', '')
+                ->groupBy('state')
+                ->orderByDesc('total_visits')
+                ->get();
+        }
+
+        return $this->buildTopPieDistribution($rows, $limit);
+    }
+
+    private function buildTopCountriesViewsDistribution(int $limit = 6): array
+    {
+        $rows = PageVisitCounter::query()
+            ->selectRaw('country as label, SUM(visits_count) as total_visits')
+            ->whereNotNull('country')
+            ->where('country', '<>', '')
+            ->groupBy('country')
+            ->orderByDesc('total_visits')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            $rows = RouteMetric::query()
+                ->selectRaw('country as label, COUNT(*) as total_visits')
+                ->whereNotNull('country')
+                ->where('country', '<>', '')
+                ->groupBy('country')
+                ->orderByDesc('total_visits')
+                ->get();
+        }
+
+        return $this->buildTopPieDistribution($rows, $limit);
+    }
+
+    private function buildTopPieDistribution(Collection $rows, int $limit): array
+    {
+        if ($rows->isEmpty()) {
+            return [];
+        }
+
+        $totalAll = (int) $rows->sum('total_visits');
+        if ($totalAll <= 0) {
+            return [];
+        }
+
+        $palette = ['#1f5fe0', '#0c85d0', '#17a673', '#f0a202', '#e15f2d', '#4e5d6c'];
+        $result = [];
+        $topRows = $rows->take($limit)->values();
+        $othersCount = (int) $rows->slice($limit)->sum('total_visits');
+
+        foreach ($topRows as $index => $row) {
+            $count = (int) ($row->total_visits ?? 0);
+            $label = trim((string) ($row->label ?? ''));
+
+            if ($count <= 0 || $label === '') {
+                continue;
+            }
+
+            $result[] = [
+                'label' => $label,
+                'count' => $count,
+                'percent' => round(($count / $totalAll) * 100, 1),
+                'color' => $palette[$index] ?? '#8aa1bf',
+            ];
+        }
+
+        if ($othersCount > 0) {
+            $result[] = [
+                'label' => 'Demais',
+                'count' => $othersCount,
+                'percent' => round(($othersCount / $totalAll) * 100, 1),
+                'color' => '#8aa1bf',
             ];
         }
 
