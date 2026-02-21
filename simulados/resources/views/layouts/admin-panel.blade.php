@@ -330,6 +330,7 @@
         $isBancaRoute = request()->routeIs('adm.bancas.*');
         $isSimuladoRoute = request()->routeIs('adm.simulados.*');
         $isAnuncioRoute = request()->routeIs('adm.anuncios.*');
+        $isMetaKeywordRoute = request()->routeIs('adm.meta-keywords.*');
         $isInstituicaoRoute = request()->routeIs('adm.instituicoes.*');
         $isMateriaRoute = request()->routeIs('adm.materias.*');
         $isCargoRoute = request()->routeIs('adm.cargos.*');
@@ -437,6 +438,23 @@
                             <ul id="anuncioSubmenu" class="nav-submenu {{ $isAnuncioRoute ? 'is-open' : '' }}">
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.anuncios.create') ? 'is-active' : '' }}" href="{{ route('adm.anuncios.create') }}">Adicionar Anuncio</a></li>
                                 <li><a class="nav-sublink {{ request()->routeIs('adm.anuncios.index') ? 'is-active' : '' }}" href="{{ route('adm.anuncios.index') }}">Lista de Anuncios</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <button
+                                id="metaKeywordToggle"
+                                class="nav-link nav-toggle {{ $isMetaKeywordRoute ? 'is-active' : '' }}"
+                                type="button"
+                                aria-expanded="{{ $isMetaKeywordRoute ? 'true' : 'false' }}"
+                                aria-controls="metaKeywordSubmenu"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 17 20H7a2.5 2.5 0 0 1-2.5-2.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h6M8 16h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                <span>Meta Keywords</span>
+                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <ul id="metaKeywordSubmenu" class="nav-submenu {{ $isMetaKeywordRoute ? 'is-open' : '' }}">
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.meta-keywords.create') ? 'is-active' : '' }}" href="{{ route('adm.meta-keywords.create') }}">Adicionar Palavra-chave</a></li>
+                                <li><a class="nav-sublink {{ request()->routeIs('adm.meta-keywords.index') ? 'is-active' : '' }}" href="{{ route('adm.meta-keywords.index') }}">Lista de Palavras-chave</a></li>
                             </ul>
                         </li>
                         <li>
@@ -583,6 +601,7 @@
                 {button: document.getElementById('bancaToggle'), submenu: document.getElementById('bancaSubmenu')},
                 {button: document.getElementById('simuladoToggle'), submenu: document.getElementById('simuladoSubmenu')},
                 {button: document.getElementById('anuncioToggle'), submenu: document.getElementById('anuncioSubmenu')},
+                {button: document.getElementById('metaKeywordToggle'), submenu: document.getElementById('metaKeywordSubmenu')},
                 {button: document.getElementById('instituicaoToggle'), submenu: document.getElementById('instituicaoSubmenu')},
                 {button: document.getElementById('materiaToggle'), submenu: document.getElementById('materiaSubmenu')},
                 {button: document.getElementById('cargoToggle'), submenu: document.getElementById('cargoSubmenu')},

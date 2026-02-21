@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AdPost;
+use App\Models\MetaKeyword;
 use App\Models\User;
 use App\Models\UserMetricConsent;
 use App\Models\SiteConfiguration;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         $feedbackPromptInitialDelayMs = self::FEEDBACK_PROMPT_INITIAL_DELAY_MS;
         $feedbackPromptCooldownSeconds = self::FEEDBACK_PROMPT_COOLDOWN_SECONDS;
         $feedbackPromptCooldownUntilTs = 0;
+        $metaKeywordsContent = '';
 
         try {
             if (Schema::hasTable('site_configurations')) {
@@ -91,6 +93,27 @@ class AppServiceProvider extends ServiceProvider
             $adsenseHorizontalCode = null;
             $adsenseVerticalCode = null;
             $adsenseFormatCodes = [];
+        }
+
+        try {
+            if (Schema::hasTable('meta_keywords')) {
+                $metaKeywordsContent = MetaKeyword::query()
+                    ->orderBy('keyword')
+                    ->pluck('keyword')
+                    ->map(function ($keyword) {
+                        return trim((string) $keyword);
+                    })
+                    ->filter(function (string $keyword) {
+                        return $keyword !== '';
+                    })
+                    ->unique(function (string $keyword) {
+                        return mb_strtolower($keyword);
+                    })
+                    ->values()
+                    ->implode(', ');
+            }
+        } catch (Throwable) {
+            $metaKeywordsContent = '';
         }
 
         try {
@@ -159,6 +182,7 @@ class AppServiceProvider extends ServiceProvider
         View::share('feedbackPromptInitialDelayMs', $feedbackPromptInitialDelayMs);
         View::share('feedbackPromptCooldownSeconds', $feedbackPromptCooldownSeconds);
         View::share('feedbackPromptCooldownUntilTs', $feedbackPromptCooldownUntilTs);
+        View::share('metaKeywordsContent', $metaKeywordsContent);
 
         View::composer(['welcome', 'area_aluno', 'perfil', 'layouts.admin-panel'], function ($view) {
             $user = auth()->user();

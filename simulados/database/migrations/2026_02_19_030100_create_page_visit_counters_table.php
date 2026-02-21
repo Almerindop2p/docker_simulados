@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('anonymous_id', 64)->nullable();
             $table->string('visitor_key', 120);
-            $table->string('route_name', 255)->nullable();
+            $table->string('route_name', 255)->nullablentãe();
             $table->text('page_path');
             $table->char('page_hash', 40);
             $table->string('country', 120)->nullable();

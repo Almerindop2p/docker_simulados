@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ConfiguracaoController;
 use App\Http\Controllers\Admin\InicioController;
 use App\Http\Controllers\Admin\InstituicaoController;
 use App\Http\Controllers\Admin\MateriaController;
+use App\Http\Controllers\Admin\MetaKeywordController;
 use App\Http\Controllers\Admin\ProgressController as AdminProgressController;
 use App\Http\Controllers\Admin\QuestaoController;
 use App\Http\Controllers\Admin\SimuladoController;
@@ -109,6 +110,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/anuncios/{anuncio}/editar', [AdPostController::class, 'edit'])->name('anuncios.edit');
         Route::put('/anuncios/{anuncio}', [AdPostController::class, 'update'])->name('anuncios.update');
         Route::delete('/anuncios/{anuncio}', [AdPostController::class, 'destroy'])->name('anuncios.destroy');
+
+        Route::get('/meta-keywords', [MetaKeywordController::class, 'index'])->name('meta-keywords.index');
+        Route::get('/meta-keywords/adicionar', [MetaKeywordController::class, 'create'])->name('meta-keywords.create');
+        Route::get('/meta-keywords/verificar-campo', [MetaKeywordController::class, 'checkField'])->name('meta-keywords.check-field');
+        Route::post('/meta-keywords', [MetaKeywordController::class, 'store'])->name('meta-keywords.store');
+        Route::get('/meta-keywords/{metaKeyword}/editar', [MetaKeywordController::class, 'edit'])->name('meta-keywords.edit');
+        Route::put('/meta-keywords/{metaKeyword}', [MetaKeywordController::class, 'update'])->name('meta-keywords.update');
+        Route::delete('/meta-keywords/{metaKeyword}', [MetaKeywordController::class, 'destroy'])->name('meta-keywords.destroy');
 
         Route::get('/bancas', [BancaController::class, 'index'])->name('bancas.index');
         Route::get('/bancas/adicionar', [BancaController::class, 'create'])->name('bancas.create');
